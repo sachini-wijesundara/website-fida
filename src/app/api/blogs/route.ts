@@ -6,7 +6,6 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const isAdmin = searchParams.get('admin') === 'true';
     const category = searchParams.get('category');
-    console.log(`GET Blogs API: isAdmin=${isAdmin}, category=${category}`);
 
     const pool = await getDbConnection();
 
@@ -14,7 +13,6 @@ export async function GET(request: Request) {
     if (isAdmin) {
       result = await pool.request().execute('sp_GetAllBlogs');
     } else if (category && category !== 'All') {
-      console.log("Calling sp_GetBlogsByCategory with:", category);
       result = await pool.request()
         .input('CategoryName', sql.NVarChar(50), category)
         .execute('sp_GetBlogsByCategory');
@@ -31,7 +29,6 @@ export async function GET(request: Request) {
       `);
     }
 
-    console.log(`DB Query executed. Rows returned: ${result.recordset.length}`);
 
     // Map database fields to frontend fields for consistency
     const blogs = result.recordset.map((b: any) => ({

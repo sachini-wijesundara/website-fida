@@ -27,7 +27,6 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    console.log("POST /api/projects Data:", data);
     const { title, clientName, categoryId, description, imageUrl, status } = data;
     
     if (!title || !categoryId) {
@@ -36,7 +35,6 @@ export async function POST(request: Request) {
     }
 
     const pool = await getDbConnection();
-    console.log("Executing sp_CreateProject...");
     
     const result = await pool.request()
       .input('Title', sql.NVarChar(255), title)
@@ -47,7 +45,6 @@ export async function POST(request: Request) {
       .input('Status', sql.NVarChar(20), status || 'Published')
       .execute('sp_CreateProject');
 
-    console.log("sp_CreateProject Result:", result.recordset);
 
     if (!result.recordset || result.recordset.length === 0) {
        console.error("No recordset returned from sp_CreateProject");

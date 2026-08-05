@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
-import CustomCursor from "@/components/cursor";
-import ParticleCanvas from "@/components/particle-canvas";
+
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -41,9 +40,6 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
 };
-
-import PageTransition from "@/components/page-transition";
-import ChatBot from "@/components/chat-bot";
 
 export default function RootLayout({
   children,
@@ -84,13 +80,7 @@ export default function RootLayout({
             })
           }}
         />
-        {/* Global — applies to every page */}
-        <CustomCursor />
-        <ParticleCanvas />
-        <PageTransition>
-          {children}
-        </PageTransition>
-        <ChatBot />
+        {children}
       </body>
     </html>
   );

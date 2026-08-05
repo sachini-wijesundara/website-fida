@@ -14,7 +14,10 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    const { id, tag, tagColor, title, subtitle, description, highlights, ctaText, imageUrl, websiteUrl, orderIndex, status } = data;
+    const {
+      id, tag, tagColor, title, subtitle, description, highlights, ctaText,
+      imageUrl, dashboardImageUrl, mobileImageUrl, websiteUrl, orderIndex, status,
+    } = data;
     const pool = await getDbConnection();
     
     const result = await pool.request()
@@ -27,6 +30,8 @@ export async function POST(request: Request) {
       .input('Highlights', sql.NVarChar(sql.MAX), typeof highlights === 'string' ? highlights : JSON.stringify(highlights))
       .input('CtaText', sql.NVarChar(100), ctaText)
       .input('ImageUrl', sql.NVarChar(sql.MAX), imageUrl || null)
+      .input('DashboardImageUrl', sql.NVarChar(sql.MAX), dashboardImageUrl || null)
+      .input('MobileImageUrl', sql.NVarChar(sql.MAX), mobileImageUrl || null)
       .input('WebsiteUrl', sql.NVarChar(sql.MAX), websiteUrl || null)
       .input('OrderIndex', sql.Int, orderIndex || 0)
       .input('Status', sql.NVarChar(20), status || 'Active')

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDbConnection, sql } from "@/lib/db";
-import bcrypt from "bcryptjs";
+import { hashPassword } from "@/auth/password";
 
 export async function POST(request: Request) {
   try {
@@ -12,8 +12,8 @@ export async function POST(request: Request) {
 
     const pool = await getDbConnection();
     
-    // Hash the password for safety
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Hash the password for safety using centralized utility
+    const hashedPassword = await hashPassword(password);
 
     // Call the stored procedure provided by the user
     const result = await pool.request()

@@ -1,0 +1,82 @@
+[
+  {
+    "id": 2,
+    "title": "13+ Years of Experience",
+    "description": "Over 13 years of industry-leading IT and technological innovation, serving clients from SMEs to multinationals across Sri Lanka and globally.",
+    "icon_name": "Sparkles",
+    "order_index": 1,
+    "status": "Active",
+    "created_at": "2026-05-09T11:43:43.633Z",
+    "updated_at": "2026-05-09T11:43:43.633Z"
+  },
+  {
+    "id": 3,
+    "title": "300%+ Year-on-Year Growth",
+    "description": "FIDA Global has consistently delivered over 300% year-on-year growth through comprehensive solution offerings and unbeatable customer service.",
+    "icon_name": "Zap",
+    "order_index": 2,
+    "status": "Active",
+    "created_at": "2026-05-09T11:44:30.597Z",
+    "updated_at": "2026-05-09T11:44:30.597Z"
+  },
+  {
+    "id": 4,
+    "title": "24/7 Technical Support",
+    "description": "Round-the-clock technical support ensuring our clients' systems run seamlessly with minimum downtime and maximum productivity.",
+    "icon_name": "Zap",
+    "order_index": 3,
+    "status": "Active",
+    "created_at": "2026-05-09T11:45:09.813Z",
+    "updated_at": "2026-05-09T11:45:09.813Z"
+  },
+  {
+    "id": 5,
+    "title": "99.9% System Uptime",
+    "description": "Enterprise-grade infrastructure and cloud solutions delivering 99.9% uptime guarantee for mission-critical business operations.",
+    "icon_name": "ShieldCheck",
+    "order_index": 4,
+    "status": "Active",
+    "created_at": "2026-05-09T11:45:50.800Z",
+    "updated_at": "2026-05-09T11:45:50.800Z"
+  },
+  {
+    "id": 6,
+    "title": "SMEs to Multinationals",
+    "description": "Serving a diverse client portfolio ranging from small and medium enterprises to large multinational corporations across multiple industries.",
+    "icon_name": "Sparkles",
+    "order_index": 5,
+    "status": "Active",
+    "created_at": "2026-05-09T11:46:35.100Z",
+    "updated_at": "2026-05-09T11:46:35.100Z"
+  },
+  {
+    "id": 7,
+    "title": "Manufacturing, Logistics, Banking, Healthcare, Hospitality",
+    "description": "Deep industry expertise across key sectors - serving manufacturing plants, logistics companies, banks, hospitals, and hospitality businesses.",
+    "icon_name": "Cpu",
+    "order_index": 6,
+    "status": "Active",
+    "created_at": "2026-05-09T11:47:20.390Z",
+    "updated_at": "2026-05-09T11:48:02.447Z"
+  },
+  {
+    "id": 8,
+    "title": "5+ Industries Served",
+    "description": "Deep industry expertise across Manufacturing, Logistics, Banking & Finance, Healthcare, and Hospitality - delivering tailored solutions for each sector's unique requirements.",
+    "icon_name": "Zap",
+    "order_index": 6,
+    "status": "Active",
+    "created_at": "2026-05-09T12:17:00.120Z",
+    "updated_at": "2026-05-09T12:30:58.240Z"
+  },
+  {
+    "id": 9,
+    "title": "SMEs to Multinationals",
+    "description": "Serving a diverse client portfolio ranging from small and medium enterprises to large multinational corporations across multiple industries in Sri Lanka and globally.",
+    "icon_name": "Zap",
+    "order_index": 5,
+    "status": "Active",
+    "created_at": "2026-05-09T12:22:12.943Z",
+    "updated_at": "2026-05-09T12:22:12.943Z"
+  }
+]

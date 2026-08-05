@@ -7,14 +7,12 @@ export async function GET(
 ) {
   try {
     const id = params.id;
-    console.log(`GET Blog Request: ID=${id}`);
     const pool = await getDbConnection();
     
     const result = await pool.request()
       .input('BlogId', sql.Int, parseInt(id))
       .execute('sp_GetBlogById');
 
-    console.log(`GET Blog Result: ${result.recordset.length} rows found`);
 
     if (result.recordset.length > 0) {
       const b = result.recordset[0];
@@ -43,7 +41,6 @@ export async function PUT(
   try {
     const id = params.id;
     const data = await request.json();
-    console.log(`PUT Blog Request: ID=${id}`, data);
     const { categoryId, title, excerpt, content, imageUrl, status } = data;
 
     const pool = await getDbConnection();
@@ -59,7 +56,6 @@ export async function PUT(
       .input('Status', sql.NVarChar(20), status || null)
       .execute('sp_UpdateBlogPost');
 
-    console.log("PUT Blog Update Successful");
 
     return NextResponse.json({ 
       message: "Blog updated successfully", 
