@@ -37,7 +37,7 @@ const config: Config = {
         "grey-dark": "var(--grey-dark)",
       },
       fontFamily: {
-        sans: ["var(--font-outfit)", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["var(--font-pt-sans)", "PT Sans", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       borderRadius: {
         DEFAULT: "0.75rem",

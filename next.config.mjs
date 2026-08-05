@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  // Keep development assets isolated from `next build`. Running a production
+  // build while the dev server is open must not replace its CSS or manifests.
+  distDir: process.env.NODE_ENV === 'development' ? '.next-dev' : '.next',
   async redirects() {
     return [
       { source: '/index.html', destination: '/', permanent: true },
@@ -22,4 +25,3 @@ const nextConfig = {
 };
 
 export default nextConfig;
-

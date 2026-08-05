@@ -275,7 +275,7 @@ export default function EditBlogPost() {
         }
         .quill-wrapper .ql-container {
           border: none !important;
-          font-family: var(--font-outfit), sans-serif;
+          font-family: var(--font-pt-sans), "PT Sans", sans-serif;
           font-size: 1rem;
           color: var(--text-primary);
           height: 400px;

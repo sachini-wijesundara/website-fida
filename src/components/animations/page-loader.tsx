@@ -145,7 +145,7 @@ export default function PageLoader({ isLoading }: PageLoaderProps) {
             transition={{ duration: 0.55, ease: SMOOTH }}
           >
             <div className="fida-loader__ring">
-              <img src="/Fidalong.png" alt="FIDA Global" />
+              <img src="/Fidalong.png" alt="FIDA Global" width="150" height="60" />
             </div>
 
             <p className="fida-loader__label">Preparing your optimum experience</p>

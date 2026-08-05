@@ -51,6 +51,8 @@ export default function Navbar() {
             <img
               src="/Fidalong.png"
               alt="FIDA Global"
+              width="180"
+              height="72"
               className="w-auto object-contain"
             />
           </Link>
