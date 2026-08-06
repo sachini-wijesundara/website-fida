@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { PT_Sans } from "next/font/google";
 import "./globals.css";
 
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const ptSans = PT_Sans({
+  variable: "--font-pt-sans",
   subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -47,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${outfit.variable} dark h-full antialiased`}>
+    <html lang="en" className={`${ptSans.variable} dark h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans grain">
         <script
           type="application/ld+json"

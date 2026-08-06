@@ -2,7 +2,6 @@
 import React from "react";
 
 const css = `
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500&display=swap');
 .right{position:relative;overflow:hidden;width:100%;height:100%;min-height:500px;}
 .ring{position:absolute;border-radius:50%;border:1px solid;pointer-events:none;top:50%;left:50%;transform:translate(-50%,-50%)}
 .r1{width:500px;height:500px;border-color:rgba(59,130,246,.07);animation:cw 28s linear infinite}

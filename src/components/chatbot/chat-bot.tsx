@@ -222,7 +222,7 @@ export default function ChatBot() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 40 }}
             transition={{ type: "spring", damping: 20, stiffness: 280 }}
-            className="fixed bottom-32 right-5 z-[998] w-[400px] max-w-[calc(100vw-1.5rem)] flex flex-col rounded-[2.5rem] overflow-hidden"
+            className="fida-chatbot fixed bottom-32 right-5 z-[998] w-[400px] max-w-[calc(100vw-1.5rem)] flex flex-col rounded-[2.5rem] overflow-hidden"
             style={{
               height: "560px",
               background: "#ffffff",
@@ -377,7 +377,7 @@ export default function ChatBot() {
       </AnimatePresence>
 
       {/* ── Floating Robot Launcher ─────────────────────── */}
-      <div className="fixed bottom-6 right-6 z-[999] flex items-center justify-center">
+      <div className="fida-chatbot fixed bottom-6 right-6 z-[999] flex items-center justify-center">
         {/* Idle Pop-Up Cloud */}
         <AnimatePresence>
           {!open && showIdleCloud && (
