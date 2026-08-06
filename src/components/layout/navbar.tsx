@@ -4,19 +4,27 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Menu, ArrowRight } from "lucide-react";
+import { X, Menu, ArrowRight, Mail, Phone } from "lucide-react";
 
 const links = [
   { name: "Home", href: "/" },
-  { name: "About Us", href: "/about" },
+  { name: "About", href: "/about" },
   { name: "Company Profile", href: "https://www.fidaglobal.com/FIDAGlobalProfile2024.pdf", isExternal: true },
-  { name: "Services", href: "/services" },
-  { name: "Projects", href: "/projects" },
   { name: "Solutions", href: "/solutions" },
+  { name: "Projects", href: "/projects" },
   { name: "Blog", href: "/blog" },
   { name: "Careers", href: "/careers" },
   { name: "Contact", href: "/contact" },
 ];
+
+const primaryLinks = [
+  { name: "About", href: "/about" },
+  { name: "Projects", href: "/projects" },
+  { name: "Solutions", href: "/solutions" },
+  { name: "Contact", href: "/contact" },
+];
+
+const SMOOTH = [0.16, 1, 0.3, 1] as const;
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -39,13 +47,23 @@ export default function Navbar() {
   }, [menuOpen]);
 
   const showGlassBar = !isHome || isScrolled;
-  const primaryLinks = links.filter((link) =>
-    ["About Us", "Projects", "Solutions", "Contact"].includes(link.name)
-  );
 
   return (
     <>
-      <nav className={`fixed home-navbar ${showGlassBar ? "home-navbar--scrolled" : ""} ${menuOpen ? "home-navbar--menu-open" : ""} top-0 left-0 right-0 z-40`}>
+      {/* Backdrop overlay */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setMenuOpen(false)}
+            className="fixed inset-0 z-30 bg-[#052c65]/10 backdrop-blur-[5px]"
+          />
+        )}
+      </AnimatePresence>
+
+      <nav className={`fixed home-navbar ${showGlassBar ? "home-navbar--scrolled" : ""} top-0 left-0 right-0 z-40`}>
         <div className="home-navbar__inner">
           <Link href="/" className="flex items-center gap-3 group">
             <img
@@ -71,92 +89,94 @@ export default function Navbar() {
 
             {/* Minimal trigger (On top bar) */}
             <button
-              onClick={() => setMenuOpen(true)}
-              className="flex items-center gap-4 group"
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="flex items-center gap-3.5 group pointer-events-auto"
             >
+              {menuOpen && (
+                <span className="text-[10px] font-black uppercase tracking-[0.22em] text-[#0047e1]">
+                  MENU
+                </span>
+              )}
               <div className="home-menu-button">
-                <Menu className="w-6 h-6" />
+                {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </div>
             </button>
           </div>
-        </div>
-      </nav>
 
-      {/* ── Side Menu Drawer (Right Side) ────────────── */}
-      <AnimatePresence>
-        {menuOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMenuOpen(false)}
-              className="fixed inset-0 z-50 bg-[#052c65]/25 backdrop-blur-md"
-            />
+          {/* ── Dropdown Panel (Positioned absolutely relative to navbar inner) ── */}
+          <AnimatePresence>
+            {menuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                transition={{ duration: 0.25, ease: SMOOTH }}
+                className="absolute right-0 top-[calc(100%+12px)] z-50 w-[340px] max-w-[calc(100vw-2.5rem)] bg-white border border-gray-100 rounded-[20px] shadow-[0_20px_50px_rgba(5,44,101,0.12)] overflow-hidden flex flex-col pointer-events-auto"
+              >
+                {/* Links List */}
+                <div className="bg-white px-6 py-4 flex flex-col">
+                  {links.map((link, i) => {
+                    const isActive = pathname === link.href;
+                    return (
+                      <Link
+                        key={link.name}
+                        href={link.href}
+                        target={link.isExternal ? "_blank" : undefined}
+                        rel={link.isExternal ? "noopener noreferrer" : undefined}
+                        onClick={() => setMenuOpen(false)}
+                        className={`group flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0 transition-all duration-200 rounded-xl px-3 -mx-3 ${
+                          isActive
+                            ? "bg-blue-50/70 text-blue-600"
+                            : "text-[#052c65]/90 hover:bg-blue-50/50 hover:text-blue-600"
+                        }`}
+                      >
+                        <span className="text-[14px] font-bold tracking-tight">
+                          {link.name}
+                        </span>
+                        <ArrowRight
+                          className={`w-4 h-4 text-blue-600 transition-all duration-200 ${
+                            isActive
+                              ? "opacity-100 translate-x-0"
+                              : "opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0"
+                          }`}
+                        />
+                      </Link>
+                    );
+                  })}
+                </div>
 
-            {/* Content Sidebar */}
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 bottom-0 z-[60] w-full max-w-[420px] bg-white/95 border-l border-[#052c65]/10 flex flex-col shadow-[-20px_0_60px_rgba(5,44,101,0.18)] backdrop-blur-2xl"
-            >
-              <div className="p-8 flex items-center justify-between border-b border-[#052c65]/10">
-                <span className="text-xs font-bold uppercase tracking-widest text-[#159bb4]">Navigation</span>
-                <button
-                  onClick={() => setMenuOpen(false)}
-                  className="w-10 h-10 rounded-full border border-[#052c65]/10 flex items-center justify-center text-[#052c65] hover:border-red-500/40 hover:text-red-500 transition-smooth"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Scrollable links area */}
-              <div className="flex-1 overflow-y-auto custom-scrollbar px-8 py-7 space-y-0">
-                {links.map((link, i) => (
-                  <motion.div
-                    key={link.name}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 + 0.2 }}
-                  >
-                    <Link
-                      href={link.href}
-                      target={(link as any).isExternal ? "_blank" : undefined}
-                      rel={(link as any).isExternal ? "noopener noreferrer" : undefined}
-                      onClick={() => setMenuOpen(false)}
-                      className="group flex items-center justify-between py-3.5 border-b border-[#052c65]/8 transition-smooth"
+                {/* Bottom Contact Panel */}
+                <div className="bg-[#f8fbfd] px-6 py-6 border-t border-gray-100 flex flex-col gap-5">
+                  <div className="space-y-3">
+                    <a
+                      href="mailto:hello@fidaglobal.com"
+                      className="flex items-center gap-3 text-xs font-semibold text-[#536b8a] hover:text-blue-600 transition-colors"
                     >
-                      <span className="text-xl md:text-2xl font-semibold tracking-[-0.025em] text-[#052c65] group-hover:text-[#159bb4] group-hover:translate-x-1 transition-all">
-                        {link.name}
-                      </span>
-                      <ArrowRight className="w-5 h-5 text-[#159bb4] opacity-0 -translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
+                      <Mail className="w-4 h-4 text-[#8fa2b8] shrink-0" />
+                      <span>hello@fidaglobal.com</span>
+                    </a>
+                    <a
+                      href="tel:+94115765757"
+                      className="flex items-center gap-3 text-xs font-semibold text-[#536b8a] hover:text-blue-600 transition-colors"
+                    >
+                      <Phone className="w-4 h-4 text-[#8fa2b8] shrink-0" />
+                      <span>+94 11 576 57 57</span>
+                    </a>
+                  </div>
 
-              <div className="p-8 border-t border-[#052c65]/10 bg-[#eef9fb]/70">
-                <div className="space-y-6">
-                  <p className="text-sm text-[#64748b] leading-relaxed">
-                    Have a project in mind? Let&apos;s build something intelligent together.
-                  </p>
                   <Link
                     href="/contact"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center justify-center gap-3 w-full bg-[#052c65] py-5 rounded-2xl text-white font-bold text-lg hover:bg-[#0b427f] hover:scale-[1.02] transition-smooth group"
+                    className="w-full bg-[#0047e1] text-white py-3.5 rounded-full text-xs font-black uppercase tracking-widest text-center transition-all duration-300 hover:bg-[#0037b0] hover:scale-[1.02] shadow-[0_12px_24px_-6px_rgba(0,71,225,0.3)]"
                   >
-                    Get Started
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    Book a Consultation
                   </Link>
                 </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </nav>
     </>
   );
 }
