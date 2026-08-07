@@ -25,7 +25,7 @@ export default function Footer() {
   const [subscribed, setSubscribed] = useState(false);
 
   return (
-    <footer className="relative bg-[#f4f9fd] border-t border-[#052c65]/8 text-[#052c65] -mt-24 md:-mt-32">
+    <footer className="relative bg-[#f4f9fd] border-t border-[#052c65]/8 text-[#052c65] site-footer">
       {/* ── CTA banner halfly overlapped over the footer part ── */}
       <div className="container mx-auto px-6 max-w-4xl relative z-20 -translate-y-1/2 mb-[-120px]">
         <motion.div

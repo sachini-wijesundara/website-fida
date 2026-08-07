@@ -1,4 +1,3 @@
-import PageHero from "@/components/shared/page-hero";
 import ProjectsClient from "./projects-client";
 
 export const metadata = {
@@ -8,14 +7,15 @@ export const metadata = {
 
 export default function ProjectsPage() {
   return (
-    <main className="min-h-screen" style={{ background: "var(--bg-base)" }}>
-      <PageHero
-        badge="Portfolio Archive"
-        badgeColor="green"
-        accent="green"
-        title={<>Precision <span style={{ color: "var(--green)" }} className="italic">Projects</span><br />for Global Clients</>}
-        subtitle="Exploring our history of bespoke development, consulting, and custom technical implementations."
-      />
+    <main className="min-h-screen bg-[#fafcff] pt-32 pb-20">
+      <div className="container mx-auto px-6 text-center max-w-4xl mb-16">
+        <h1 className="text-[#052c65] text-[clamp(2.5rem,4vw,3.5rem)] font-extrabold tracking-tight leading-tight mb-6">
+          Precision Projects for <span className="text-[#38bdf8]">Global</span> Clients
+        </h1>
+        <p className="text-[#64748b] text-lg max-w-2xl mx-auto leading-relaxed">
+          Exploring our history of bespoke deployment, consulting, and enterprise implementations across 4 countries.
+        </p>
+      </div>
       <ProjectsClient />
     </main>
   );

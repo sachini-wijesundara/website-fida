@@ -1,7 +1,23 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion, useReducedMotion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+
+function Counter({ value, suffix = "", prefix = "" }: { value: number; suffix?: string, prefix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => prefix + Math.round(latest) + suffix);
+
+  useEffect(() => {
+    if (isInView) {
+      const controls = animate(count, value, { duration: 1.5, ease: "easeOut" });
+      return controls.stop;
+    }
+  }, [isInView, value, count]);
+
+  return <motion.span ref={ref}>{rounded}</motion.span>;
+}
 import Link from "next/link";
 
 interface Customer {
@@ -112,13 +128,13 @@ export default function HomeOverview() {
             <img src="/images/homepageimages/image1.png" alt="FIDA Global team member" />
           </div>
           <div className="home-bento__stat home-bento__stat--green">
-            <span><strong>370+</strong> Clients</span>
+            <span><strong><Counter value={370} suffix="+" /></strong> Clients</span>
           </div>
         </div>
 
         <div className="home-bento__col home-bento__col--2">
           <div className="home-bento__stat home-bento__stat--blue">
-            <span><strong>4</strong> Countries</span>
+            <span><strong><Counter value={4} /></strong> Countries</span>
           </div>
           <div className="home-bento__media home-bento__photo--product">
             <img src="/images/homepageimages/image2.png" alt="FIDA Global product experience" />
@@ -127,10 +143,13 @@ export default function HomeOverview() {
 
         <div className="home-bento__col home-bento__col--3">
           <div className="home-bento__stat home-bento__stat--outline">
-            <strong>50K+</strong>
-            <span>Uptime Cloud Payroll Employees</span>
+            <strong><Counter value={50} suffix="K+" /></strong>
+            <span>Uptime Cloud<br/>Payroll Employees</span>
           </div>
-          <div className="home-bento__stat home-bento__stat--yellow" aria-hidden="true" />
+          <div className="home-bento__stat home-bento__stat--yellow">
+            <strong><Counter value={10} suffix=" +" /></strong>
+            <span>Products</span>
+          </div>
         </div>
 
         <div className="home-bento__right">
@@ -138,7 +157,7 @@ export default function HomeOverview() {
             <img src="/images/homepageimages/image3.png" alt="FIDA Global consultant" />
           </div>
           <div className="home-bento__stat home-bento__stat--red">
-            <span><strong>14+</strong> Years Experience</span>
+            <span><strong><Counter value={14} suffix="+" /></strong> Years Experience</span>
           </div>
           <div className="home-bento__media home-bento__photo--office">
             <img src="/images/homepageimages/image04.jpeg" alt="FIDA Global office" />
@@ -221,18 +240,24 @@ export default function HomeOverview() {
             aria-label="Disconnected workforce systems"
           >
             <svg viewBox="0 0 760 470" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <radialGradient id="dot-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                  <stop offset="0%" className="dot-gradient-center" />
+                  <stop offset="100%" className="dot-gradient-edge" />
+                </radialGradient>
+              </defs>
               <path d="M88 360 L420 194" />
               <path d="M8 277 L684 382" />
               <path d="M548 62 L682 298" />
               <path d="M506 300 L735 111" />
-              <ellipse cx="88" cy="360" rx="2.6" ry="6" />
-              <ellipse cx="420" cy="194" rx="2.6" ry="6" />
-              <ellipse cx="8" cy="277" rx="2.6" ry="6" />
-              <ellipse cx="684" cy="382" rx="2.6" ry="6" />
-              <ellipse cx="548" cy="62" rx="2.6" ry="6" />
-              <ellipse cx="682" cy="298" rx="2.6" ry="6" />
-              <ellipse cx="506" cy="300" rx="2.6" ry="6" />
-              <ellipse cx="735" cy="111" rx="2.6" ry="6" />
+              <ellipse className="home-network-dot" cx="88" cy="360" rx="2.6" ry="6" fill="url(#dot-gradient)" />
+              <ellipse className="home-network-dot" cx="420" cy="194" rx="2.6" ry="6" fill="url(#dot-gradient)" />
+              <ellipse className="home-network-dot" cx="8" cy="277" rx="2.6" ry="6" fill="url(#dot-gradient)" />
+              <ellipse className="home-network-dot" cx="684" cy="382" rx="2.6" ry="6" fill="url(#dot-gradient)" />
+              <ellipse className="home-network-dot" cx="548" cy="62" rx="2.6" ry="6" fill="url(#dot-gradient)" />
+              <ellipse className="home-network-dot" cx="682" cy="298" rx="2.6" ry="6" fill="url(#dot-gradient)" />
+              <ellipse className="home-network-dot" cx="506" cy="300" rx="2.6" ry="6" fill="url(#dot-gradient)" />
+              <ellipse className="home-network-dot" cx="735" cy="111" rx="2.6" ry="6" fill="url(#dot-gradient)" />
             </svg>
             <span className="home-network-label home-network-label--payroll">Payroll that takes days</span>
             <span className="home-network-label home-network-label--employee">Employee data<br />scattered across five<br />disconnected tools</span>
