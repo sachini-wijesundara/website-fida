@@ -54,7 +54,7 @@ export default function ProjectDetailPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#fafcff]">
+    <main className="public-pastel-page min-h-screen">
       <section className="container mx-auto px-6 pt-32 pb-[350px] max-w-6xl">
         
         {/* Back Link */}

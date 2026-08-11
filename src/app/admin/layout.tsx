@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, FileText, Settings, LogOut, Users, BarChart3, Briefcase, Award, Lightbulb, MessageSquare, Layout, Bot, Calendar } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, LogOut, Users, BarChart3, Briefcase, Award, Lightbulb, MessageSquare, Layout, Bot, Calendar, Menu, X } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -12,7 +12,22 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const isLoginPage = pathname === "/admin/login";
+
+  React.useEffect(() => {
+    if (isLoginPage) return;
+
+    const timer = window.setTimeout(() => {
+      // Warm the two slowest remote-data endpoints while the dashboard is idle.
+      void Promise.allSettled([
+        fetch("/api/teams?summary=true", { priority: "low" } as RequestInit),
+        fetch("/api/projects?summary=true", { priority: "low" } as RequestInit),
+      ]);
+    }, 1200);
+
+    return () => window.clearTimeout(timer);
+  }, [isLoginPage]);
 
   const handleLogout = async () => {
     try {
@@ -30,17 +45,35 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] admin-theme">
+    <div className="admin-shell flex min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] admin-theme">
+      <button
+        type="button"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="admin-menu-button fixed left-4 top-4 z-50 hidden h-11 w-11 items-center justify-center rounded-xl border border-[var(--grey-dark)] bg-[var(--bg-surface)] text-white shadow-xl"
+        aria-label={sidebarOpen ? "Close admin menu" : "Open admin menu"}
+      >
+        {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close admin menu"
+          onClick={() => setSidebarOpen(false)}
+          className="admin-sidebar-backdrop fixed inset-0 z-30 hidden bg-slate-950/70 backdrop-blur-sm"
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 border-r border-[var(--grey-dark)] bg-[var(--bg-surface)] fixed h-screen z-20 flex flex-col">
-        <div className="p-8 shrink-0">
-          <Link href="/admin" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--green)] to-[var(--blue)] flex items-center justify-center shadow-lg shadow-[var(--green-glow)]">
-              <span className="font-bold text-white text-xl">F</span>
+      <aside className={`admin-sidebar w-72 border-r border-[var(--grey-dark)] bg-[var(--bg-surface)] fixed h-screen z-40 flex flex-col ${sidebarOpen ? "is-open" : ""}`}>
+        <div className="px-7 py-8 shrink-0">
+          <Link href="/admin" className="admin-brand flex items-center gap-3.5">
+            <div className="admin-brand-mark w-11 h-11 rounded-[14px] flex items-center justify-center">
+              <span className="font-black text-lg">F</span>
             </div>
             <div>
-              <h1 className="font-bold text-lg leading-none">FIDA</h1>
-              <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-widest mt-1">Admin Panel</p>
+              <h1 className="admin-brand-title font-black text-lg leading-none">FIDA</h1>
+              <p className="admin-brand-subtitle text-[9px] uppercase tracking-[0.2em] mt-1.5">Admin Panel</p>
             </div>
           </Link>
         </div>
@@ -89,8 +122,8 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-64 p-10">
-        <div className="max-w-7xl mx-auto">
+      <main className="admin-main flex-1 ml-72 p-10 lg:p-12">
+        <div className="max-w-[1500px] mx-auto">
           {children}
         </div>
       </main>
@@ -102,7 +135,7 @@ function SidebarLink({ href, icon, label, active }: { href: string; icon: React.
   return (
     <Link
       href={href}
-      className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-smooth group ${active ? 'bg-[var(--bg-elevated)] text-[var(--green)]' : 'hover:bg-[var(--bg-elevated)]'}`}
+      className={`admin-nav-link flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-smooth group ${active ? 'is-active bg-[var(--bg-elevated)] text-[var(--green)]' : 'hover:bg-[var(--bg-elevated)]'}`}
     >
       <span className={`${active ? 'text-[var(--green)]' : 'text-[var(--text-muted)] group-hover:text-[var(--green)]'} transition-smooth`}>
         {icon}

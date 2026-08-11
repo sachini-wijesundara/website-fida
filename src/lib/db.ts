@@ -21,24 +21,28 @@ const config: sql.config = {
 
 console.log(`📡 DB Config Initialized: Server=${config.server}, User=${config.user}, Db=${config.database}, Port=${config.port}`);
 
-let poolPromise: Promise<sql.ConnectionPool> | null = null;
+type DbGlobal = typeof globalThis & {
+  __fidaSqlPoolPromise?: Promise<sql.ConnectionPool>;
+};
+
+const dbGlobal = globalThis as DbGlobal;
 
 export const getDbConnection = async (): Promise<sql.ConnectionPool> => {
-  if (poolPromise) return poolPromise;
+  if (dbGlobal.__fidaSqlPoolPromise) return dbGlobal.__fidaSqlPoolPromise;
 
-  poolPromise = new sql.ConnectionPool(config)
+  dbGlobal.__fidaSqlPoolPromise = new sql.ConnectionPool(config)
     .connect()
     .then((pool) => {
       console.log('Connected to SQL Server');
       return pool;
     })
     .catch((err) => {
-      poolPromise = null;
+      delete dbGlobal.__fidaSqlPoolPromise;
       console.error('Database Connection Failed! Bad Config: ', err);
       throw err;
     });
 
-  return poolPromise;
+  return dbGlobal.__fidaSqlPoolPromise;
 };
 
 export { sql };

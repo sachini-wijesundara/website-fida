@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 function Counter({ value, suffix = "", prefix = "" }: { value: number; suffix?: string, prefix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -64,7 +65,18 @@ const row3Config = [
 
 export default function HomeOverview() {
   const reduceMotion = useReducedMotion();
+  const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const solutionsSentinelRef = useRef<HTMLDivElement>(null);
+  const hasOpenedSolutions = useRef(false);
+
+  const markFragmentationTransition = () => {
+    sessionStorage.setItem("fida:fragmentation-to-solutions", "true");
+  };
+
+  useEffect(() => {
+    router.prefetch("/solutions");
+  }, [router]);
 
   useEffect(() => {
     fetch("/api/customers")
@@ -78,6 +90,10 @@ export default function HomeOverview() {
       )
       .catch(() => setCustomers([]));
   }, []);
+
+  useEffect(() => {
+    // Scroll-based auto redirect to solutions removed because solutions is now on the homepage.
+  }, [router]);
 
   const findCustomer = (id: number, keyword: string) => {
     let found = customers.find(c => c.id === id);
@@ -265,10 +281,16 @@ export default function HomeOverview() {
             <span className="home-network-label home-network-label--systems">Systems that don&apos;t<br />talk to each other</span>
           </motion.div>
 
-          <Link href="/solutions" className="home-fragmentation__link home-fragmentation__link--centered">
+          <Link
+            href="/solutions"
+            onClick={markFragmentationTransition}
+            className="home-fragmentation__link home-fragmentation__link--centered"
+          >
             THIS IS WHERE FRAGMENTATION ENDS. <span aria-hidden="true">→</span>
           </Link>
         </section>
+
+        <div ref={solutionsSentinelRef} className="h-px w-full" aria-hidden="true" />
 
       </div>
     </motion.section>

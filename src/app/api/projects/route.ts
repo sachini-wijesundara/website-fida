@@ -1,10 +1,38 @@
 import { NextResponse } from "next/server";
 import { getDbConnection, sql } from "@/lib/db";
+import { cachedRequest, invalidateRequestCache } from "@/lib/request-cache";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const pool = await getDbConnection();
-    const result = await pool.request().execute('sp_GetAllProjects');
+    const summary = new URL(request.url).searchParams.get("summary") === "true";
+    if (summary) {
+      const projects = await cachedRequest("project-summaries", async () => {
+        const pool = await getDbConnection();
+        const result = await pool.request().query(`
+          SELECT
+            p.id,
+            p.title,
+            p.client_name,
+            p.category_id,
+            c.name AS category_name,
+            p.status,
+            p.created_at,
+            p.updated_at,
+            CASE WHEN p.image_url LIKE 'data:%' THEN NULL ELSE p.image_url END AS image_url
+          FROM projects p
+          LEFT JOIN categories c ON c.id = p.category_id
+          WHERE p.status <> 'Deleted' OR p.status IS NULL
+          ORDER BY p.created_at DESC
+        `);
+        return result.recordset;
+      });
+      return NextResponse.json(projects);
+    }
+
+    const result = await cachedRequest("all-projects", async () => {
+      const pool = await getDbConnection();
+      return pool.request().execute('sp_GetAllProjects');
+    });
     
     // Normalize field names to handle naming inconsistencies from DB
     const projects = result.recordset.map((p: any) => ({
@@ -45,6 +73,9 @@ export async function POST(request: Request) {
       .input('Status', sql.NVarChar(20), status || 'Published')
       .execute('sp_CreateProject');
 
+    invalidateRequestCache("all-projects");
+    invalidateRequestCache("project-summaries");
+
 
     if (!result.recordset || result.recordset.length === 0) {
        console.error("No recordset returned from sp_CreateProject");
@@ -71,6 +102,9 @@ export async function DELETE(request: Request) {
     await pool.request()
       .input('ProjectId', sql.Int, id)
       .execute('sp_DeleteProject');
+
+    invalidateRequestCache("all-projects");
+    invalidateRequestCache("project-summaries");
 
     return NextResponse.json({ message: "Project deleted successfully" });
   } catch (error: any) {

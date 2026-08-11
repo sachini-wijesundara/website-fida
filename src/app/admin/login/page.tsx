@@ -43,7 +43,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--bg-base)] relative overflow-hidden p-6">
+    <div className="admin-login min-h-screen flex items-center justify-center bg-[var(--bg-base)] relative overflow-hidden px-6 py-16">
       {/* Background Decorative Elements */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[var(--green-glow)] rounded-full blur-[120px] opacity-50" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[var(--blue-glow)] rounded-full blur-[120px] opacity-30" />
@@ -52,19 +52,20 @@ export default function AdminLogin() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-[440px] z-10"
+        className="w-full max-w-[460px] z-10"
       >
-        <div className="glass rounded-[40px] p-10 border border-[var(--grey-dark)] shadow-2xl relative">
+        <div className="admin-login-card glass rounded-[36px] px-8 pb-8 pt-10 sm:p-10 border border-[var(--grey-dark)] shadow-2xl relative">
           {/* Logo / Icon */}
           <div className="absolute -top-10 left-1/2 -translate-x-1/2">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[var(--green)] to-[var(--blue)] flex items-center justify-center shadow-2xl shadow-[var(--green-glow)]">
-              <ShieldCheck size={40} className="text-white" />
+            <div className="admin-login-icon w-20 h-20 rounded-[24px] flex items-center justify-center">
+              <ShieldCheck size={38} />
             </div>
           </div>
 
-          <div className="mt-10 mb-10 text-center">
-            <h1 className="text-3xl font-bold tracking-tight">Access Control</h1>
-            <p className="text-[var(--text-secondary)] mt-2">Enter your credentials to manage FIDA Global.</p>
+          <div className="mt-10 mb-8 text-center">
+            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--blue)] mb-3">FIDA Admin</p>
+            <h1 className="text-3xl font-black tracking-tight text-[var(--text-primary)]">Welcome back</h1>
+            <p className="text-[var(--text-secondary)] mt-2 text-sm">Sign in to manage the FIDA Global platform.</p>
           </div>
 
           <AnimatePresence>
@@ -125,7 +126,7 @@ export default function AdminLogin() {
             <button 
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-[var(--green)] to-[var(--green-dark)] text-white font-bold text-sm shadow-xl shadow-[var(--green-glow)] hover:scale-[1.02] active:scale-[0.98] transition-smooth flex items-center justify-center gap-2 disabled:opacity-50 disabled:scale-100"
+              className="admin-login-submit w-full py-4 rounded-2xl text-white font-bold text-sm hover:scale-[1.01] active:scale-[0.99] transition-smooth flex items-center justify-center gap-2 disabled:opacity-50 disabled:scale-100"
             >
               {loading ? (
                 <>

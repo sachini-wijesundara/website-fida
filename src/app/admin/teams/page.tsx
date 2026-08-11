@@ -27,7 +27,7 @@ export default function TeamManagement() {
 
   const fetchTeam = async () => {
     try {
-      const res = await fetch("/api/teams");
+      const res = await fetch("/api/teams?summary=true");
       const data = await res.json();
       setTeam(data);
     } catch (err) {
@@ -186,12 +186,12 @@ export default function TeamManagement() {
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="admin-modal-overlay absolute inset-0 backdrop-blur-sm" />
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }} 
               animate={{ scale: 1, opacity: 1 }} 
               exit={{ scale: 0.9, opacity: 0 }} 
-              className="relative w-full max-w-xl bg-[#0f0f12] border border-white/10 rounded-[2.5rem] p-10 shadow-2xl max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500/20 scrollbar-track-transparent"
+              className="admin-modal relative w-full max-w-xl border rounded-[2.5rem] p-10 shadow-2xl max-h-[90vh] overflow-y-auto"
             >
               <div className="flex justify-between items-center mb-8">
                 <h3 className="text-2xl font-bold">{editingItem ? "Edit Member" : "New Team Member"}</h3>

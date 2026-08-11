@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function CareersPage() {
   return (
-    <main className="min-h-screen" style={{ background: "var(--bg-base)" }}>
+    <main className="public-pastel-page min-h-screen">
       <PageHero
         badge="Join the Team"
         badgeColor="green"

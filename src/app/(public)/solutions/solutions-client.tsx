@@ -2,51 +2,30 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import React, { useState } from "react";
+import { ArrowRight, Loader2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
 
 const CATEGORIES = ["All", "Software Solutions", "Consultancy & Services"];
 
-const SOLUTIONS = [
-  {
-    id: "01",
-    badge: "SOFTWARE SOLUTION",
-    title: "SMART HRIS",
-    description: "Centralize human resources, payroll, and performance management into a single automated ecosystem built for growth.",
-    image: "/images/solutions_images/smarthris.png"
-  },
-  {
-    id: "02",
-    badge: "SOFTWARE SOLUTION",
-    title: "FIDA TASK MANAGER",
-    description: "Streamline project workflows with intelligent task prioritization and real-time team synchronization across your entire organization.",
-    image: "/images/solutions_images/taskmanager.png"
-  },
-  {
-    id: "03",
-    badge: "ACCESS CONTROL",
-    title: "ACCESS CONTROL & ATTENDANCE",
-    description: "Enterprise-grade biometric security and automated attendance tracking for high-traffic environments and secure facilities.",
-    image: "/images/solutions_images/attendance.png"
-  },
-  {
-    id: "04",
-    badge: "SOFTWARE SOLUTION",
-    title: "FIDA HELPDESK SYSTEM",
-    description: "Resolution-focused support infrastructure designed for rapid deployment and high customer satisfaction rates.",
-    image: "/images/solutions_images/helpdesk.png"
-  },
-  {
-    id: "05",
-    badge: "CONSULTANCY",
-    title: "FIDA BUSINESS CONSULTANCY",
-    description: "Strategic advisory and digital transformation expertise to scale your enterprise operations with precision and clarity.",
-    image: "/images/solutions_images/bpo&services.png"
-  }
-];
-
 export default function SolutionsClient() {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [solutions, setSolutions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchSolutions() {
+      try {
+        const res = await fetch("/api/solutions");
+        const data = await res.json();
+        setSolutions(data);
+      } catch (err) {
+        console.error("Failed to fetch solutions", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSolutions();
+  }, []);
 
   return (
     <div className="container mx-auto px-6 max-w-6xl">
@@ -81,51 +60,69 @@ export default function SolutionsClient() {
 
       {/* Solutions List */}
       <div className="space-y-16">
-        {SOLUTIONS.map((sol, index) => (
-          <Link href={`/solutions/${sol.id}`} key={sol.id} className="block group">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1, duration: 0.6 }}
-              className="flex flex-col md:flex-row gap-12 items-center"
-            >
-              {/* Image Column */}
-              <div className="w-full md:w-5/12">
-                 <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-sm bg-gray-100">
-                    <img src={sol.image} alt={sol.title} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" />
-                 </div>
-              </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-20 text-[#052c65]">
+            <Loader2 className="animate-spin w-10 h-10" />
+          </div>
+        ) : Array.isArray(solutions) ? (
+          solutions.map((sol, index) => {
+             const displayNumber = (sol.order_index || index + 1).toString().padStart(2, "0");
+            
+            // Check if it matches category filter (basic implementation)
+            if (activeCategory !== "All" && sol.badge !== "CONSULTANCY" && activeCategory === "Consultancy & Services") return null;
+            if (activeCategory !== "All" && sol.badge === "CONSULTANCY" && activeCategory === "Software Solutions") return null;
 
-              {/* Content Column */}
-              <div className="w-full md:w-7/12 flex flex-col justify-center">
-                 <div className="text-6xl font-black text-[#a5f3fc] leading-none mb-4 tracking-tighter">
-                   {sol.id}
-                 </div>
-                 
-                 <div className="mb-4">
-                    <span className="px-3 py-1 bg-[#e0f2fe] text-[#0284c7] rounded-full text-[10px] font-extrabold uppercase tracking-widest">
-                      {sol.badge}
-                    </span>
-                 </div>
+            return (
+              <Link href={`/solutions/${displayNumber}`} key={sol.id} className="block group">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  className="flex flex-col md:flex-row gap-12 items-center"
+                >
+                  {/* Image Column */}
+                  <div className="w-full md:w-5/12">
+                     <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-sm bg-gray-100">
+                        <img src={sol.thumbnail_image || sol.detail_image_1 || "/placeholder.jpg"} alt={sol.title} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" />
+                     </div>
+                  </div>
 
-                 <h2 className="text-2xl font-black text-[#052c65] uppercase tracking-tight mb-4 group-hover:text-[#2563eb] transition-colors">
-                   {sol.title}
-                 </h2>
+                  {/* Content Column */}
+                  <div className="w-full md:w-7/12 flex flex-col justify-center">
+                     <div className="text-6xl font-black text-[#a5f3fc] leading-none mb-4 tracking-tighter">
+                       {displayNumber}
+                     </div>
+                     
+                     <div className="mb-4">
+                        <span className="px-3 py-1 bg-[#e0f2fe] text-[#0284c7] rounded-full text-[10px] font-extrabold uppercase tracking-widest">
+                          {sol.badge || "SOLUTION"}
+                        </span>
+                     </div>
 
-                 <p className="text-[#475569] text-sm leading-relaxed max-w-lg mb-8">
-                   {sol.description}
-                 </p>
+                     <h2 className="text-2xl font-black text-[#052c65] uppercase tracking-tight mb-4 group-hover:text-[#2563eb] transition-colors">
+                       {sol.title}
+                     </h2>
 
-                 <div>
-                    <span className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#052c65] text-white text-xs font-bold transition-colors group-hover:bg-[#167fa8]">
-                       Learn More <ArrowRight size={14} />
-                    </span>
-                 </div>
-              </div>
-            </motion.div>
-          </Link>
-        ))}
+                     <p className="text-[#475569] text-sm leading-relaxed max-w-lg mb-8">
+                       {sol.description}
+                     </p>
+
+                     <div>
+                        <span className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#052c65] text-white text-xs font-bold transition-colors group-hover:bg-[#167fa8]">
+                           Learn More <ArrowRight size={14} />
+                        </span>
+                     </div>
+                  </div>
+                </motion.div>
+              </Link>
+            );
+          })
+        ) : (
+          <div className="flex justify-center items-center py-20 text-red-500 font-bold">
+            Failed to load solutions. Data is not an array. Please try refreshing the page.
+          </div>
+        )}
       </div>
     </div>
   );

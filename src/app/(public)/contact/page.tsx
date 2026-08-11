@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <main className="contact-page min-h-screen">
+    <main className="contact-page public-pastel-page min-h-screen">
       <ContactClient />
     </main>
   );

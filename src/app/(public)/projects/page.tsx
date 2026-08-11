@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function ProjectsPage() {
   return (
-    <main className="min-h-screen bg-[#fafcff] pt-32 pb-20">
+    <main className="public-pastel-page min-h-screen pt-32 pb-20">
       <div className="container mx-auto px-6 text-center max-w-4xl mb-16">
         <h1 className="text-[#052c65] text-[clamp(2.5rem,4vw,3.5rem)] font-extrabold tracking-tight leading-tight mb-6">
           Precision Projects for <span className="text-[#38bdf8]">Global</span> Clients

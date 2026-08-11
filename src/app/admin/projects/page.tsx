@@ -13,7 +13,7 @@ export default function ProjectManagement() {
   useEffect(() => {
     async function fetchProjects() {
       try {
-        const res = await fetch("/api/projects");
+        const res = await fetch("/api/projects?summary=true");
         const data = await res.json();
         setProjects(data);
       } catch (err) {

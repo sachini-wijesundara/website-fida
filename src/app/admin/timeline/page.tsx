@@ -159,7 +159,7 @@ export default function TimelineAdminPanel() {
       </AnimatePresence>
 
       {/* Database Listing */}
-      <div className="rounded-3xl border border-[var(--border)] overflow-hidden bg-[var(--bg-elevated)] backdrop-blur-md shadow-2xl relative">
+      <div className="admin-spectrum-box rounded-3xl border border-[var(--border)] overflow-hidden bg-[var(--bg-elevated)] backdrop-blur-md shadow-2xl relative">
         <div className="overflow-x-auto min-h-[400px]">
           {loading ? (
             <div className="flex items-center justify-center h-[400px]">

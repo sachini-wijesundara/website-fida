@@ -51,6 +51,7 @@ export default function Footer() {
 
           <form
             className="contact-subscribe"
+            noValidate
             onSubmit={(e) => {
               e.preventDefault();
               if (!subscribeEmail.trim()) return;
@@ -64,7 +65,6 @@ export default function Footer() {
               <>
                 <input
                   type="email"
-                  required
                   placeholder="your@email.com"
                   value={subscribeEmail}
                   onChange={(e) => setSubscribeEmail(e.target.value)}
@@ -89,7 +89,7 @@ export default function Footer() {
               <img
                 src="/Fidalong.png"
                 alt="FIDA Global"
-                className="h-10 w-auto object-contain"
+                className="h-16 md:h-20 w-auto object-contain"
               />
             </Link>
             <p className="text-[#536b8a] text-[14px] leading-relaxed font-semibold max-w-[220px]">

@@ -29,12 +29,12 @@ const team = [
 ];
 
 export default function AboutClient() {
-  const SMOOTH = [0.16, 1, 0.3, 1];
+  const SMOOTH: [number, number, number, number] = [0.16, 1, 0.3, 1];
   const row1 = team.filter(m => m.row === 1);
   const row2 = team.filter(m => m.row === 2);
 
   return (
-    <div className="pb-36 bg-white overflow-hidden">
+    <div className="pb-36 overflow-hidden">
       
       {/* ── 1. Hero Section ── */}
       <section className="pt-48 md:pt-60 pb-2 md:pb-4 relative">
