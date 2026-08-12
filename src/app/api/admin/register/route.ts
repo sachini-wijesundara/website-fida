@@ -14,10 +14,11 @@ export async function POST(request: Request) {
     
     // Hash the password for safety using centralized utility
     const hashedPassword = await hashPassword(password);
+    const trimmedUsername = username.trim();
 
     // Call the stored procedure provided by the user
     const result = await pool.request()
-      .input('Username', username)
+      .input('Username', trimmedUsername)
       .input('Password', hashedPassword)
       .execute('sp_CreateUser');
 
