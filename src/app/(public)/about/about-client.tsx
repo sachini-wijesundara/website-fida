@@ -17,15 +17,14 @@ const values = [
 // Team from the screenshot
 const team = [
   // Row 1
-  { name: "Upendra Wickramatunga", role: "MANAGING DIRECTOR", image: "/images/upul.png", row: 1 },
-  { name: "Toshani Munasinghe", role: "DIRECTOR HCM", image: "", row: 1 },
-  { name: "Charmi Pallawela", role: "MANAGER BUSINESS DEVELOPMENT & OPERATION", image: "", row: 1 },
-  { name: "Rukshan Peiris", role: "SENIOR SOFTWARE ENGINEER", image: "", row: 1 },
+  { name: "Upendra Wickramatunga", role: "MANAGING DIRECTOR", image: "/images/ourteam/upendra.png", row: 1 },
+  { name: "Toshani Munasinghe", role: "DIRECTOR HCM", image: "/images/ourteam/toshani.png", row: 1 },
+  { name: "Charmi Pallawela", role: "MANAGER BUSINESS DEVELOPMENT & OPERATION", image: "/images/ourteam/charmi.png", row: 1 },
+  { name: "Rukshan Peiris", role: "SENIOR SOFTWARE ENGINEER", image: "/images/ourteam/rukshan.png", row: 1 },
   // Row 2
-  { name: "Yuwanthi Perera", role: "SENIOR SOFTWARE ENGINEER", image: "", row: 2 },
-  { name: "Gihan Nayanajith", role: "SOFTWARE ENGINEER", image: "", row: 2 },
-  { name: "Isuru Munasinghe", role: "MANAGER AUTOMATION AND DIGITAL TRASFORMATION", image: "", row: 2 },
-  { name: "Chamindu Moramudali", role: "SOFTWARE ENGINEER", image: "", row: 2 },
+  { name: "Yuwanthi Perera", role: "SENIOR SOFTWARE ENGINEER", image: "/images/ourteam/yuwanthi.png", row: 2 },
+  { name: "Gihan Nayanajith", role: "SOFTWARE ENGINEER", image: "/images/ourteam/gihan.png", row: 2 },
+  { name: "Isuru Munasinghe", role: "MANAGER AUTOMATION AND DIGITAL TRASFORMATION", image: "/images/ourteam/isuru.png", row: 2 },
 ];
 
 export default function AboutClient() {
