@@ -3,7 +3,45 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
+import { 
+  ArrowLeft, 
+  ArrowRight, 
+  CheckCircle2, 
+  Loader2,
+  Eye,
+  Ticket,
+  TrendingUp,
+  MessageSquare,
+  Shield
+} from "lucide-react";
+
+function getCardIcon(title: string, index: number) {
+  const t = title.toLowerCase();
+  if (t.includes("access control") || t.includes("transparency")) {
+    return <Eye size={20} />;
+  }
+  if (t.includes("payroll") || t.includes("ticketing") || t.includes("attendance")) {
+    return <Ticket size={20} />;
+  }
+  if (t.includes("patrol") || t.includes("monitoring") || t.includes("progress") || t.includes("insights")) {
+    return <TrendingUp size={20} />;
+  }
+  if (t.includes("facility") || t.includes("collaboration") || t.includes("experience") || t.includes("performance")) {
+    return <MessageSquare size={20} />;
+  }
+  if (t.includes("core")) {
+    return <Shield size={20} />;
+  }
+
+  // Fallback by index
+  switch (index % 4) {
+    case 0: return <Eye size={20} />;
+    case 1: return <Ticket size={20} />;
+    case 2: return <TrendingUp size={20} />;
+    case 3: return <MessageSquare size={20} />;
+    default: return <Eye size={20} />;
+  }
+}
 
 const MORE_SOLUTIONS = [
   {
@@ -135,39 +173,53 @@ export default function SolutionDetailPage() {
               {data.features_section.title}
             </h2>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-16 items-center relative">
-              {data.features_section.cards.map((card: any, index: number) => (
-                <React.Fragment key={index}>
-                  {/* For even index (0, 2), Image is on the Right (so text is Left) */}
-                  {index % 2 === 0 ? (
-                    <>
-                      <div className="bg-white rounded-3xl p-10 shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.3)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all h-full justify-center">
-                         <div className="w-12 h-12 rounded-xl flex items-center justify-center font-bold shadow-md mb-8" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
-                            <div className="w-5 h-3 rounded-full border-2 border-current relative flex items-center justify-center"><div className="w-1.5 h-1.5 bg-current rounded-full"></div></div>
-                         </div>
-                         <h3 className="text-2xl font-bold text-[#0f172a] mb-4">{card.title}</h3>
-                         <p className="text-[#64748b] text-sm leading-relaxed whitespace-pre-line">{card.description}</p>
-                      </div>
-                      <div className="flex justify-center lg:justify-end">
-                         {card.image && <img src={card.image} alt={card.title} className="max-w-[90%] h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500" />}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex justify-center lg:justify-start order-last lg:order-none">
-                         {card.image && <img src={card.image} alt={card.title} className="max-w-[90%] h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500" />}
-                      </div>
-                      <div className="bg-white rounded-3xl p-10 shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.3)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all h-full justify-center">
-                         <div className="w-12 h-12 rounded-xl flex items-center justify-center font-bold shadow-md mb-8" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
-                            <div className="w-5 h-3 rounded-full border-2 border-current relative flex items-center justify-center"><div className="w-1.5 h-1.5 bg-current rounded-full"></div></div>
-                         </div>
-                         <h3 className="text-2xl font-bold text-[#0f172a] mb-4">{card.title}</h3>
-                         <p className="text-[#64748b] text-sm leading-relaxed whitespace-pre-line">{card.description}</p>
-                      </div>
-                    </>
-                  )}
-                </React.Fragment>
-              ))}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-16 items-stretch relative">
+              {data.features_section.cards.map((card: any, index: number) => {
+                const hasImage = card.image && card.image.trim() !== "";
+                if (hasImage) {
+                  return (
+                    <div key={index} className="col-span-1 lg:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                      {index % 2 === 0 ? (
+                        <>
+                          <div className="bg-white rounded-3xl p-10 shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.3)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all h-full justify-center">
+                             <div className="w-12 h-12 rounded-xl flex items-center justify-center font-bold shadow-md mb-8" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
+                                {getCardIcon(card.title, index)}
+                             </div>
+                             <h3 className="text-2xl font-bold text-[#0f172a] mb-4">{card.title}</h3>
+                             <p className="text-[#64748b] text-sm leading-relaxed whitespace-pre-line">{card.description}</p>
+                          </div>
+                          <div className="flex justify-center lg:justify-end">
+                             <img src={card.image} alt={card.title} className="max-w-[90%] h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500" />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex justify-center lg:justify-start order-last lg:order-none">
+                             <img src={card.image} alt={card.title} className="max-w-[90%] h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500" />
+                          </div>
+                          <div className="bg-white rounded-3xl p-10 shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.3)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all h-full justify-center">
+                             <div className="w-12 h-12 rounded-xl flex items-center justify-center font-bold shadow-md mb-8" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
+                                {getCardIcon(card.title, index)}
+                             </div>
+                             <h3 className="text-2xl font-bold text-[#0f172a] mb-4">{card.title}</h3>
+                             <p className="text-[#64748b] text-sm leading-relaxed whitespace-pre-line">{card.description}</p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div key={index} className="col-span-1 bg-white rounded-3xl p-10 shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.3)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all h-full justify-center">
+                       <div className="w-12 h-12 rounded-xl flex items-center justify-center font-bold shadow-md mb-8" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
+                          {getCardIcon(card.title, index)}
+                       </div>
+                       <h3 className="text-2xl font-bold text-[#0f172a] mb-4">{card.title}</h3>
+                       <p className="text-[#64748b] text-sm leading-relaxed whitespace-pre-line">{card.description}</p>
+                    </div>
+                  );
+                }
+              })}
             </div>
           </div>
         )}
