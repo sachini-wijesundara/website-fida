@@ -115,7 +115,13 @@ export default function ProjectManagement() {
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-xl bg-[var(--bg-elevated)] overflow-hidden border border-[var(--grey-dark)] shrink-0">
                           {p.image_url ? (
-                            <img src={p.image_url} alt="" className="w-full h-full object-cover" />
+                            <img
+                              src={p.image_url}
+                              alt={`${p.title} thumbnail`}
+                              loading="lazy"
+                              decoding="async"
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]">
                               <Briefcase size={20} />

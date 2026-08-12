@@ -21,15 +21,7 @@ export default function Loading() {
     );
   }
 
-  return (
-    <main className="public-theme public-pastel-page flex min-h-screen items-center justify-center px-6 text-[#052c65]">
-      <div className="flex w-full max-w-md flex-col items-center rounded-[2rem] border border-[#052c65]/10 bg-white/70 px-8 py-12 text-center shadow-[0_24px_70px_rgba(5,44,101,.10)] backdrop-blur-xl">
-        <div className="mb-6 grid h-20 w-20 place-items-center rounded-3xl border border-[#61d5e5]/35 bg-[#dff8fb]/70">
-          <Loader2 size={36} className="animate-spin text-[#159bb4]" />
-        </div>
-        <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#159bb4]">FIDA Global</p>
-        <h2 className="mt-3 text-xl font-extrabold tracking-tight">Loading page</h2>
-      </div>
-    </main>
-  );
+  // Public routes use prefetched page-to-page transitions. Rendering a loading
+  // screen here would become an unwanted third panel between those two pages.
+  return null;
 }

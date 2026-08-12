@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Image as ImageIcon, Loader2, Plus, AlertCircle, Upload } from "lucide-react";
+import { ArrowLeft, Save, Image as ImageIcon, Loader2, AlertCircle, Upload } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function CreateProject() {
@@ -16,7 +16,10 @@ export default function CreateProject() {
     title: "",
     clientName: "",
     categoryId: "",
-    description: "",
+    descriptionMain: "",
+    descriptionChallenge: "",
+    descriptionSolution: "",
+    descriptionResult: "",
     imageUrl: "",
     status: "Published",
   });
@@ -78,7 +81,7 @@ export default function CreateProject() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.categoryId || !formData.description) {
+    if (!formData.title || !formData.categoryId || !formData.descriptionMain) {
       setError("Please fill in all required fields.");
       return;
     }
@@ -93,6 +96,12 @@ export default function CreateProject() {
         body: JSON.stringify({
           ...formData,
           categoryId: parseInt(formData.categoryId),
+          description: JSON.stringify({
+            main: formData.descriptionMain,
+            challenge: formData.descriptionChallenge,
+            solution: formData.descriptionSolution,
+            result: formData.descriptionResult
+          })
         }),
       });
 
@@ -184,15 +193,47 @@ export default function CreateProject() {
                </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-[var(--text-muted)] ml-1">Project Description</label>
-              <textarea 
-                rows={6}
-                placeholder="Tell the story of how you solved the client's problem..." 
-                className="w-full bg-[var(--bg-elevated)] border border-[var(--grey-dark)] rounded-2xl py-4 px-6 focus:outline-none focus:border-[var(--blue)] transition-smooth text-sm resize-none"
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-              />
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-[var(--text-muted)] ml-1">Main Description</label>
+                <textarea 
+                  rows={4}
+                  placeholder="The Monaro digital transformation represents a benchmark in modern enterprise HR management..." 
+                  className="w-full bg-[var(--bg-elevated)] border border-[var(--grey-dark)] rounded-2xl py-4 px-6 focus:outline-none focus:border-[var(--blue)] transition-smooth text-sm resize-none"
+                  value={formData.descriptionMain}
+                  onChange={(e) => setFormData({...formData, descriptionMain: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-[var(--text-muted)] ml-1">The Challenge</label>
+                <textarea 
+                  rows={3}
+                  placeholder="Monaro faced extreme operational friction due to decentralized data silos..." 
+                  className="w-full bg-[var(--bg-elevated)] border border-[var(--grey-dark)] rounded-2xl py-4 px-6 focus:outline-none focus:border-[var(--blue)] transition-smooth text-sm resize-none"
+                  value={formData.descriptionChallenge}
+                  onChange={(e) => setFormData({...formData, descriptionChallenge: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-[var(--text-muted)] ml-1">The Solution</label>
+                <textarea 
+                  rows={3}
+                  placeholder="We implemented a custom Smart HRIS core integrated with real-time biometric tracking..." 
+                  className="w-full bg-[var(--bg-elevated)] border border-[var(--grey-dark)] rounded-2xl py-4 px-6 focus:outline-none focus:border-[var(--blue)] transition-smooth text-sm resize-none"
+                  value={formData.descriptionSolution}
+                  onChange={(e) => setFormData({...formData, descriptionSolution: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-[var(--text-muted)] ml-1">The Result</label>
+                <textarea 
+                  rows={3}
+                  placeholder="Monaro reported a 45% increase in HR department efficiency..." 
+                  className="w-full bg-[var(--bg-elevated)] border border-[var(--grey-dark)] rounded-2xl py-4 px-6 focus:outline-none focus:border-[var(--blue)] transition-smooth text-sm resize-none"
+                  value={formData.descriptionResult}
+                  onChange={(e) => setFormData({...formData, descriptionResult: e.target.value})}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -226,9 +267,12 @@ export default function CreateProject() {
                 ) : (
                   <>
                     <div className="p-3 rounded-full bg-[var(--bg-elevated)] text-[var(--text-muted)] group-hover:text-[var(--blue)] transition-smooth">
-                      <Plus size={24} />
+                      <Upload size={24} />
                     </div>
-                    <p className="text-xs font-medium text-[var(--text-muted)]">Upload Project Image</p>
+                    <div className="text-center px-4">
+                      <p className="text-sm font-bold text-[var(--text-secondary)]">Choose a project image</p>
+                      <p className="text-xs text-[var(--text-muted)] mt-1">PNG, JPG or WebP · Recommended 1200 × 900</p>
+                    </div>
                   </>
                 )}
               </div>

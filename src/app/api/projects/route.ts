@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDbConnection, sql } from "@/lib/db";
+import { getDbConnection } from "@/lib/db";
 import { cachedRequest, invalidateRequestCache } from "@/lib/request-cache";
 
 export async function GET(request: Request) {
@@ -18,7 +18,10 @@ export async function GET(request: Request) {
             p.status,
             p.created_at,
             p.updated_at,
-            CASE WHEN p.image_url LIKE 'data:%' THEN NULL ELSE p.image_url END AS image_url
+            CASE
+              WHEN p.image_url LIKE 'data:%' THEN CONCAT('/api/projects/', p.id, '/image')
+              ELSE p.image_url
+            END AS image_url
           FROM projects p
           LEFT JOIN categories c ON c.id = p.category_id
           WHERE p.status <> 'Deleted' OR p.status IS NULL
@@ -65,12 +68,12 @@ export async function POST(request: Request) {
     const pool = await getDbConnection();
     
     const result = await pool.request()
-      .input('Title', sql.NVarChar(255), title)
-      .input('ClientName', sql.NVarChar(100), clientName)
-      .input('CategoryId', sql.Int, categoryId)
-      .input('Description', sql.NVarChar(sql.MAX), description)
-      .input('ImageUrl', sql.NVarChar(sql.MAX), imageUrl)
-      .input('Status', sql.NVarChar(20), status || 'Published')
+      .input('Title', title)
+      .input('ClientName', clientName || null)
+      .input('CategoryId', Number(categoryId))
+      .input('Description', description || null)
+      .input('ImageUrl', imageUrl || null)
+      .input('Status', status || 'Published')
       .execute('sp_CreateProject');
 
     invalidateRequestCache("all-projects");
@@ -100,7 +103,7 @@ export async function DELETE(request: Request) {
 
     const pool = await getDbConnection();
     await pool.request()
-      .input('ProjectId', sql.Int, id)
+      .input('ProjectId', Number(id))
       .execute('sp_DeleteProject');
 
     invalidateRequestCache("all-projects");

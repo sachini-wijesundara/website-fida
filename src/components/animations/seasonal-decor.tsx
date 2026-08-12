@@ -95,14 +95,27 @@ export default function SeasonalDecor() {
 
     async function fetchSeason() {
       try {
-        const res = await fetch("/api/settings");
+        const res = await fetch("/api/settings", { cache: "no-store" });
+        if (!res.ok) throw new Error(`Settings request failed: ${res.status}`);
         const data = await res.json();
-        if (data.active_season) setSeason(data.active_season as Season);
+        setSeason((data.active_season || "None") as Season);
       } catch (err) {
         console.error("Failed to fetch season:", err);
       }
     }
+
     fetchSeason();
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") fetchSeason();
+    };
+    const refreshTimer = window.setInterval(fetchSeason, 30_000);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+
+    return () => {
+      window.clearInterval(refreshTimer);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
   }, []);
 
   if (!shouldAnimate || season === "None") return null;

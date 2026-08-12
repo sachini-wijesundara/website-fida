@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Settings, Save, Sparkles, Trees, Snowflake, Sun, Loader2 } from "lucide-react";
+import { Check, Settings, Save, Sparkles, Trees, Snowflake, Sun, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function SettingsPage() {
@@ -10,20 +10,20 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        // Add timestamp to bypass any stuck client-side cache in dev mode
+        const res = await fetch(`/api/settings?t=${Date.now()}`, { cache: "no-store" });
+        const data = await res.json();
+        setSettings(data);
+      } catch (err) {
+        console.error("Failed to fetch settings:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchSettings();
   }, []);
-
-  const fetchSettings = async () => {
-    try {
-      const res = await fetch("/api/settings");
-      const data = await res.json();
-      setSettings(data);
-    } catch (err) {
-      console.error("Failed to fetch settings:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const updateSeason = async (season: string) => {
     setSaving(true);
@@ -76,7 +76,7 @@ export default function SettingsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <SeasonButton 
-              active={settings.active_season === "None"} 
+              active={!settings.active_season || settings.active_season === "None"} 
               onClick={() => updateSeason("None")} 
               icon={<XIcon />} 
               label="Standard (None)" 
@@ -191,12 +191,18 @@ function SeasonButton({ active, onClick, icon, label, desc }: any) {
   return (
     <button
       onClick={onClick}
-      className={`p-6 rounded-3xl border text-left transition-all ${
+      aria-pressed={active}
+      className={`relative p-6 rounded-3xl border text-left transition-all ${
         active 
-          ? "bg-blue-600/10 border-blue-500 shadow-lg shadow-blue-500/10" 
+          ? "bg-blue-500/15 border-blue-500 ring-2 ring-blue-400/25 shadow-lg shadow-blue-500/15" 
           : "bg-white/5 border-white/5 hover:border-white/20"
       }`}
     >
+      {active && (
+        <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-blue-500 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-sm">
+          <Check size={12} strokeWidth={3} /> Active
+        </span>
+      )}
       <div className="mb-4">{icon}</div>
       <div className={`font-bold text-sm mb-1 ${active ? "text-blue-400" : "text-white"}`}>{label}</div>
       <div className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-bold">{desc}</div>

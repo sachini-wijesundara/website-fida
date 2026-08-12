@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { useRef } from "react";
+import SeasonalDecor from "@/components/animations/seasonal-decor";
 
 const dots = Array.from({ length: 13 * 21 }, (_, index) => {
   const row = Math.floor(index / 21);
@@ -60,6 +61,7 @@ export default function Hero() {
   return (
     <section ref={stageRef} className="home-hero-stage">
       <div className="home-hero">
+        <SeasonalDecor />
         <motion.div
           className="home-hero__color-shift"
           style={reduceMotion ? { opacity: 0 } : { opacity: colorOpacity }}

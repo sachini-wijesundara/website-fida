@@ -11,7 +11,9 @@ export async function GET() {
       settings[row.setting_key] = row.setting_value;
     });
     
-    return NextResponse.json(settings);
+    return NextResponse.json(settings, {
+      headers: { "Cache-Control": "no-store, max-age=0" },
+    });
   } catch (error: any) {
     return NextResponse.json({ message: "Failed to fetch settings", error: error.message }, { status: 500 });
   }
@@ -24,8 +26,8 @@ export async function POST(request: Request) {
     const pool = await getDbConnection();
 
     await pool.request()
-      .input('key', sql.NVarChar(100), key)
-      .input('value', sql.NVarChar(sql.MAX), value)
+      .input('key', key)
+      .input('value', value)
       .execute("sp_UpdateSiteSetting");
 
     return NextResponse.json({ message: "Setting updated successfully" });

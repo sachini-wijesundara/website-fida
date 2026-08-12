@@ -15,20 +15,6 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const isLoginPage = pathname === "/admin/login";
 
-  React.useEffect(() => {
-    if (isLoginPage) return;
-
-    const timer = window.setTimeout(() => {
-      // Warm the two slowest remote-data endpoints while the dashboard is idle.
-      void Promise.allSettled([
-        fetch("/api/teams?summary=true", { priority: "low" } as RequestInit),
-        fetch("/api/projects?summary=true", { priority: "low" } as RequestInit),
-      ]);
-    }, 1200);
-
-    return () => window.clearTimeout(timer);
-  }, [isLoginPage]);
-
   const handleLogout = async () => {
     try {
       await fetch("/api/admin/logout", { method: "POST" });
@@ -135,6 +121,7 @@ function SidebarLink({ href, icon, label, active }: { href: string; icon: React.
   return (
     <Link
       href={href}
+      prefetch={false}
       className={`admin-nav-link flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-smooth group ${active ? 'is-active bg-[var(--bg-elevated)] text-[var(--green)]' : 'hover:bg-[var(--bg-elevated)]'}`}
     >
       <span className={`${active ? 'text-[var(--green)]' : 'text-[var(--text-muted)] group-hover:text-[var(--green)]'} transition-smooth`}>

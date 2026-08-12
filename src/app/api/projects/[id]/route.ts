@@ -1,38 +1,43 @@
 import { NextResponse } from "next/server";
-import { getDbConnection, sql } from "@/lib/db";
+import { getDbConnection } from "@/lib/db";
+import { invalidateRequestCache } from "@/lib/request-cache";
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = params.id;
+    const projectId = Number.parseInt(params.id, 10);
+    if (!Number.isInteger(projectId)) {
+      return NextResponse.json({ message: "Invalid project ID" }, { status: 400 });
+    }
+
     const pool = await getDbConnection();
-    
-    // Use the existing SP and filter in JS to be safe
-    const result = await pool.request().execute('sp_GetAllProjects');
-    const projects = result.recordset;
-    
-    // Find the project by ID. We check both 'ProjectId' and 'id' just in case.
-    const project = projects.find((p: any) => 
-      String(p.ProjectId) === id || String(p.id) === id
-    );
+    const result = await pool.request()
+      .input("ProjectId", projectId)
+      .query(`
+        SELECT p.id, p.title, p.client_name, p.category_id, p.description,
+               p.image_url, p.status, p.created_at, p.updated_at,
+               c.name AS category_name
+        FROM dbo.projects p
+        LEFT JOIN dbo.categories c ON c.id = p.category_id
+        WHERE p.id = @ProjectId
+          AND (p.status <> 'Deleted' OR p.status IS NULL);
+      `);
+    const project = result.recordset[0];
     
     if (!project) {
       return NextResponse.json({ message: "Project not found" }, { status: 404 });
     }
     
-    // Map fields to be consistent (as seen in admin and frontend)
     const formattedProject = {
       ...project,
-      // Ensure Title, Description, ImageUrl, ClientName, CategoryName are available
-      // even if they came back as snake_case from the SP
-      Title: project.Title || project.title,
-      Description: project.Description || project.description,
-      ImageUrl: project.ImageUrl || project.image_url,
-      ClientName: project.ClientName || project.client_name,
-      CategoryName: project.CategoryName || project.category_name,
-      ProjectId: project.ProjectId || project.id || project.Id
+      Title: project.title,
+      Description: project.description,
+      ImageUrl: project.image_url,
+      ClientName: project.client_name,
+      CategoryName: project.category_name,
+      ProjectId: project.id,
     };
     
     return NextResponse.json(formattedProject);
@@ -50,17 +55,43 @@ export async function PUT(
     const id = params.id;
     const data = await request.json();
     const { title, clientName, categoryId, description, imageUrl, status } = data;
+    const projectId = Number.parseInt(id, 10);
+    const parsedCategoryId = Number.parseInt(String(categoryId), 10);
+
+    if (!Number.isInteger(projectId) || !Number.isInteger(parsedCategoryId) || !title || !description) {
+      return NextResponse.json(
+        { message: "Project title, category, and description are required." },
+        { status: 400 },
+      );
+    }
 
     const pool = await getDbConnection();
-    await pool.request()
-      .input('ProjectId', sql.Int, parseInt(id))
-      .input('Title', sql.NVarChar(255), title)
-      .input('ClientName', sql.NVarChar(100), clientName)
-      .input('CategoryId', sql.Int, parseInt(categoryId))
-      .input('Description', sql.NVarChar(sql.MAX), description)
-      .input('ImageUrl', sql.NVarChar(sql.MAX), imageUrl)
-      .input('Status', sql.NVarChar(20), status)
-      .execute('sp_UpdateProject');
+    const result = await pool.request()
+      .input('ProjectId', projectId)
+      .input('Title', title)
+      .input('ClientName', clientName || null)
+      .input('CategoryId', parsedCategoryId)
+      .input('Description', description)
+      .input('ImageUrl', imageUrl || null)
+      .input('Status', status || 'Published')
+      .query(`
+        UPDATE dbo.projects
+        SET title = @Title,
+            client_name = @ClientName,
+            category_id = @CategoryId,
+            description = @Description,
+            image_url = @ImageUrl,
+            status = @Status,
+            updated_at = GETDATE()
+        WHERE id = @ProjectId;
+      `);
+
+    if (result.rowsAffected[0] !== 1) {
+      return NextResponse.json({ message: "Project not found." }, { status: 404 });
+    }
+
+    invalidateRequestCache("all-projects");
+    invalidateRequestCache("project-summaries");
 
     return NextResponse.json({ message: "Project updated successfully" });
   } catch (error: any) {

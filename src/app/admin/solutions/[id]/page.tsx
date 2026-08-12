@@ -10,6 +10,7 @@ export default function EditTemplatePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [solutionInfo, setSolutionInfo] = useState<any>(null);
   const [template, setTemplate] = useState<any>(null);
 
   useEffect(() => {
@@ -21,8 +22,9 @@ export default function EditTemplatePage() {
       const res = await fetch(`/api/solutions/${id}`);
       if (res.ok) {
         const data = await res.json();
+        setSolutionInfo(data);
         setTemplate(data.template_data || {
-           hero: { title: "", subtitle: "", description: "", features: [""], image: "" },
+           hero: { title: "", subtitle: "", description: "", features: [""], image: "", logo_image: null },
            features_section: { title: "", cards: [] },
            stats: { percentage: "", title: "", description: "", before_text: "", after_text: "" },
            bottom_text: ""
@@ -72,7 +74,11 @@ export default function EditTemplatePage() {
           <Link href="/admin/solutions" className="text-blue-500 hover:underline flex items-center gap-2 mb-4">
             <ArrowLeft size={16} /> Back to Solutions
           </Link>
-          <h2 className="text-3xl font-bold tracking-tight">Edit Solution Template</h2>
+          <h2 className="text-3xl font-bold tracking-tight">
+            {solutionInfo 
+              ? `Edit Template: ${solutionInfo.title} (${solutionInfo.order_index ? solutionInfo.order_index.toString().padStart(2, '0') : '00'})`
+              : "Edit Solution Template"}
+          </h2>
           <p className="text-[var(--text-secondary)] mt-1">Manage the specific sections for this solution's public page.</p>
         </div>
         <button
@@ -88,6 +94,41 @@ export default function EditTemplatePage() {
       {/* Hero Section */}
       <section className="glass rounded-3xl p-8 border border-[var(--grey-dark)]">
         <h3 className="text-xl font-bold mb-6 border-b border-white/10 pb-4">Hero Section</h3>
+        <div className="space-y-4 mb-6">
+          <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Hero Logo Upload (Optional)</label>
+          <input 
+            type="file" 
+            accept="image/*"
+            onChange={e => {
+              const file = e.target.files?.[0];
+              if (file) {
+                 const reader = new FileReader();
+                 reader.onloadend = () => {
+                    setTemplate({...template, hero: {...template.hero, logo_image: reader.result as string}});
+                 };
+                 reader.readAsDataURL(file);
+              }
+            }}
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" 
+          />
+          <div className="w-full md:w-1/3 aspect-[2/1] rounded-xl overflow-hidden border border-white/10 relative bg-white/5 p-4 flex items-center justify-center">
+             <img src={template.hero?.logo_image || "/images/FIDA Global logos.png"} alt="Logo Preview" className="w-full h-full object-contain" />
+             
+             <div className="absolute top-2 left-2 px-2 py-1 bg-black/50 backdrop-blur-md rounded-md text-[10px] font-bold uppercase tracking-widest text-white">
+               {template.hero?.logo_image ? "Custom Logo" : "Default Logo"}
+             </div>
+
+             {template.hero?.logo_image && (
+               <button 
+                 onClick={() => setTemplate({...template, hero: {...template.hero, logo_image: null}})}
+                 className="absolute top-2 right-2 p-2 bg-red-500/80 hover:bg-red-500 text-white rounded-lg transition-colors"
+                 title="Remove Custom Logo"
+               >
+                 <Trash2 size={14} />
+               </button>
+             )}
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="space-y-2">
             <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Title Line 1</label>

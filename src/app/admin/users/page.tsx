@@ -19,6 +19,11 @@ export default function UsersAdmin() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newUsername, setNewUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+
   useEffect(() => {
     async function fetchUsers() {
       try {
@@ -36,6 +41,33 @@ export default function UsersAdmin() {
     fetchUsers();
   }, []);
 
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUsername || !newPassword) return;
+    setIsCreating(true);
+    try {
+      const res = await fetch("/api/admin/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: newUsername, password: newPassword })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setIsModalOpen(false);
+        setNewUsername("");
+        setNewPassword("");
+        const refetch = await fetch("/api/admin/users");
+        if (refetch.ok) setUsers(await refetch.json());
+      } else {
+        alert(data.message || "Failed to create user");
+      }
+    } catch (err) {
+      alert("An error occurred while creating the user.");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   const activeCount = users.filter(u => u.status === 'Active').length;
 
   return (
@@ -46,7 +78,10 @@ export default function UsersAdmin() {
           <h2 className="text-3xl font-bold text-white tracking-tight">System Users</h2>
           <p className="text-[var(--text-muted)] mt-1">Manage administrative access and team permissions.</p>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[var(--green)] text-black font-bold hover:scale-[1.02] transition-smooth active:scale-95">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[var(--green)] text-black font-bold hover:scale-[1.02] transition-smooth active:scale-95"
+        >
           <UserPlus size={18} />
           Create User
         </button>
@@ -165,7 +200,62 @@ export default function UsersAdmin() {
             </table>
           )}
         </div>
-      </div>
+    </div>      {/* Create User Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative w-full max-w-md glass border border-white/10 rounded-[2rem] p-8 overflow-hidden"
+          >
+            <h3 className="text-2xl font-bold text-white mb-2">Create New User</h3>
+            <p className="text-sm text-[var(--text-muted)] mb-6">Add a new administrator to the system.</p>
+            
+            <form onSubmit={handleCreateUser} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Username</label>
+                <input 
+                  type="text" 
+                  value={newUsername}
+                  onChange={e => setNewUsername(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[var(--green)] outline-none transition-colors" 
+                  placeholder="e.g. jdoe_admin"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Password</label>
+                <input 
+                  type="password" 
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[var(--green)] outline-none transition-colors" 
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+              
+              <div className="pt-4 flex gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isCreating}
+                  className="flex-1 py-3 bg-[var(--green)] hover:bg-[#2DD4BF] text-black font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center"
+                >
+                  {isCreating ? <Loader2 className="animate-spin" size={20} /> : "Create User"}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

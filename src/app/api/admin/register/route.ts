@@ -17,8 +17,8 @@ export async function POST(request: Request) {
 
     // Call the stored procedure provided by the user
     const result = await pool.request()
-      .input('Username', sql.NVarChar(50), username)
-      .input('Password', sql.NVarChar(255), hashedPassword)
+      .input('Username', username)
+      .input('Password', hashedPassword)
       .execute('sp_CreateUser');
 
     if (result.recordset.length > 0) {

@@ -1,29 +1,33 @@
 import { NextResponse } from "next/server";
-import { getDbConnection, sql } from "@/lib/db";
+import { getDbConnection } from "@/lib/db";
+import { cachedRequest } from "@/lib/request-cache";
 
 export async function GET() {
   try {
-    const pool = await getDbConnection();
-    
-    // Fetch counts for the dashboard
-    const blogCount = await pool.request().query("SELECT COUNT(*) as count FROM blogs");
-    const projectCount = await pool.request().query("SELECT COUNT(*) as count FROM projects");
-    const expertiseCount = await pool.request().query("SELECT COUNT(*) as count FROM expertise");
-    const userCount = await pool.request().query("SELECT COUNT(*) as count FROM users");
-    const customerCount = await pool.request().query("SELECT COUNT(*) as count FROM customers");
+    const dashboard = await cachedRequest("admin-dashboard-stats", async () => {
+      const pool = await getDbConnection();
+      const result = await pool.request().query(`
+        SELECT
+          (SELECT COUNT(*) FROM dbo.blogs) AS blogs,
+          (SELECT COUNT(*) FROM dbo.projects WHERE status <> 'Deleted' OR status IS NULL) AS projects,
+          (SELECT COUNT(*) FROM dbo.expertise) AS expertise,
+          (SELECT COUNT(*) FROM dbo.users) AS users,
+          (SELECT COUNT(*) FROM dbo.customers) AS customers;
 
-    // Fetch recent activity (latest blogs)
-    const recentBlogs = await pool.request().query("SELECT TOP 5 title, created_at, status FROM blogs ORDER BY created_at DESC");
+        SELECT TOP (5) title, created_at, status
+        FROM dbo.blogs
+        ORDER BY created_at DESC;
+      `);
+      const recordsets = result.recordsets as any[];
+      return {
+        stats: recordsets[0][0],
+        recentBlogs: recordsets[1],
+      };
+    }, 30_000);
 
     return NextResponse.json({
-      stats: {
-        blogs: blogCount.recordset[0].count,
-        projects: projectCount.recordset[0].count,
-        expertise: expertiseCount.recordset[0].count,
-        users: userCount.recordset[0].count,
-        customers: customerCount.recordset[0].count,
-      },
-      recentBlogs: recentBlogs.recordset
+      stats: dashboard.stats,
+      recentBlogs: dashboard.recentBlogs,
     });
   } catch (error: any) {
     console.error("Dashboard Stats Error:", error);

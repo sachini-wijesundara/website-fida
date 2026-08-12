@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Check, Cloud, Lock, ShieldCheck, BadgeCheck, Zap } from "lucide-react";
+import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Check, Cloud, Lock, ShieldCheck, BadgeCheck, Zap, Wifi } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { runDirectionalPageTransition } from "@/lib/directional-page-transition";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -78,10 +80,25 @@ const CLIENTS = [
 
 export default function SolutionsContent() {
   const rm = useReducedMotion();
+  const router = useRouter();
   const [expandedSlug, setExpandedSlug] = useState("smart-hris");
   const [solutionImages, setSolutionImages] = useState<Record<string, SolutionImageRecord>>({});
+  const [smartHrisLogo, setSmartHrisLogo] = useState<string | null>(null);
   const activeIndexRef = useRef(0);
-  const scrollDirectionRef = useRef<"up" | "down">("down");
+
+  useEffect(() => {
+    fetch('/api/solutions/smart-hris')
+      .then(res => {
+        if (!res.ok) throw new Error("Not found");
+        return res.json();
+      })
+      .then(data => {
+        if (data?.template_data?.hero?.logo_image) {
+          setSmartHrisLogo(data.template_data.hero.logo_image);
+        }
+      })
+      .catch(err => console.error("Failed to fetch Smart HRIS logo:", err));
+  }, []);
 
   useEffect(() => {
     fetch("/api/solutions")
@@ -93,97 +110,97 @@ export default function SolutionsContent() {
   }, []);
 
   useEffect(() => {
-    let previousY = window.scrollY;
+    let returning = false;
+    let touchStartY = 0;
 
-    const trackScrollDirection = () => {
-      const currentY = window.scrollY;
-      if (Math.abs(currentY - previousY) > 4) {
-        scrollDirectionRef.current = currentY > previousY ? "down" : "up";
-        previousY = currentY;
-      }
+    const goBackToFragmentation = () => {
+      if (returning) return;
+      returning = true;
+      runDirectionalPageTransition({
+        direction: "backward",
+        destination: "/",
+        navigate: () => router.push("/", { scroll: false }),
+      });
     };
 
-    window.addEventListener("scroll", trackScrollDirection, { passive: true });
-    return () => window.removeEventListener("scroll", trackScrollDirection);
-  }, []);
+    const returnToFragmentation = (event: WheelEvent) => {
+      const heroTop = document.getElementById("smart-hris-hero")?.getBoundingClientRect().top ?? -Infinity;
+      const nearPageStart = window.scrollY <= Math.max(240, window.innerHeight * 0.35);
+      const heroStartIsVisible = heroTop >= -Math.max(240, window.innerHeight * 0.35);
+      if (event.deltaY >= -4 || (!nearPageStart && !heroStartIsVisible)) return;
+      goBackToFragmentation();
+    };
+
+    const rememberTouchStart = (event: TouchEvent) => {
+      touchStartY = event.touches[0]?.clientY ?? 0;
+    };
+
+    const returnFromTouch = (event: TouchEvent) => {
+      const currentY = event.touches[0]?.clientY ?? touchStartY;
+      const swipingDown = currentY - touchStartY > 24;
+      const heroTop = document.getElementById("smart-hris-hero")?.getBoundingClientRect().top ?? -Infinity;
+      const nearPageStart = window.scrollY <= Math.max(240, window.innerHeight * 0.35);
+      const heroStartIsVisible = heroTop >= -Math.max(240, window.innerHeight * 0.35);
+      if (swipingDown && (nearPageStart || heroStartIsVisible)) goBackToFragmentation();
+    };
+
+    document.addEventListener("wheel", returnToFragmentation, { passive: true, capture: true });
+    window.addEventListener("touchstart", rememberTouchStart, { passive: true });
+    window.addEventListener("touchmove", returnFromTouch, { passive: true });
+    return () => {
+      document.removeEventListener("wheel", returnToFragmentation, { capture: true });
+      window.removeEventListener("touchstart", rememberTouchStart);
+      window.removeEventListener("touchmove", returnFromTouch);
+    };
+  }, [router]);
 
   const expandSolution = (slug: string, index: number) => {
     activeIndexRef.current = index;
     setExpandedSlug(slug);
   };
 
-  const expandFromScroll = (slug: string, index: number) => {
-    const currentIndex = activeIndexRef.current;
-    const movingForward = scrollDirectionRef.current === "down" && index > currentIndex;
-    const movingBackward = scrollDirectionRef.current === "up" && index < currentIndex;
-
-    if (movingForward || movingBackward) expandSolution(slug, index);
-  };
-
   return (
     <main className="solutions-page smart-hris-page min-h-screen">
 
-      {/* ── Hero (matching target UI layout exactly) ── */}
-      <section className="sol-target-hero">
+      {/* ── Smart HRIS Hero: scroll-reveal animation ── */}
+      <motion.section
+        id="smart-hris-hero"
+        className="sol-target-hero"
+        initial={false}
+      >
         <div className="sol-target-hero__wash" aria-hidden="true" />
-
         <div className="sol-target-hero__content">
           <motion.div
-            className="sol-target-hero__copy"
-            initial={rm ? false : { opacity: 0, x: 100 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            className="flex flex-col mb-20 self-start lg:ml-[6vw] xl:ml-[8vw]"
+            initial={rm ? false : { opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.8, ease: EASE }}
+            transition={{ duration: 0.75, delay: 0.15, ease: EASE }}
           >
-            <p className="sol-target-brand">
-              <span>One ecosystem.</span> SmartHRIS <Cloud size={28} />
-            </p>
-            <h1>
-              Every layer of your workforce,{" "}
-              <span>covered.</span>
+            <div className="flex items-center flex-wrap mb-4">
+              <span className="text-[#5BA3C7] font-semibold text-[28px] lg:text-[32px]">One ecosystem.</span>
+              <img src={smartHrisLogo || "/images/FIDA Global logos.png"} alt="Smart HRIS Logo" className="h-[40px] lg:h-[52px] ml-3 object-contain" style={{ transform: 'translateY(-8%)' }} />
+            </div>
+            <h1 className="leading-[1.15] max-w-[850px] mb-6 text-[#1a2b4d] font-black text-[48px] lg:text-[60px] tracking-tight">
+              Every layer of your workforce, covered.
             </h1>
-            <p className="sol-target-intro">
+            <p className="text-[#637892] text-[17px] lg:text-[19px] leading-[1.7] max-w-[700px]">
               FIDA Global orchestrates your entire enterprise ecosystem. From strategic consultancy
               to ground-truth operational management, we provide a unified intelligence layer.
             </p>
           </motion.div>
-
           <div className="sol-target-stage">
-            {/* Dashboard (Right/Background) */}
-            <motion.div
-              className="sol-target-dashboard"
-              initial={rm ? false : { opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 1, delay: 0.2, ease: EASE }}
-            >
+            <motion.div className="sol-target-dashboard" initial={rm ? false : { opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 1, delay: 0.25, ease: EASE }}>
               <img src="/images/homepageimages/image5.png" alt="Smart HRIS dashboard" />
             </motion.div>
-
-            {/* Mobile (Left/Foreground) */}
-            <motion.div
-              className="sol-target-mobile"
-              initial={rm ? false : { opacity: 0, x: -30, y: 30 }}
-              whileInView={{ opacity: 1, x: 0, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.9, delay: 0.55, ease: EASE }}
-            >
+            <motion.div className="sol-target-mobile" initial={rm ? false : { opacity: 0, x: -30, y: 30 }} whileInView={{ opacity: 1, x: 0, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.9, delay: 0.4, ease: EASE }}>
               <img src="/images/homepageimages/IMG_8542.PNG" alt="Smart HRIS mobile app" />
             </motion.div>
-
-            {/* Robot Left */}
-            <div className="sol-target-robot sol-target-robot--left" aria-hidden="true">
-              <img src="/images/stylus_left.png" alt="" />
-            </div>
-
-            {/* Robot Right */}
-            <div className="sol-target-robot sol-target-robot--right" aria-hidden="true">
-              <img src="/images/stylus_right.png" alt="Robotic hand with stylus" />
-            </div>
+            <div className="sol-target-robot sol-target-robot--left" aria-hidden="true"><img src="/images/stylus_left.png" alt="" /></div>
+            <div className="sol-target-robot sol-target-robot--right" aria-hidden="true"><img src="/images/stylus_right.png" alt="Robotic hand with stylus" /></div>
           </div>
         </div>
-      </section>
-
+      </motion.section>
 
       {/* ── Our Solutions list ──────────────────────────── */}
       <section className="sol-list-section">
@@ -212,9 +229,9 @@ export default function SolutionsContent() {
               initial={rm ? false : { opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ amount: 0.55 }}
-              onViewportEnter={() => expandFromScroll(sol.slug, i)}
               transition={{ duration: 0.65, delay: i * 0.06, ease: EASE }}
               onClick={() => expandSolution(sol.slug, i)}
+              onMouseEnter={() => expandSolution(sol.slug, i)}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
                   event.preventDefault();
@@ -224,19 +241,40 @@ export default function SolutionsContent() {
               role="button"
               tabIndex={0}
               aria-expanded={expanded}
+              layout
+              whileHover={{ y: -2 }}
             >
               <div className="sol-list-item__body">
                 <h3 className="sol-list-item__title">{sol.title}</h3>
-                <p className="sol-list-item__desc">{expanded ? sol.details : sol.desc}</p>
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={expanded ? "detail" : "desc"}
+                    className="sol-list-item__desc"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.22, ease: "easeOut" }}
+                  >
+                    {expanded ? sol.details : sol.desc}
+                  </motion.p>
+                </AnimatePresence>
               </div>
               <Link href={`/solutions/${sol.slug}`} className="sol-list-item__link" onClick={(event) => event.stopPropagation()}>
                 Learn more <ArrowRight size={14} />
               </Link>
-              {expanded && (
-                <div className="sol-list-item__thumb">
-                  <img src={detailImage} alt={`${sol.title} solution preview`} />
-                </div>
-              )}
+              <AnimatePresence>
+                {expanded && (
+                  <motion.div
+                    className="sol-list-item__thumb"
+                    initial={{ opacity: 0, scale: 0.93, x: 24 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.93, x: 24 }}
+                    transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <img src={detailImage} alt={`${sol.title} solution preview`} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.article>
           )})}
         </div>

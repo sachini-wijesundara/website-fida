@@ -1,8 +1,9 @@
 "use client";
 
 import { motion, useReducedMotion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { runDirectionalPageTransition } from "@/lib/directional-page-transition";
 
 function Counter({ value, suffix = "", prefix = "" }: { value: number; suffix?: string, prefix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -67,15 +68,42 @@ export default function HomeOverview() {
   const reduceMotion = useReducedMotion();
   const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const solutionsSentinelRef = useRef<HTMLDivElement>(null);
-  const hasOpenedSolutions = useRef(false);
+  const fragmentationRef = useRef<HTMLElement>(null);
+  const hasOpenedSmartHris = useRef(false);
 
-  const markFragmentationTransition = () => {
-    sessionStorage.setItem("fida:fragmentation-to-solutions", "true");
+  const markFragmentationTransition = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (hasOpenedSmartHris.current) return;
+    hasOpenedSmartHris.current = true;
+    runDirectionalPageTransition({
+      direction: "forward",
+      destination: "/smart-hris",
+      navigate: () => router.push("/smart-hris", { scroll: false }),
+    });
   };
 
   useEffect(() => {
-    router.prefetch("/solutions");
+    router.prefetch("/smart-hris");
+  }, [router]);
+
+  useEffect(() => {
+    const openFromDownwardScroll = (event: WheelEvent) => {
+      const fragmentation = fragmentationRef.current;
+      if (!fragmentation || event.deltaY <= 4 || hasOpenedSmartHris.current) return;
+      const bounds = fragmentation.getBoundingClientRect();
+      const isAtFragmentationEnd = bounds.top < window.innerHeight && bounds.bottom <= window.innerHeight + 120;
+      if (!isAtFragmentationEnd) return;
+
+      hasOpenedSmartHris.current = true;
+      runDirectionalPageTransition({
+        direction: "forward",
+        destination: "/smart-hris",
+        navigate: () => router.push("/smart-hris", { scroll: false }),
+      });
+    };
+
+    document.addEventListener("wheel", openFromDownwardScroll, { passive: true, capture: true });
+    return () => document.removeEventListener("wheel", openFromDownwardScroll, { capture: true });
   }, [router]);
 
   useEffect(() => {
@@ -90,10 +118,6 @@ export default function HomeOverview() {
       )
       .catch(() => setCustomers([]));
   }, []);
-
-  useEffect(() => {
-    // Scroll-based auto redirect to solutions removed because solutions is now on the homepage.
-  }, [router]);
 
   const findCustomer = (id: number, keyword: string) => {
     let found = customers.find(c => c.id === id);
@@ -237,7 +261,7 @@ export default function HomeOverview() {
           </div>
         </div>
 
-        <section className="home-fragmentation home-fragmentation--homepage">
+        <section ref={fragmentationRef} className="home-fragmentation home-fragmentation--homepage">
           <motion.div
             className="home-fragmentation__copy"
             initial={reduceMotion ? false : { opacity: 0, x: -32 }}
@@ -282,15 +306,13 @@ export default function HomeOverview() {
           </motion.div>
 
           <Link
-            href="/solutions"
+            href="/smart-hris"
             onClick={markFragmentationTransition}
             className="home-fragmentation__link home-fragmentation__link--centered"
           >
             THIS IS WHERE FRAGMENTATION ENDS. <span aria-hidden="true">→</span>
           </Link>
         </section>
-
-        <div ref={solutionsSentinelRef} className="h-px w-full" aria-hidden="true" />
 
       </div>
     </motion.section>

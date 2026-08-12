@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     const pool = await getDbConnection();
 
     const result = await pool.request()
-      .input("username", sql.NVarChar, username)
+      .input("username", username)
       .query("SELECT id, username, password FROM users WHERE username = @username");
 
     if (result.recordset.length > 0) {

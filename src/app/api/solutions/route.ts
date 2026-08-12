@@ -61,6 +61,7 @@ export async function POST(request: Request) {
 
       const result = await pool.request()
         .input('Title', title)
+        .input('Slug', title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''))
         .input('Badge', badge || null)
         .input('Description', description)
         .input('ThumbnailImage', thumbnail_image || null)
@@ -68,9 +69,9 @@ export async function POST(request: Request) {
         .input('Status', status || 'Active')
         .input('TemplateData', defaultTemplateData)
         .query(`
-          INSERT INTO Solutions (title, badge, description, thumbnail_image, order_index, status, template_data)
+          INSERT INTO Solutions (title, slug, badge, description, thumbnail_image, order_index, status, template_data)
           OUTPUT INSERTED.id AS SolutionId
-          VALUES (@Title, @Badge, @Description, @ThumbnailImage, @OrderIndex, @Status, @TemplateData)
+          VALUES (@Title, @Slug, @Badge, @Description, @ThumbnailImage, @OrderIndex, @Status, @TemplateData)
         `);
       return NextResponse.json({ message: "Solution created", solutionId: result.recordset[0].SolutionId });
     }
