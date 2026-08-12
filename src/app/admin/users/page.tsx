@@ -24,6 +24,14 @@ export default function UsersAdmin() {
   const [newPassword, setNewPassword] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
+  // Edit states
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // Delete state
+  const [isDeletingId, setIsDeletingId] = useState<number | null>(null);
+
   useEffect(() => {
     async function fetchUsers() {
       try {
@@ -65,6 +73,61 @@ export default function UsersAdmin() {
       alert("An error occurred while creating the user.");
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  const handleDeleteUser = async (id: number, username: string) => {
+    if (!window.confirm(`Are you sure you want to delete the user "${username}"? This cannot be undone.`)) return;
+    
+    setIsDeletingId(id);
+    try {
+      const res = await fetch(`/api/admin/users/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setUsers(users.filter(u => u.id !== id));
+      } else {
+        const data = await res.json();
+        alert(data.message || "Failed to delete user");
+      }
+    } catch (err) {
+      alert("An error occurred while deleting the user.");
+    } finally {
+      setIsDeletingId(null);
+    }
+  };
+
+  const openEditModal = (user: any) => {
+    setEditingUser({ ...user, password: "" });
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    
+    setIsUpdating(true);
+    try {
+      const res = await fetch(`/api/admin/users/${editingUser.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: editingUser.username.trim(),
+          ...(editingUser.password ? { password: editingUser.password } : {})
+        })
+      });
+      if (res.ok) {
+        setIsEditModalOpen(false);
+        setEditingUser(null);
+        // Refetch users
+        const refetch = await fetch("/api/admin/users");
+        if (refetch.ok) setUsers(await refetch.json());
+      } else {
+        const data = await res.json();
+        alert(data.message || "Failed to update user");
+      }
+    } catch (err) {
+      alert("An error occurred while updating the user.");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -186,11 +249,18 @@ export default function UsersAdmin() {
                     </td>
                     <td className="px-8 py-6 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-smooth">
-                        <button className="p-2 rounded-lg hover:bg-white/10 text-[var(--text-muted)] hover:text-white transition-smooth">
+                        <button 
+                          onClick={() => openEditModal(user)}
+                          className="p-2 rounded-lg hover:bg-white/10 text-[var(--text-muted)] hover:text-white transition-smooth"
+                        >
                           <Edit2 size={16} />
                         </button>
-                        <button className="p-2 rounded-lg hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-400 transition-smooth">
-                          <Trash2 size={16} />
+                        <button 
+                          onClick={() => handleDeleteUser(user.id, user.username)}
+                          disabled={isDeletingId === user.id}
+                          className="p-2 rounded-lg hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-400 transition-smooth disabled:opacity-50"
+                        >
+                          {isDeletingId === user.id ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
                         </button>
                       </div>
                     </td>
@@ -250,6 +320,63 @@ export default function UsersAdmin() {
                   className="flex-1 py-3 bg-[var(--green)] hover:bg-[#2DD4BF] text-black font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center"
                 >
                   {isCreating ? <Loader2 className="animate-spin" size={20} /> : "Create User"}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {isEditModalOpen && editingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsEditModalOpen(false)} />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative w-full max-w-md glass border border-white/10 rounded-[2rem] p-8 overflow-hidden"
+          >
+            <h3 className="text-2xl font-bold text-white mb-2">Edit User</h3>
+            <p className="text-sm text-[var(--text-muted)] mb-6">Modify details for {editingUser.username}.</p>
+            
+            <form onSubmit={handleUpdateUser} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Username</label>
+                <input 
+                  type="text" 
+                  value={editingUser.username || ""}
+                  onChange={e => setEditingUser({ ...editingUser, username: e.target.value })}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[var(--green)] outline-none transition-colors" 
+                  placeholder="e.g. jdoe_admin"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">New Password (Optional)</label>
+                <input 
+                  type="password" 
+                  value={editingUser.password}
+                  onChange={e => setEditingUser({ ...editingUser, password: e.target.value })}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[var(--green)] outline-none transition-colors" 
+                  placeholder="Leave blank to keep current"
+                />
+              </div>
+              
+              <div className="pt-4 flex gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isUpdating}
+                  className="flex-1 py-3 bg-[var(--green)] hover:bg-[#2DD4BF] text-black font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center"
+                >
+                  {isUpdating ? <Loader2 className="animate-spin" size={20} /> : "Save Changes"}
                 </button>
               </div>
             </form>

@@ -13,11 +13,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Username and password are required" }, { status: 400 });
     }
 
+    const trimmedUsername = username.trim();
+
     const pool = await getDbConnection();
 
     const result = await pool.request()
-      .input("username", username)
-      .query("SELECT id, username, password FROM users WHERE username = @username");
+      .input("username", trimmedUsername)
+      .query("SELECT id, username, password FROM users WHERE username = @username OR email = @username");
 
     if (result.recordset.length > 0) {
       const user = result.recordset[0];
