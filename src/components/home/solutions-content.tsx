@@ -302,7 +302,7 @@ export default function SolutionsContent() {
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 0.85, delay: 0.15, ease: EASE }}
           >
-            <img src="/IMAGESET1/homeLAST.png" alt="Business leaders reviewing enterprise analytics" />
+            <img src="/images/solutions_images/homeLAST.png" alt="Business leaders reviewing enterprise analytics" />
           </motion.div>
         </div>
 
