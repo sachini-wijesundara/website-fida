@@ -128,12 +128,9 @@ export default function SolutionDetailPage() {
         {/* Hero Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-32 items-center">
           <div>
-            {/* Logo and Big Number */}
+            {/* Logo */}
             <div className="mb-8 flex items-center gap-6">
-               <div className="text-7xl font-black text-[#a5f3fc] leading-none tracking-tighter">
-                 {data.order_index ? data.order_index.toString().padStart(2, '0') : ''}
-               </div>
-               <img src="/images/FIDA%20Global%20logos.png" alt={`Logo`} className="w-full max-w-[280px] md:max-w-[300px] h-auto object-contain" />
+               <img src={data.hero?.logo_image || "/images/FIDA%20Global%20logos.png"} alt={`Logo`} className="w-full max-w-[280px] md:max-w-[300px] h-auto object-contain" />
             </div>
 
             <h1 className="text-5xl lg:text-6xl font-black text-[#0f172a] tracking-tight mb-6 leading-tight">
