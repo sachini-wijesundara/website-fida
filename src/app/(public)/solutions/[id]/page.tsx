@@ -290,7 +290,7 @@ export default function SolutionDetailPage() {
         </div>
 
         {/* More Solutions */}
-        <div>
+        <div style={{ marginBottom: '350px' }}>
           <h2 className="text-3xl font-extrabold text-[#0f172a] mb-10">More Solutions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {MORE_SOLUTIONS.filter(sol => sol.id !== data.slug && sol.id !== id).slice(0, 3).map(sol => (
