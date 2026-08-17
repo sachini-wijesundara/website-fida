@@ -12,23 +12,42 @@ export const dynamic = "force-dynamic";
 export default async function ProjectsPage() {
   let initialProjects: any[] = [];
   try {
-    const result = await cachedRequest("all-projects", async () => {
+    const result = await cachedRequest("public-projects-list", async () => {
       const pool = await getDbConnection();
-      return pool.request().execute('sp_GetAllProjects');
+      return pool.request().query(`
+        SELECT
+          p.id,
+          p.title,
+          p.client_name,
+          p.category_id,
+          c.name AS category_name,
+          p.description,
+          p.status,
+          p.created_at,
+          p.updated_at,
+          CASE
+            WHEN p.image_url LIKE 'data:%' THEN CONCAT('/api/projects/', p.id, '/image')
+            ELSE p.image_url
+          END AS image_url
+        FROM projects p
+        LEFT JOIN categories c ON c.id = p.category_id
+        WHERE p.status = 'Published'
+        ORDER BY p.created_at DESC
+      `);
     });
 
     initialProjects = result.recordset.map((p: any) => ({
       ...p,
-      id: p.ProjectId || p.id || p.Id,
+      id: p.id || p.ProjectId || p.Id,
       title: p.title || p.Title,
       description: p.description || p.Description,
       image_url: p.image_url || p.ImageUrl,
       category_name: p.category_name || p.CategoryName,
       client_name: p.client_name || p.ClientName
-    })).filter((project: any) => 
-      project.status?.trim().toLowerCase() === "published" || 
-      project.Status?.trim().toLowerCase() === "published"
-    );
+    }));
+    
+    // Ensure serializability for Client Components
+    initialProjects = JSON.parse(JSON.stringify(initialProjects));
   } catch (error) {
     console.error("Failed to fetch initial projects:", error);
   }
