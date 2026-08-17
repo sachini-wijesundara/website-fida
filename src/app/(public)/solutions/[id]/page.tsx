@@ -262,10 +262,12 @@ export default function SolutionDetailPage() {
 
         {/* CTA Banners */}
         <div className="space-y-6 mb-32">
-           <Link href="/contact" className="block w-full bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-3xl p-6 lg:p-8 flex items-center justify-center gap-4 transition-colors shadow-xl group">
-             <span className="text-sm lg:text-base font-bold uppercase tracking-widest">Further Details of <span className="text-[#38bdf8]">{data.hero?.title?.replace(',', '')} {data.hero?.subtitle}</span></span>
-             <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform text-[#38bdf8]" />
-           </Link>
+           {id === "smart-hris" && (
+             <Link href="/contact" className="block w-full bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-3xl p-6 lg:p-8 flex items-center justify-center gap-4 transition-colors shadow-xl group">
+               <span className="text-sm lg:text-base font-bold uppercase tracking-widest">Further Details of <span className="text-[#38bdf8]">{data.hero?.title?.replace(',', '')} {data.hero?.subtitle}</span></span>
+               <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform text-[#38bdf8]" />
+             </Link>
+           )}
 
            <div className="w-full bg-[#2563eb] rounded-3xl p-10 lg:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl overflow-hidden relative">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/2 pointer-events-none" />
