@@ -211,7 +211,7 @@ export default function EditTemplatePage() {
 
       {/* Features Section */}
       <section className="glass rounded-3xl p-8 border border-[var(--grey-dark)]">
-        <h3 className="text-xl font-bold mb-6 border-b border-white/10 pb-4">Features List (The 4 Cards)</h3>
+        <h3 className="text-xl font-bold mb-6 border-b border-white/10 pb-4">Features List</h3>
         <div className="space-y-2 mb-8">
           <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Section Title</label>
           <input 
@@ -223,9 +223,20 @@ export default function EditTemplatePage() {
         
         <div className="space-y-8">
           {template.features_section?.cards?.map((card: any, idx: number) => (
-            <div key={idx} className="p-6 bg-black/20 rounded-2xl border border-white/5">
+            <div key={idx} className="p-6 bg-black/20 rounded-2xl border border-white/5 relative">
               <div className="flex justify-between items-center mb-4">
                 <h4 className="font-bold">Card {idx + 1}</h4>
+                <button 
+                  onClick={() => {
+                    const newCards = [...template.features_section.cards];
+                    newCards.splice(idx, 1);
+                    setTemplate({...template, features_section: {...template.features_section, cards: newCards}});
+                  }}
+                  className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors"
+                  title="Remove Card"
+                >
+                  <Trash2 size={16} />
+                </button>
               </div>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -283,6 +294,17 @@ export default function EditTemplatePage() {
               </div>
             </div>
           ))}
+          
+          <button 
+            onClick={() => {
+              const newCards = [...(template.features_section?.cards || [])];
+              newCards.push({ title: "", description: "", iconBg: "#3b82f6", iconText: "white", image: "" });
+              setTemplate({...template, features_section: {...template.features_section, cards: newCards}});
+            }}
+            className="w-full py-4 border-2 border-dashed border-white/20 rounded-2xl text-[var(--text-muted)] hover:text-white hover:border-white/50 transition-colors flex items-center justify-center gap-2 font-bold"
+          >
+            <Plus size={20} /> Add Card
+          </button>
         </div>
       </section>
 

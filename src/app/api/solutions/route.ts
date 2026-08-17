@@ -47,7 +47,9 @@ export async function POST(request: Request) {
           title: "Built for Enterprise Efficiency", 
           cards: [
             { title: "Core Feature 1", description: "Details about this feature.", iconBg: "#3b82f6", iconText: "white" },
-            { title: "Core Feature 2", description: "Details about this feature.", iconBg: "#10b981", iconText: "white" }
+            { title: "Core Feature 2", description: "Details about this feature.", iconBg: "#10b981", iconText: "white" },
+            { title: "Core Feature 3", description: "Details about this feature.", iconBg: "#f59e0b", iconText: "white" },
+            { title: "Core Feature 4", description: "Details about this feature.", iconBg: "#ef4444", iconText: "white" }
           ] 
         },
         stats: { 
