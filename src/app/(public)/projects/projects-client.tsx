@@ -36,10 +36,17 @@ export default function ProjectsClient() {
   useEffect(() => {
     async function loadProjects() {
       try {
-        const response = await fetch("/api/projects");
+        const response = await fetch("/api/projects", { cache: "no-store" });
         if (!response.ok) throw new Error("Failed to load projects");
         const data = await response.json();
-        setProjects(data.filter((project: any) => project.status === "Published"));
+        if (Array.isArray(data)) {
+          setProjects(data.filter((project: any) => 
+            project.status?.trim().toLowerCase() === "published" || 
+            project.Status?.trim().toLowerCase() === "published"
+          ));
+        } else {
+          console.error("API did not return an array", data);
+        }
       } catch (error) {
         console.error("Error loading portfolio projects:", error);
       }
@@ -85,8 +92,6 @@ export default function ProjectsClient() {
              {getDescription(featuredProject.description)}
            </p>
            <div className="flex items-center gap-2 text-[#0284c7] font-semibold text-sm mb-8">
-              <Users size={16} />
-              1,240 employees managed
            </div>
            <div>
               <Link href={`/projects/${featuredProject.id}`} className="bg-[#3b82f6] hover:bg-[#2563eb] text-white px-6 py-3 rounded-full font-bold text-sm transition-colors inline-flex items-center gap-2">
