@@ -79,7 +79,7 @@ export default function SolutionDetailPage() {
          if (res.ok) {
            const json = await res.json();
            if (json.template_data) {
-              setData({ ...json.template_data, order_index: json.order_index });
+              setData({ ...json.template_data, order_index: json.order_index, slug: json.slug });
            } else {
               console.warn("No template_data found, redirecting");
               router.push("/solutions");
@@ -262,7 +262,7 @@ export default function SolutionDetailPage() {
 
         {/* CTA Banners */}
         <div className="space-y-6 mb-32">
-           {id === "smart-hris" && (
+           {data.slug === "smart-hris" && (
              <Link href="/contact" className="block w-full bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-3xl p-6 lg:p-8 flex items-center justify-center gap-4 transition-colors shadow-xl group">
                <span className="text-sm lg:text-base font-bold uppercase tracking-widest">Further Details of <span className="text-[#38bdf8]">{data.hero?.title?.replace(',', '')} {data.hero?.subtitle}</span></span>
                <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform text-[#38bdf8]" />
