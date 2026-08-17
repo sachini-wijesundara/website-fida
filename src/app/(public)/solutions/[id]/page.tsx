@@ -61,6 +61,12 @@ const MORE_SOLUTIONS = [
     title: "FIDA Helpdesk System",
     description: "Resolution-focused support infrastructure designed for rapid deployment and high customer satisfaction rates.",
     image: "/images/solutions_images/helpdesk.png"
+  },
+  {
+    id: "smart-hris",
+    title: "Smart HRIS",
+    description: "Transform your human resources with our centralized HRIS platform, automating core HR workflows and unlocking actionable workforce insights.",
+    image: "/images/solutions_images/smarthris.png"
   }
 ];
 
@@ -287,7 +293,7 @@ export default function SolutionDetailPage() {
         <div>
           <h2 className="text-3xl font-extrabold text-[#0f172a] mb-10">More Solutions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {MORE_SOLUTIONS.map(sol => (
+            {MORE_SOLUTIONS.filter(sol => sol.id !== data.slug && sol.id !== id).slice(0, 3).map(sol => (
               <Link href={`/solutions/${sol.id}`} key={sol.id} className="bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(5,44,101,0.03)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(5,44,101,0.06)] transition-all cursor-pointer">
                 <div className="h-48 overflow-hidden bg-gray-100 p-2">
                   <img src={sol.image} alt={sol.title} className="w-full h-full object-cover rounded-2xl transition-all duration-500" />
