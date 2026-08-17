@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getDbConnection, sql } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const pool = await getDbConnection();
@@ -51,14 +53,25 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     }
 
     const pool = await getDbConnection();
-    await pool.request()
-      .input('Id', parseInt(params.id))
-      .input('TemplateData', JSON.stringify(template_data))
-      .query(`
+    const isNumeric = !isNaN(Number(params.id));
+    const requestPool = pool.request();
+    requestPool.input('TemplateData', JSON.stringify(template_data));
+
+    if (isNumeric) {
+      requestPool.input('NumId', parseInt(params.id));
+      await requestPool.query(`
         UPDATE Solutions 
         SET template_data = @TemplateData, updated_at = GETDATE()
-        WHERE id = @Id
+        WHERE id = @NumId OR order_index = @NumId
       `);
+    } else {
+      requestPool.input('Slug', params.id);
+      await requestPool.query(`
+        UPDATE Solutions 
+        SET template_data = @TemplateData, updated_at = GETDATE()
+        WHERE slug = @Slug
+      `);
+    }
       
     return NextResponse.json({ message: "Solution template updated successfully" });
   } catch (error: any) {
