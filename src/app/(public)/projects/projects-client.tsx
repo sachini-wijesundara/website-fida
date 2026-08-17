@@ -29,31 +29,9 @@ function getDescription(description: string | undefined) {
   }
 }
 
-export default function ProjectsClient() {
+export default function ProjectsClient({ initialProjects = [] }: { initialProjects?: any[] }) {
   const [activeCategory, setActiveCategory] = useState("All");
-  const [projects, setProjects] = useState<any[]>([]);
-
-  useEffect(() => {
-    async function loadProjects() {
-      try {
-        const response = await fetch("/api/projects", { cache: "no-store" });
-        if (!response.ok) throw new Error("Failed to load projects");
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setProjects(data.filter((project: any) => 
-            project.status?.trim().toLowerCase() === "published" || 
-            project.Status?.trim().toLowerCase() === "published"
-          ));
-        } else {
-          console.error("API did not return an array", data);
-        }
-      } catch (error) {
-        console.error("Error loading portfolio projects:", error);
-      }
-    }
-
-    loadProjects();
-  }, []);
+  const [projects, setProjects] = useState<any[]>(initialProjects);
 
   const featuredProject = projects.find((project) => Number(project.id) === 1032) || projects[0];
   const categories = useMemo(() => {
