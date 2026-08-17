@@ -263,8 +263,8 @@ export default function SolutionDetailPage() {
         {/* CTA Banners */}
         <div className="space-y-6 mb-32">
            {data.slug === "smart-hris" && (
-             <Link href="/contact" className="block w-full bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-3xl p-6 lg:p-8 flex items-center justify-center gap-4 transition-colors shadow-xl group">
-               <span className="text-sm lg:text-base font-bold uppercase tracking-widest">Further Details of <span className="text-[#38bdf8]">{data.hero?.title?.replace(',', '')} {data.hero?.subtitle}</span></span>
+             <Link href="https://smarthris.com" target="_blank" rel="noopener noreferrer" className="block w-full bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-3xl p-6 lg:p-8 flex items-center justify-center gap-4 transition-colors shadow-xl group">
+               <span className="text-sm lg:text-base font-bold uppercase tracking-widest">Further Details of <span className="text-[#38bdf8]">Smart HRIS</span></span>
                <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform text-[#38bdf8]" />
              </Link>
            )}
