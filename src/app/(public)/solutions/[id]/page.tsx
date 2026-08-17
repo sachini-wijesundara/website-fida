@@ -124,7 +124,7 @@ export default function SolutionDetailPage() {
       <div className="absolute top-[40%] left-0 w-[800px] h-[800px] bg-gradient-to-tr from-[#e0f7fa] to-transparent opacity-40 rounded-full blur-3xl -translate-x-1/3 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-tl from-[#fee2e2] to-transparent opacity-30 rounded-full blur-3xl translate-x-1/4 translate-y-1/4 pointer-events-none" />
 
-      <section className="container mx-auto px-6 pt-32 pb-[350px] max-w-6xl relative z-10">
+      <section className="container mx-auto px-6 pt-32 pb-[450px] max-w-6xl relative z-10">
         
         {/* Back Link */}
         <Link href="/solutions" className="inline-flex items-center gap-2 text-[#475569] hover:text-[#052c65] font-semibold text-sm mb-12 transition-colors">
@@ -227,7 +227,7 @@ export default function SolutionDetailPage() {
           </div>
         )}
 
-        {/* Stat Block */}
+      {/* Stat Block */}
         {data.stats && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <div className="bg-[#f0f9ff]/80 rounded-[2.5rem] p-10 lg:p-14 shadow-[0_0_20px_rgba(56,189,248,0.25)] border-2 border-[#38bdf8] flex flex-col justify-center">
