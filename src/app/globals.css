@@ -1363,7 +1363,7 @@ a, button, [data-cursor] { cursor: pointer; }
   width: 100%;
   min-height: max(100svh, 700px);
   margin: 0;
-  padding: 66px max(11.5vw, calc((100vw - 1520px) / 2)) 48px;
+  padding: 66px max(11.5vw, calc((100vw - 1520px) / 2)) 150px;
   display: block;
   background: transparent;
 }

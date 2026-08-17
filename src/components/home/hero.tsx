@@ -101,17 +101,13 @@ export default function Hero() {
             Explore solutions
             <ArrowUpRight size={17} />
           </Link>
-          <Link href="/about" className="hero-button hero-button--secondary">
-            Learn more
-          </Link>
           <Link
             href="https://www.fidaglobal.com/FIDAGlobalProfile2024.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="home-hero__profile"
+            className="hero-button hero-button--secondary"
           >
             Company profile
-            <ArrowUpRight size={15} />
           </Link>
         </div>
         </motion.div>

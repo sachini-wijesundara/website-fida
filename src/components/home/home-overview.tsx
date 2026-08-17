@@ -310,7 +310,7 @@ export default function HomeOverview() {
             onClick={markFragmentationTransition}
             className="home-fragmentation__link home-fragmentation__link--centered"
           >
-            THIS IS WHERE FRAGMENTATION ENDS. <span aria-hidden="true">→</span>
+            THIS IS WHERE FRAGMENTATION ENDS.
           </Link>
         </section>
 
