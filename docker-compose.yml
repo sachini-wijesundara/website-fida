@@ -1,14 +1,16 @@
-version: '3.8'
-
 services:
   fida-web:
-    image: chamindujanmor/fida-web:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: fida-web
-    restart: always
+    restart: unless-stopped
     ports:
-      - "3000:3000"
+      # Access locally at http://localhost:3005 (or set APP_PORT in .env)
+      - "${APP_PORT:-3005}:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
     env_file:
-      - .env
+      - path: .env
+        required: false
