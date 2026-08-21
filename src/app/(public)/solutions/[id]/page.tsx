@@ -142,7 +142,7 @@ export default function SolutionDetailPage() {
           <div>
             {/* Logo */}
             <div className="mb-8 flex items-center gap-6">
-               <img src={data.hero?.logo_image || "/api/images/FIDA%20Global%20logos.png"} alt={`Logo`} className="h-[60px] md:h-[80px] w-auto object-contain object-left" />
+               <img src={data.hero?.logo_image || "/api/images/FIDA%20Global%20logos.png"} alt={`Logo`} className="max-w-[200px] md:max-w-[260px] max-h-[90px] md:max-h-[120px] w-auto h-auto object-contain object-left" />
             </div>
 
             <h1 className="text-5xl lg:text-6xl font-black text-[#0f172a] tracking-tight mb-6 leading-tight">
@@ -299,7 +299,7 @@ export default function SolutionDetailPage() {
         </div>
 
         {/* More Solutions */}
-        <div style={{ marginBottom: '350px' }}>
+        <div className="mb-32 lg:mb-40">
           <h2 className="text-3xl font-extrabold text-[#0f172a] mb-10">More Solutions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {MORE_SOLUTIONS.filter(sol => sol.id !== data.slug && sol.id !== id).slice(0, 3).map(sol => (
@@ -319,9 +319,6 @@ export default function SolutionDetailPage() {
             ))}
           </div>
         </div>
-
-        {/* Spacer to push footer down and create gap */}
-        <div className="h-[250px] lg:h-[350px] w-full" aria-hidden="true" />
       </section>
     </main>
   );

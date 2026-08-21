@@ -6,16 +6,16 @@ import { motion } from "framer-motion";
 import { Globe, Mail, Share2, Phone, MapPin, Network, ArrowUpRight } from "lucide-react";
 
 const solutionsLinks = [
-  { name: "Smart HRIS", href: "/solutions" },
-  { name: "FIDA Task Manager", href: "/solutions" },
-  { name: "FIDA Helpdesk System", href: "/solutions" },
-  { name: "Access Control & Attendance", href: "/solutions" },
-  { name: "FIDA Business Consultancy", href: "/services" },
+  { name: "Smart HRIS", href: "/solutions/01" },
+  { name: "FIDA Task Manager", href: "/solutions/04" },
+  { name: "FIDA Helpdesk System", href: "/solutions/05" },
+  { name: "Access Control & Attendance", href: "/solutions/02" },
+  { name: "FIDA Business Consultancy", href: "/solutions/03" },
 ];
 
 const companyLinks = [
   { name: "About", href: "/about" },
-  { name: "Careers", href: "/careers" },
+  { name: "solutions", href: "/solutions" },
   { name: "Company Profile", href: "https://www.fidaglobal.com/FIDAGlobalProfile2024.pdf", isExternal: true },
   { name: "Contact", href: "/contact" },
 ];
@@ -65,7 +65,7 @@ export default function Footer() {
               <>
                 <input
                   type="email"
-                  
+
                   placeholder="your@email.com"
                   value={subscribeEmail}
                   onChange={(e) => setSubscribeEmail(e.target.value)}
@@ -83,7 +83,7 @@ export default function Footer() {
       {/* Main footer contents container */}
       <div className="container mx-auto px-6 pb-16 lg:pb-20 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8">
-          
+
           {/* Column 1: Brand details */}
           <div className="lg:col-span-3 space-y-6">
             <Link href="/" className="flex items-center gap-3 group w-fit">
@@ -167,7 +167,7 @@ export default function Footer() {
                 <span>Global HQ, Enterprise District</span>
               </div>
             </div>
-            
+
             <div className="pt-3">
               <Link
                 href="/contact"

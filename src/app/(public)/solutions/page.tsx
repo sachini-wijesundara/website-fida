@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function SolutionsPage() {
   return (
-    <main className="min-h-screen pt-24 pb-48 bg-[#f8fafc]">
+    <main className="min-h-screen pt-24 pb-32 bg-[#f8fafc]">
       <SolutionsClient />
     </main>
   );
