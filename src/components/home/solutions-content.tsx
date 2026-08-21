@@ -13,42 +13,52 @@ const SOLUTIONS = [
   {
     slug: "smart-hris",
     dbSlug: "smart-hris",
+    id: "smart-hris",
     title: "Smart HRIS",
     desc: "The foundation: 13+ years of enterprise HR intelligence, unified into a single source of truth.",
     details: "15+ years of enterprise HR intelligence, unified into a single source of truth. Employee profiles, automated payroll, attendance, and document management form the core — while self-service portals, performance tracking, and recruitment tools turn Smart HRIS into the engine behind how your workforce actually grows.",
-    image: "/images/solutions_images/smarthris.png",
+    image: "/api/images/solutions_images/smarthris.png",
+    category: "HR",
   },
   {
     slug: "attendance",
     dbSlug: "access-control-attendance",
+    id: "access-control",
     title: "Access Control & Attendance",
     desc: "The ground-truth layer: secure access, accurate time tracking, and biometrically verified presence.",
     details: "Secure access, accurate time tracking, and biometrically verified presence — the layer everything else stands on.\n\nPowered by ZKTeco hardware, fingerprint and facial recognition, turnstiles, and gate systems pair with security guard patrol tracking, all installed and supported by FIDA's own team.",
-    image: "/images/solutions_images/attendance.png",
+    image: "/api/images/solutions_images/attendance.png",
+    category: "Operations",
   },
   {
     slug: "consultancy",
     dbSlug: "business-consultancy",
-    title: "FIDA Business Consultancy",
+    id: "bpo",
+    title: "BPO Services",
     desc: "The strategic layer: human-led guidance when you need more than just software to solve enterprise puzzles.",
     details: "Beyond software, FIDA offers human-led business consultancy for organizations facing challenges that technology alone cannot solve.\n\nOur team works directly with your business to assess operational gaps, recommend process improvements, and guide enterprise-level decision-making.",
-    image: "/images/solutions_images/bpo&services.png",
+    image: "/api/images/solutions_images/bpo&services.png",
+    category: "Services",
   },
   {
     slug: "task-manager",
     dbSlug: "task-manager",
+    id: "task-manager",
     title: "FIDA Task Manager",
     desc: "The operations layer: do more, stress less. Automate workflows and track team efficiency in real-time.",
     details: "FIDA Task Manager organizes team workflows through a visual, Kanban-style taskboard with four stages — To Do, In Progress, Review, and Done.\n\nBuilt-in commenting, file attachments, and team tagging keep collaboration and context in one place.",
-    image: "/images/solutions_images/taskmanager.png",
+    image: "/api/images/solutions_images/taskmanager.png",
+    category: "Operations",
   },
   {
     slug: "helpdesk",
     dbSlug: "helpdesk",
-    title: "FIDA Helpdesk System",
+    id: "helpdesk",
+    title: "Helpdesk System",
     desc: "The support layer: every ticket tracked, every response fast. Enterprise-grade resolution for internal requests.",
     details: "FIDA Helpdesk is a cloud-based ticketing and support management system designed for teams handling high volumes of customer or internal requests.\n\nBy combining transparency with data-backed insights, teams resolve issues accurately on the first attempt and build stronger trust.",
-    image: "/images/solutions_images/helpdesk.png",
+    image: "/api/images/solutions_images/helpdesk.png",
+    category: "Operations",
   },
 ];
 
@@ -179,7 +189,7 @@ export default function SolutionsContent() {
           >
             <div className="flex items-center flex-wrap mb-4">
               <span className="text-[#5BA3C7] font-semibold text-[28px] lg:text-[32px]">One ecosystem.</span>
-              <img src={smartHrisLogo || "/images/FIDA Global logos.png"} alt="Smart HRIS Logo" className="h-[40px] lg:h-[52px] ml-3 object-contain" style={{ transform: 'translateY(-8%)' }} />
+              <img src={smartHrisLogo || "/api/images/FIDA%20Global%20logos.png"} alt="Smart HRIS Logo" className="h-[40px] lg:h-[52px] ml-3 object-contain" style={{ transform: 'translateY(-8%)' }} />
             </div>
             <h1 className="leading-[1.15] max-w-[850px] mb-6 text-[#1a2b4d] font-black text-[48px] lg:text-[60px] tracking-tight">
               Every layer of your workforce, covered.
@@ -191,13 +201,13 @@ export default function SolutionsContent() {
           </motion.div>
           <div className="sol-target-stage">
             <motion.div className="sol-target-dashboard" initial={rm ? false : { opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 1, delay: 0.25, ease: EASE }}>
-              <img src="/images/homepageimages/image5.png" alt="Smart HRIS dashboard" />
+              <img src="/api/images/homepageimages/image5.png" alt="Smart HRIS dashboard" />
             </motion.div>
             <motion.div className="sol-target-mobile" initial={rm ? false : { opacity: 0, x: -30, y: 30 }} whileInView={{ opacity: 1, x: 0, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.9, delay: 0.4, ease: EASE }}>
-              <img src="/images/homepageimages/IMG_8542.PNG" alt="Smart HRIS mobile app" />
+              <img src="/api/images/homepageimages/IMG_8542.PNG" alt="Smart HRIS mobile app" />
             </motion.div>
-            <div className="sol-target-robot sol-target-robot--left" aria-hidden="true"><img src="/images/stylus_left.png" alt="" /></div>
-            <div className="sol-target-robot sol-target-robot--right" aria-hidden="true"><img src="/images/stylus_right.png" alt="Robotic hand with stylus" /></div>
+            <div className="sol-target-robot sol-target-robot--left" aria-hidden="true"><img src="/api/images/stylus_left.png" alt="" /></div>
+            <div className="sol-target-robot sol-target-robot--right" aria-hidden="true"><img src="/api/images/stylus_right.png" alt="Robotic hand with stylus" /></div>
           </div>
         </div>
       </motion.section>
@@ -219,7 +229,7 @@ export default function SolutionsContent() {
             const expanded = expandedSlug === sol.slug;
             const databaseImages = solutionImages[sol.dbSlug || sol.slug];
             const detailImage = sol.slug === "smart-hris"
-              ? "/images/homepageimages/image5.png"
+              ? "/api/images/homepageimages/image5.png"
               : databaseImages?.detail_image_1 || sol.image;
 
             return (
@@ -228,7 +238,7 @@ export default function SolutionsContent() {
               className={`sol-list-item${expanded ? " sol-list-item--featured" : ""}`}
               initial={rm ? false : { opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ amount: 0.55 }}
+              viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.65, delay: i * 0.06, ease: EASE }}
               onClick={() => expandSolution(sol.slug, i)}
               onMouseEnter={() => expandSolution(sol.slug, i)}
@@ -246,18 +256,9 @@ export default function SolutionsContent() {
             >
               <div className="sol-list-item__body">
                 <h3 className="sol-list-item__title">{sol.title}</h3>
-                <AnimatePresence mode="wait">
-                  <motion.p
-                    key={expanded ? "detail" : "desc"}
-                    className="sol-list-item__desc"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.22, ease: "easeOut" }}
-                  >
-                    {expanded ? sol.details : sol.desc}
-                  </motion.p>
-                </AnimatePresence>
+                <motion.p layout="position" className="sol-list-item__desc">
+                  {expanded ? sol.details : sol.desc}
+                </motion.p>
               </div>
               <Link href={`/solutions/${sol.slug}`} className="sol-list-item__link" onClick={(event) => event.stopPropagation()}>
                 Learn more <ArrowRight size={14} />
@@ -266,10 +267,10 @@ export default function SolutionsContent() {
                 {expanded && (
                   <motion.div
                     className="sol-list-item__thumb"
-                    initial={{ opacity: 0, scale: 0.93, x: 24 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.93, x: 24 }}
-                    transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+                    initial={{ opacity: 0, height: 0, overflow: "hidden" }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <img src={detailImage} alt={`${sol.title} solution preview`} />
                   </motion.div>
@@ -302,7 +303,7 @@ export default function SolutionsContent() {
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 0.85, delay: 0.15, ease: EASE }}
           >
-            <img src="/images/solutions_images/homeLAST.png" alt="Business leaders reviewing enterprise analytics" />
+            <img src="/api/images/solutions_images/homeLAST.png" alt="Business leaders reviewing enterprise analytics" />
           </motion.div>
         </div>
 

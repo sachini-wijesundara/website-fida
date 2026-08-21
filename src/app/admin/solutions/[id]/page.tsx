@@ -37,6 +37,16 @@ export default function EditTemplatePage() {
     }
   };
 
+  
+  const uploadImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    if (!res.ok) throw new Error("Upload failed");
+    const data = await res.json();
+    return data.url;
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -102,17 +112,15 @@ export default function EditTemplatePage() {
             onChange={e => {
               const file = e.target.files?.[0];
               if (file) {
-                 const reader = new FileReader();
-                 reader.onloadend = () => {
-                    setTemplate({...template, hero: {...template.hero, logo_image: reader.result as string}});
-                 };
-                 reader.readAsDataURL(file);
+                 uploadImage(file).then(url => {
+                    setTemplate({...template, hero: {...template.hero, logo_image: url}});
+                 }).catch(e => alert("Failed to upload logo: " + e.message));
               }
             }}
             className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" 
           />
           <div className="w-full md:w-1/3 aspect-[2/1] rounded-xl overflow-hidden border border-white/10 relative bg-white/5 p-4 flex items-center justify-center">
-             <img src={template.hero?.logo_image || "/images/FIDA Global logos.png"} alt="Logo Preview" className="w-full h-full object-contain" />
+             <img src={template.hero?.logo_image || "/api/images/FIDA%20Global%20logos.png"} alt="Logo Preview" className="w-full h-full object-contain" />
              
              <div className="absolute top-2 left-2 px-2 py-1 bg-black/50 backdrop-blur-md rounded-md text-[10px] font-bold uppercase tracking-widest text-white">
                {template.hero?.logo_image ? "Custom Logo" : "Default Logo"}
@@ -189,11 +197,9 @@ export default function EditTemplatePage() {
             onChange={e => {
               const file = e.target.files?.[0];
               if (file) {
-                 const reader = new FileReader();
-                 reader.onloadend = () => {
-                    setTemplate({...template, hero: {...template.hero, image: reader.result as string}});
-                 };
-                 reader.readAsDataURL(file);
+                 uploadImage(file).then(url => {
+                    setTemplate({...template, hero: {...template.hero, image: url}});
+                 }).catch(e => alert("Failed to upload hero image: " + e.message));
               }
             }}
             className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" 

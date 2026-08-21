@@ -2153,13 +2153,11 @@ body:has(.home-page) footer.site-footer { display: none !important; }
   width: auto;
   max-width: 100px;
   object-fit: contain;
-  filter: grayscale(1) opacity(.55);
-  transition: filter .35s, opacity .35s;
+  transition: opacity .35s;
 }
 
 .contact-trust__logos img:hover {
-  filter: none;
-  opacity: 1;
+  opacity: 0.85;
 }
 
 .contact-trust__logos span {

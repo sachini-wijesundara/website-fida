@@ -186,7 +186,7 @@ export default function ProductsSection() {
                 {/* Laptop mockup */}
                 <div className="smart-hris-dashboard-shot">
                   <img
-                    src={activeProduct.image_url || "/images/homepageimages/image5.png"}
+                    src={activeProduct.image_url || "/api/images/homepageimages/image5.png"}
                     alt={`${activeProduct.title} Dashboard`}
                     className="w-full h-auto object-cover"
                   />
@@ -195,7 +195,7 @@ export default function ProductsSection() {
                 {/* Mobile mockup */}
                 <div className="smart-hris-mobile-shot">
                   <img
-                    src="/images/homepageimages/IMG_8542.PNG"
+                    src="/api/images/homepageimages/IMG_8542.PNG"
                     alt={`${activeProduct.title} Mobile App`}
                     className="w-full h-auto object-cover"
                   />

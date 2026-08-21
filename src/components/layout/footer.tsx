@@ -25,7 +25,7 @@ export default function Footer() {
   const [subscribed, setSubscribed] = useState(false);
 
   return (
-    <footer className="relative bg-[#f4f9fd] border-t border-[#052c65]/8 text-[#052c65] site-footer">
+    <footer className="relative bg-[#f4f9fd] border-t border-[#052c65]/8 text-[#052c65] site-footer mt-32 lg:mt-48">
       {/* ── CTA banner halfly overlapped over the footer part ── */}
       <div className="container mx-auto px-6 max-w-4xl relative z-20 -translate-y-1/2 mb-[-120px]">
         <motion.div
@@ -65,6 +65,7 @@ export default function Footer() {
               <>
                 <input
                   type="email"
+                  
                   placeholder="your@email.com"
                   value={subscribeEmail}
                   onChange={(e) => setSubscribeEmail(e.target.value)}
@@ -170,9 +171,9 @@ export default function Footer() {
             <div className="pt-3">
               <Link
                 href="/contact"
-                className="text-[13px] font-bold text-blue-600 hover:text-blue-700 underline decoration-blue-300 decoration-1 underline-offset-4 inline-flex items-center gap-1"
+                className="inline-flex items-center justify-center px-7 py-3 bg-[#004dfc] hover:bg-[#003bd9] text-white text-[11px] font-bold tracking-[0.08em] uppercase rounded-full transition-all shadow-[0_8px_20px_rgba(0,77,252,0.24)] hover:shadow-[0_12px_24px_rgba(0,77,252,0.32)] hover:-translate-y-[1px] w-fit"
               >
-                Book a Consultation <span className="text-[14px]">→</span>
+                Book a Consultation
               </Link>
             </div>
           </div>

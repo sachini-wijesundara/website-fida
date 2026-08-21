@@ -102,14 +102,25 @@ export default function ContactClient() {
   useEffect(() => {
     fetch("/api/customers")
       .then((res) => (res.ok ? res.json() : []))
-      .then((data: Customer[]) =>
-        setCustomers(
-          data
-            .filter((c) => c.status === "Active" && c.logo_url)
-            .sort((a, b) => a.order_index - b.order_index)
-            .slice(0, 4)
-        )
-      )
+      .then((data: Customer[]) => {
+        const activeCustomers = data.filter(
+          (c) => c.status === "Active" && c.logo_url && !c.name.toLowerCase().includes("sipway")
+        );
+        const topThree = activeCustomers
+          .filter((c) => !c.name.toLowerCase().includes("kalani") && !c.name.toLowerCase().includes("kelani"))
+          .sort((a, b) => a.order_index - b.order_index)
+          .slice(0, 3);
+
+        const kelani = activeCustomers.find(
+          (c) => c.name.toLowerCase().includes("kalani") || c.name.toLowerCase().includes("kelani")
+        );
+
+        if (kelani) {
+          topThree.push(kelani);
+        }
+
+        setCustomers(topThree);
+      })
       .catch(() => setCustomers([]));
   }, []);
 
@@ -139,7 +150,7 @@ export default function ContactClient() {
     }
   };
 
-  const logos = customers.length
+  let logos = customers.length
     ? customers
     : fallbackLogos.map((name, i) => ({ id: i, name, logo_url: null, order_index: i, status: "Active" }));
 

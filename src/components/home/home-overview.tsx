@@ -165,7 +165,7 @@ export default function HomeOverview() {
       >
         <div className="home-bento__col home-bento__col--1">
           <div className="home-bento__media home-bento__photo--woman">
-            <img src="/images/homepageimages/image1.png" alt="FIDA Global team member" />
+            <img src="/api/images/homepageimages/image1.png" alt="FIDA Global team member" />
           </div>
           <div className="home-bento__stat home-bento__stat--green">
             <span><strong><Counter value={370} suffix="+" /></strong> Clients</span>
@@ -177,7 +177,7 @@ export default function HomeOverview() {
             <span><strong><Counter value={4} /></strong> Countries</span>
           </div>
           <div className="home-bento__media home-bento__photo--product">
-            <img src="/images/homepageimages/image2.png" alt="FIDA Global product experience" />
+            <img src="/api/images/homepageimages/image2.png" alt="FIDA Global product experience" />
           </div>
         </div>
 
@@ -194,13 +194,13 @@ export default function HomeOverview() {
 
         <div className="home-bento__right">
           <div className="home-bento__media home-bento__photo--desk">
-            <img src="/images/homepageimages/image3.png" alt="FIDA Global consultant" />
+            <img src="/api/images/homepageimages/image3.png" alt="FIDA Global consultant" />
           </div>
           <div className="home-bento__stat home-bento__stat--red">
             <span><strong><Counter value={14} suffix="+" /></strong> Years Experience</span>
           </div>
           <div className="home-bento__media home-bento__photo--office">
-            <img src="/images/homepageimages/image04.jpeg" alt="FIDA Global office" />
+            <img src="/api/images/homepageimages/image04.jpeg" alt="FIDA Global office" />
           </div>
         </div>
       </motion.div>
@@ -224,7 +224,7 @@ export default function HomeOverview() {
               transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
             >
               <img
-                src="/images/homepageimages/frame04.png"
+                src="/api/images/homepageimages/frame04.png"
                 alt="FIDA Global platform dashboards and employee portal"
               />
             </motion.div>

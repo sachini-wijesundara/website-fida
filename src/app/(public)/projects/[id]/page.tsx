@@ -85,7 +85,7 @@ export default function ProjectDetailPage() {
 
   return (
     <main className="public-pastel-page min-h-screen">
-      <section className="container mx-auto px-6 pt-32 pb-[350px] max-w-6xl">
+      <section className="container mx-auto px-6 pt-32  max-w-6xl">
         
         {/* Back Link */}
         <Link href="/projects" className="inline-flex items-center gap-2 text-[#475569] hover:text-[#052c65] font-semibold text-sm mb-10 transition-colors">
@@ -183,6 +183,8 @@ export default function ProjectDetailPage() {
           </div>
         )}
 
+        {/* Spacer to push footer down and create gap */}
+        <div className="h-[250px] lg:h-[350px] w-full" aria-hidden="true" />
       </section>
     </main>
   );

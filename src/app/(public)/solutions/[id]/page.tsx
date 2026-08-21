@@ -48,25 +48,25 @@ const MORE_SOLUTIONS = [
     id: "task-manager",
     title: "FIDA Task Manager",
     description: "Streamline project workflows with intelligent task prioritization and real-time team synchronization across your entire organization.",
-    image: "/images/solutions_images/taskmanager.png"
+    image: "/api/images/solutions_images/taskmanager.png"
   },
   {
     id: "access-control-attendance",
     title: "Access Control & Attendance",
     description: "Enterprise-grade biometric security and automated attendance tracking for high-traffic environments and secure facilities.",
-    image: "/images/solutions_images/attendance.png"
+    image: "/api/images/solutions_images/attendance.png"
   },
   {
     id: "helpdesk",
     title: "FIDA Helpdesk System",
     description: "Resolution-focused support infrastructure designed for rapid deployment and high customer satisfaction rates.",
-    image: "/images/solutions_images/helpdesk.png"
+    image: "/api/images/solutions_images/helpdesk.png"
   },
   {
     id: "smart-hris",
     title: "Smart HRIS",
     description: "Transform your human resources with our centralized HRIS platform, automating core HR workflows and unlocking actionable workforce insights.",
-    image: "/images/solutions_images/smarthris.png"
+    image: "/api/images/solutions_images/smarthris.png"
   }
 ];
 
@@ -124,7 +124,7 @@ export default function SolutionDetailPage() {
       <div className="absolute top-[40%] left-0 w-[800px] h-[800px] bg-gradient-to-tr from-[#e0f7fa] to-transparent opacity-40 rounded-full blur-3xl -translate-x-1/3 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-tl from-[#fee2e2] to-transparent opacity-30 rounded-full blur-3xl translate-x-1/4 translate-y-1/4 pointer-events-none" />
 
-      <section className="container mx-auto px-6 pt-32 max-w-6xl relative z-10" style={{ paddingBottom: '450px' }}>
+      <section className="container mx-auto px-6 pt-32 max-w-6xl relative z-10">
         
         {/* Back Link */}
         <Link href="/solutions" className="inline-flex items-center gap-2 text-[#475569] hover:text-[#052c65] font-semibold text-sm mb-12 transition-colors">
@@ -136,7 +136,7 @@ export default function SolutionDetailPage() {
           <div>
             {/* Logo */}
             <div className="mb-8 flex items-center gap-6">
-               <img src={data.hero?.logo_image || "/images/FIDA%20Global%20logos.png"} alt={`Logo`} className="w-full max-w-[280px] md:max-w-[300px] h-auto object-contain" />
+               <img src={data.hero?.logo_image || "/api/images/FIDA%20Global%20logos.png"} alt={`Logo`} className="w-full max-w-[280px] md:max-w-[300px] h-auto object-contain" />
             </div>
 
             <h1 className="text-5xl lg:text-6xl font-black text-[#0f172a] tracking-tight mb-6 leading-tight">
@@ -311,6 +311,8 @@ export default function SolutionDetailPage() {
           </div>
         </div>
 
+        {/* Spacer to push footer down and create gap */}
+        <div className="h-[250px] lg:h-[350px] w-full" aria-hidden="true" />
       </section>
     </main>
   );

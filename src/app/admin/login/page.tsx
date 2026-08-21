@@ -55,12 +55,7 @@ export default function AdminLogin() {
         className="w-full max-w-[460px] z-10"
       >
         <div className="admin-login-card glass rounded-[36px] px-8 pb-8 pt-10 sm:p-10 border border-[var(--grey-dark)] shadow-2xl relative">
-          {/* Logo / Icon */}
-          <div className="absolute -top-10 left-1/2 -translate-x-1/2">
-            <div className="admin-login-icon w-20 h-20 rounded-[24px] flex items-center justify-center">
-              <ShieldCheck size={38} />
-            </div>
-          </div>
+          {/* Logo / Icon Removed as requested */}
 
           <div className="mt-10 mb-8 text-center">
             <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--blue)] mb-3">FIDA Admin</p>

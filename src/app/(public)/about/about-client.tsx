@@ -17,14 +17,14 @@ const values = [
 // Team from the screenshot
 const team = [
   // Row 1
-  { name: "Upendra Wickramatunga", role: "MANAGING DIRECTOR", image: "/images/ourteam/upendra.png", row: 1 },
-  { name: "Toshani Munasinghe", role: "DIRECTOR HCM", image: "/images/ourteam/toshani.png", row: 1 },
-  { name: "Charmi Pallawela", role: "MANAGER BUSINESS DEVELOPMENT & OPERATION", image: "/images/ourteam/charmi.png", row: 1 },
-  { name: "Rukshan Peiris", role: "SENIOR SOFTWARE ENGINEER", image: "/images/ourteam/rukshan.png", row: 1 },
+  { name: "Upendra Wickramatunga", role: "MANAGING DIRECTOR", image: "/api/images/ourteam/upendra.png", row: 1 },
+  { name: "Toshani Munasinghe", role: "DIRECTOR HCM", image: "/api/images/ourteam/toshani.png", row: 1 },
+  { name: "Charmi Pallawela", role: "MANAGER BUSINESS DEVELOPMENT & OPERATION", image: "/api/images/ourteam/charmi.png", row: 1 },
+  { name: "Rukshan Peiris", role: "SENIOR SOFTWARE ENGINEER", image: "/api/images/ourteam/rukshan.png", row: 1 },
   // Row 2
-  { name: "Yuwanthi Perera", role: "SENIOR SOFTWARE ENGINEER", image: "/images/ourteam/yuwanthi.png", row: 2 },
-  { name: "Gihan Nayanajith", role: "SOFTWARE ENGINEER", image: "/images/ourteam/gihan.png", row: 2 },
-  { name: "Isuru Munasinghe", role: "MANAGER AUTOMATION AND DIGITAL TRASFORMATION", image: "/images/ourteam/isuru.png", row: 2 },
+  { name: "Yuwanthi Perera", role: "SENIOR SOFTWARE ENGINEER", image: "/api/images/ourteam/yuwanthi.png", row: 2 },
+  { name: "Gihan Nayanajith", role: "SOFTWARE ENGINEER", image: "/api/images/ourteam/gihan.png", row: 2 },
+  { name: "Isuru Munasinghe", role: "MANAGER AUTOMATION AND DIGITAL TRASFORMATION", image: "/api/images/ourteam/isuru.png", row: 2 },
 ];
 
 export default function AboutClient() {
@@ -69,7 +69,7 @@ export default function AboutClient() {
           >
             <div className="rounded-[2rem] overflow-hidden border border-slate-100 shadow-xl shadow-blue-50/50">
               <img
-                src="/images/about_team_banner.png"
+                src="/api/images/about_team_banner.png"
                 alt="FIDA Global Team Collaboration"
                 className="w-full h-[280px] sm:h-[360px] md:h-[420px] object-cover"
               />
