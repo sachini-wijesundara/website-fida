@@ -260,7 +260,7 @@ export default function SolutionsContent() {
                   {expanded ? sol.details : sol.desc}
                 </motion.p>
               </div>
-              <Link href={`/solutions/${sol.slug}`} className="sol-list-item__link" onClick={(event) => event.stopPropagation()}>
+              <Link href={`/solutions/${(i + 1).toString().padStart(2, '0')}`} className="sol-list-item__link" onClick={(event) => event.stopPropagation()}>
                 Learn more <ArrowRight size={14} />
               </Link>
               <AnimatePresence>

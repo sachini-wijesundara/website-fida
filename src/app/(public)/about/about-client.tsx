@@ -284,6 +284,19 @@ export default function AboutClient() {
         </div>
       </section>
 
+      {/* ── Award Banner Section ── */}
+      <section className="py-8 md:py-16 container mx-auto px-6 max-w-5xl">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: SMOOTH }}
+          className="w-full rounded-[2rem] overflow-hidden shadow-lg shadow-slate-100/50"
+        >
+          <img src="/award.png" alt="FIDA Global Awards" className="w-full h-auto object-cover" />
+        </motion.div>
+      </section>
+
       {/* ── 5. Full-Spectrum IT Services Built to Scale ── */}
       <section className="pt-16 md:pt-24 pb-72 md:pb-96 container mx-auto px-6 max-w-5xl">
         <motion.div
