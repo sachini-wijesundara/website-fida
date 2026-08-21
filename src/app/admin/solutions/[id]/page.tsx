@@ -26,7 +26,7 @@ export default function EditTemplatePage() {
         setTemplate(data.template_data || {
            hero: { title: "", subtitle: "", description: "", features: [""], image: "", logo_image: null },
            features_section: { title: "", cards: [] },
-           stats: { percentage: "", title: "", description: "", before_text: "", after_text: "" },
+           stats: { percentage: "", title: "", description: "", before_title: "", before_text: "", after_title: "", after_text: "" },
            bottom_text: ""
         });
       }
@@ -204,9 +204,9 @@ export default function EditTemplatePage() {
             }}
             className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" 
           />
-          {template.hero?.image && (
+          {(template.hero?.image || solutionInfo?.thumbnail_image || solutionInfo?.detail_image_1) && (
             <div className="w-full md:w-1/2 aspect-[4/3] rounded-xl overflow-hidden border border-white/10 relative">
-               <img src={template.hero.image} alt="Hero Preview" className="w-full h-full object-cover" />
+               <img src={template.hero?.image || solutionInfo?.detail_image_1 || solutionInfo?.thumbnail_image} alt="Hero Preview" className="w-full h-full object-cover" />
                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                   <span className="text-white text-xs font-bold">Current Image</span>
                </div>
@@ -345,23 +345,48 @@ export default function EditTemplatePage() {
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <div className="space-y-2">
-             <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">"Before" Text</label>
-             <textarea 
-               rows={4}
-               value={template.stats?.before_text || ""} 
-               onChange={e => setTemplate({...template, stats: {...template.stats, before_text: e.target.value}})}
-               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none resize-none" 
-             />
+           <div className="space-y-4">
+             <div className="space-y-2">
+               <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">"Before" Title</label>
+               <input 
+                 placeholder="e.g. Before Smart HRIS,"
+                 value={template.stats?.before_title || ""} 
+                 onChange={e => setTemplate({...template, stats: {...template.stats, before_title: e.target.value}})}
+                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none" 
+               />
+             </div>
+             <div className="space-y-2">
+               <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">"Before" Text</label>
+               <textarea 
+                 rows={4}
+                 placeholder="e.g. HR teams spent their time on manual payroll runs..."
+                 value={template.stats?.before_text || ""} 
+                 onChange={e => setTemplate({...template, stats: {...template.stats, before_text: e.target.value}})}
+                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none resize-none" 
+               />
+             </div>
            </div>
-           <div className="space-y-2">
-             <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">"After" Text</label>
-             <textarea 
-               rows={4}
-               value={template.stats?.after_text || ""} 
-               onChange={e => setTemplate({...template, stats: {...template.stats, after_text: e.target.value}})}
-               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none resize-none" 
-             />
+           
+           <div className="space-y-4">
+             <div className="space-y-2">
+               <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">"After" Title</label>
+               <input 
+                 placeholder="e.g. Manual HR -> automated HCM."
+                 value={template.stats?.after_title || ""} 
+                 onChange={e => setTemplate({...template, stats: {...template.stats, after_title: e.target.value}})}
+                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none" 
+               />
+             </div>
+             <div className="space-y-2">
+               <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">"After" Text</label>
+               <textarea 
+                 rows={4}
+                 placeholder="e.g. Payroll, attendance, records, and performance now managed..."
+                 value={template.stats?.after_text || ""} 
+                 onChange={e => setTemplate({...template, stats: {...template.stats, after_text: e.target.value}})}
+                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none resize-none" 
+               />
+             </div>
            </div>
         </div>
       </section>

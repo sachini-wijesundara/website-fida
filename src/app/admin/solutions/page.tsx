@@ -156,7 +156,7 @@ export default function SolutionsManagement() {
                   </td>
                   <td className="px-6 py-5 text-right">
                     <div className="flex items-center justify-end gap-2 text-[var(--text-muted)]">
-                      <Link href={`/admin/solutions/${t.id}`} className="p-2 hover:bg-white/5 rounded-lg hover:text-green-400 transition-colors" title="Edit Template">
+                      <Link href={`/admin/solutions/${(t.order_index || 0).toString().padStart(2, '0')}`} className="p-2 hover:bg-white/5 rounded-lg hover:text-green-400 transition-colors" title="Edit Template">
                         <LayoutTemplate size={16} />
                       </Link>
                       <button onClick={() => { setEditingItem(t); setIsModalOpen(true); }} className="p-2 hover:bg-white/5 rounded-lg hover:text-blue-400 transition-colors" title="Edit Basic Info">

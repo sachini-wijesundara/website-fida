@@ -85,7 +85,13 @@ export default function SolutionDetailPage() {
          if (res.ok) {
            const json = await res.json();
            if (json.template_data) {
-              setData({ ...json.template_data, order_index: json.order_index, slug: json.slug });
+              setData({ 
+                ...json.template_data, 
+                order_index: json.order_index, 
+                slug: json.slug,
+                thumbnail_image: json.thumbnail_image,
+                detail_image_1: json.detail_image_1
+              });
            } else {
               console.warn("No template_data found, redirecting");
               router.push("/solutions");
@@ -136,7 +142,7 @@ export default function SolutionDetailPage() {
           <div>
             {/* Logo */}
             <div className="mb-8 flex items-center gap-6">
-               <img src={data.hero?.logo_image || "/api/images/FIDA%20Global%20logos.png"} alt={`Logo`} className="w-full max-w-[280px] md:max-w-[300px] h-auto object-contain" />
+               <img src={data.hero?.logo_image || "/api/images/FIDA%20Global%20logos.png"} alt={`Logo`} className="h-[60px] md:h-[80px] w-auto object-contain object-left" />
             </div>
 
             <h1 className="text-5xl lg:text-6xl font-black text-[#0f172a] tracking-tight mb-6 leading-tight">
@@ -165,7 +171,7 @@ export default function SolutionDetailPage() {
 
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-[#e0f2fe] to-[#dcfce3] rounded-[3rem] -rotate-3 scale-105 opacity-60 blur-xl" />
-            <img src={data.hero?.image} alt={`Preview`} className="relative w-full rounded-[2.5rem] shadow-2xl border border-white/50 object-cover aspect-[4/3]" />
+            <img src={data.hero?.image || data.detail_image_1 || data.thumbnail_image || "/placeholder.jpg"} alt={`Preview`} className="relative w-full rounded-[2.5rem] shadow-2xl border border-white/50 object-cover aspect-[4/3]" />
           </div>
         </div>
 
@@ -244,12 +250,15 @@ export default function SolutionDetailPage() {
 
             <div className="flex flex-col gap-6 justify-center">
                <div className="bg-white rounded-3xl p-8 shadow-[inset_0_0_40px_rgba(253,224,71,0.3)] border border-[#fef08a]/50">
+                  {data.stats.before_title && (
+                    <h4 className="text-sm font-bold text-[#0f172a] mb-2">{data.stats.before_title}</h4>
+                  )}
                   <p className="text-[#475569] text-xs leading-relaxed font-medium whitespace-pre-line">
                     {data.stats.before_text}
                   </p>
                </div>
                <div className="bg-white rounded-3xl p-8 shadow-[inset_0_0_40px_rgba(56,189,248,0.25)] border border-[#bae6fd]/50">
-                  <h4 className="text-sm font-bold text-[#0f172a] mb-2">After FIDA</h4>
+                  <h4 className="text-sm font-bold text-[#0f172a] mb-2">{data.stats.after_title || "After FIDA"}</h4>
                   <p className="text-[#475569] text-xs leading-relaxed font-medium whitespace-pre-line">
                     {data.stats.after_text}
                   </p>
