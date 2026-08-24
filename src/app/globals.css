@@ -576,6 +576,27 @@ a, button, [data-cursor] { cursor: pointer; }
   font-family: var(--font-pt-sans), "PT Sans", Arial, sans-serif;
 }
 
+.unified-background-wrapper {
+  position: relative;
+  width: 100%;
+  margin-top: -115svh;
+  border-radius: clamp(2.5rem, 5vw, 5rem) clamp(2.5rem, 5vw, 5rem) 0 0;
+  overflow: hidden;
+  box-shadow: 0 -28px 70px rgba(5,44,101,.09);
+  background:
+    radial-gradient(ellipse 32rem 24rem at 2% 9%, rgba(193,239,248,.72), transparent 72%),
+    radial-gradient(ellipse 34rem 25rem at 98% 12%, rgba(255,226,230,.62), transparent 72%),
+    radial-gradient(ellipse 31rem 23rem at 1% 30%, rgba(205,242,249,.68), transparent 72%),
+    radial-gradient(ellipse 33rem 24rem at 99% 34%, rgba(255,231,233,.62), transparent 72%),
+    radial-gradient(ellipse 30rem 22rem at 3% 52%, rgba(255,247,215,.68), transparent 72%),
+    radial-gradient(ellipse 32rem 24rem at 97% 55%, rgba(222,245,205,.72), transparent 72%),
+    radial-gradient(ellipse 31rem 23rem at 1% 73%, rgba(202,240,249,.68), transparent 72%),
+    radial-gradient(ellipse 33rem 24rem at 99% 76%, rgba(255,226,230,.58), transparent 72%),
+    radial-gradient(ellipse 29rem 22rem at 12% 94%, rgba(255,245,210,.68), transparent 72%),
+    radial-gradient(ellipse 31rem 23rem at 92% 93%, rgba(220,245,202,.72), transparent 72%),
+    transparent;
+}
+
 .home-navbar {
   z-index: 100;
   padding: 1.4rem clamp(1.25rem, 3vw, 3rem);
@@ -1452,7 +1473,6 @@ a, button, [data-cursor] { cursor: pointer; }
 }
 .home-fragmentation__link--centered:hover { transform: translateX(-50%); }
 body:has(.home-page) .fida-chatbot { display: none !important; }
-body:has(.home-page) footer.site-footer { display: none !important; }
 .smart-hris-fragmentation {
   width: min(100% - 2rem, 1500px);
   min-height: clamp(620px, 48vw, 760px);
@@ -1521,18 +1541,7 @@ body:has(.home-page) footer.site-footer { display: none !important; }
 /* Smart HRIS product experience */
 .smart-hris-page {
   color: #052c65;
-  background:
-    radial-gradient(ellipse 32rem 24rem at 2% 9%, rgba(193,239,248,.72), transparent 72%),
-    radial-gradient(ellipse 34rem 25rem at 98% 12%, rgba(255,226,230,.62), transparent 72%),
-    radial-gradient(ellipse 31rem 23rem at 1% 30%, rgba(205,242,249,.68), transparent 72%),
-    radial-gradient(ellipse 33rem 24rem at 99% 34%, rgba(255,231,233,.62), transparent 72%),
-    radial-gradient(ellipse 30rem 22rem at 3% 52%, rgba(255,247,215,.68), transparent 72%),
-    radial-gradient(ellipse 32rem 24rem at 97% 55%, rgba(222,245,205,.72), transparent 72%),
-    radial-gradient(ellipse 31rem 23rem at 1% 73%, rgba(202,240,249,.68), transparent 72%),
-    radial-gradient(ellipse 33rem 24rem at 99% 76%, rgba(255,226,230,.58), transparent 72%),
-    radial-gradient(ellipse 29rem 22rem at 12% 94%, rgba(255,245,210,.68), transparent 72%),
-    radial-gradient(ellipse 31rem 23rem at 92% 93%, rgba(220,245,202,.72), transparent 72%),
-    #fff;
+  background: transparent;
 }
 
 .smart-hris-hero {
@@ -2854,8 +2863,8 @@ body:has(.home-page) footer.site-footer { display: none !important; }
 body:has(.solutions-page) footer.site-footer > div:first-child {
   max-width: 72rem;
   padding-top: 0;
-  margin-bottom: -4.5rem !important;
-  transform: translateY(-4.5rem) !important;
+  margin-bottom: -150px !important;
+  transform: translateY(-50%) !important;
 }
 body:has(.solutions-page) footer.site-footer .contact-cta {
   padding: clamp(2.5rem, 3.5vw, 3.25rem) clamp(1.5rem, 4vw, 3rem) clamp(2rem, 2.75vw, 2.5rem);
@@ -2904,8 +2913,8 @@ body:has(.solutions-page) footer.site-footer > div:nth-child(2) {
 
 @media (max-width: 640px) {
   body:has(.solutions-page) footer.site-footer > div:first-child {
-    margin-bottom: -2.5rem !important;
-    transform: translateY(-2.5rem) !important;
+    margin-bottom: -120px !important;
+    transform: translateY(-50%) !important;
   }
   body:has(.solutions-page) footer.site-footer .contact-cta {
     padding: 2rem 1.15rem 1.5rem;

@@ -69,42 +69,8 @@ export default function HomeOverview() {
   const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const fragmentationRef = useRef<HTMLElement>(null);
-  const hasOpenedSmartHris = useRef(false);
 
-  const markFragmentationTransition = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (hasOpenedSmartHris.current) return;
-    hasOpenedSmartHris.current = true;
-    runDirectionalPageTransition({
-      direction: "forward",
-      destination: "/smart-hris",
-      navigate: () => router.push("/smart-hris", { scroll: false }),
-    });
-  };
 
-  useEffect(() => {
-    router.prefetch("/smart-hris");
-  }, [router]);
-
-  useEffect(() => {
-    const openFromDownwardScroll = (event: WheelEvent) => {
-      const fragmentation = fragmentationRef.current;
-      if (!fragmentation || event.deltaY <= 4 || hasOpenedSmartHris.current) return;
-      const bounds = fragmentation.getBoundingClientRect();
-      const isAtFragmentationEnd = bounds.top < window.innerHeight && bounds.bottom <= window.innerHeight + 120;
-      if (!isAtFragmentationEnd) return;
-
-      hasOpenedSmartHris.current = true;
-      runDirectionalPageTransition({
-        direction: "forward",
-        destination: "/smart-hris",
-        navigate: () => router.push("/smart-hris", { scroll: false }),
-      });
-    };
-
-    document.addEventListener("wheel", openFromDownwardScroll, { passive: true, capture: true });
-    return () => document.removeEventListener("wheel", openFromDownwardScroll, { capture: true });
-  }, [router]);
 
   useEffect(() => {
     fetch("/api/customers")
@@ -305,13 +271,16 @@ export default function HomeOverview() {
             <span className="home-network-label home-network-label--systems">Systems that don&apos;t<br />talk to each other</span>
           </motion.div>
 
-          <Link
-            href="/smart-hris"
-            onClick={markFragmentationTransition}
+          <a
+            href="#smart-hris-hero"
             className="home-fragmentation__link home-fragmentation__link--centered"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById("smart-hris-hero")?.scrollIntoView({ behavior: "smooth" });
+            }}
           >
             THIS IS WHERE FRAGMENTATION ENDS.
-          </Link>
+          </a>
         </section>
 
       </div>
