@@ -119,50 +119,9 @@ export default function SolutionsContent() {
       .catch(() => setSolutionImages({}));
   }, []);
 
-  useEffect(() => {
-    let returning = false;
-    let touchStartY = 0;
 
-    const goBackToFragmentation = () => {
-      if (returning) return;
-      returning = true;
-      runDirectionalPageTransition({
-        direction: "backward",
-        destination: "/",
-        navigate: () => router.push("/", { scroll: false }),
-      });
-    };
 
-    const returnToFragmentation = (event: WheelEvent) => {
-      const heroTop = document.getElementById("smart-hris-hero")?.getBoundingClientRect().top ?? -Infinity;
-      const nearPageStart = window.scrollY <= Math.max(240, window.innerHeight * 0.35);
-      const heroStartIsVisible = heroTop >= -Math.max(240, window.innerHeight * 0.35);
-      if (event.deltaY >= -4 || (!nearPageStart && !heroStartIsVisible)) return;
-      goBackToFragmentation();
-    };
 
-    const rememberTouchStart = (event: TouchEvent) => {
-      touchStartY = event.touches[0]?.clientY ?? 0;
-    };
-
-    const returnFromTouch = (event: TouchEvent) => {
-      const currentY = event.touches[0]?.clientY ?? touchStartY;
-      const swipingDown = currentY - touchStartY > 24;
-      const heroTop = document.getElementById("smart-hris-hero")?.getBoundingClientRect().top ?? -Infinity;
-      const nearPageStart = window.scrollY <= Math.max(240, window.innerHeight * 0.35);
-      const heroStartIsVisible = heroTop >= -Math.max(240, window.innerHeight * 0.35);
-      if (swipingDown && (nearPageStart || heroStartIsVisible)) goBackToFragmentation();
-    };
-
-    document.addEventListener("wheel", returnToFragmentation, { passive: true, capture: true });
-    window.addEventListener("touchstart", rememberTouchStart, { passive: true });
-    window.addEventListener("touchmove", returnFromTouch, { passive: true });
-    return () => {
-      document.removeEventListener("wheel", returnToFragmentation, { capture: true });
-      window.removeEventListener("touchstart", rememberTouchStart);
-      window.removeEventListener("touchmove", returnFromTouch);
-    };
-  }, [router]);
 
   const expandSolution = (slug: string, index: number) => {
     activeIndexRef.current = index;
@@ -175,10 +134,9 @@ export default function SolutionsContent() {
       {/* ── Smart HRIS Hero: scroll-reveal animation ── */}
       <motion.section
         id="smart-hris-hero"
-        className="sol-target-hero"
+        className="sol-target-hero !rounded-none !shadow-none !pt-20"
         initial={false}
       >
-        <div className="sol-target-hero__wash" aria-hidden="true" />
         <div className="sol-target-hero__content">
           <motion.div
             className="flex flex-col mb-20 self-start lg:ml-[6vw] xl:ml-[8vw]"

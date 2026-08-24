@@ -25,7 +25,7 @@ export default function Footer() {
   const [subscribed, setSubscribed] = useState(false);
 
   return (
-    <footer className="relative bg-[#f4f9fd] border-t border-[#052c65]/8 text-[#052c65] site-footer mt-32 lg:mt-48">
+    <footer className="relative bg-[#f4f9fd] text-[#052c65] site-footer mt-32 lg:mt-48">
       {/* ── CTA banner halfly overlapped over the footer part ── */}
       <div className="container mx-auto px-6 max-w-4xl relative z-20 -translate-y-1/2 mb-[-120px]">
         <motion.div
@@ -158,13 +158,16 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-3 text-sm text-[#475569] font-semibold">
                 <Phone className="w-4 h-4 text-[#8fa2b8] shrink-0" />
-                <a href="tel:+15550000000" className="hover:text-blue-600 transition-colors">
-                  +1 (555) 000-0000
+                <a href="tel: +94 11 710 80 20" className="hover:text-blue-600 transition-colors">
+                 +94 11 710 80 20
                 </a>
               </div>
-              <div className="flex items-center gap-3 text-sm text-[#475569] font-semibold">
-                <MapPin className="w-4 h-4 text-[#8fa2b8] shrink-0" />
-                <span>Global HQ, Enterprise District</span>
+              <div className="flex items-start gap-3 text-sm text-[#475569] font-semibold">
+                <MapPin className="w-4 h-4 text-[#8fa2b8] shrink-0 mt-0.5" />
+                <span>
+                  No. 215 C, Raththanapitiya<br />
+                  Boralesgamuwa, 10290, Sri Lanka.
+                </span>
               </div>
             </div>
 
@@ -182,10 +185,10 @@ export default function Footer() {
       </div>
 
       {/* Centered copyright bottom bar with pure white background */}
-      <div className="bg-white border-t border-[#052c65]/8 py-5">
+      <div className="bg-white py-5">
         <div className="container mx-auto px-6 text-center">
           <p className="text-[12px] text-[#64748b] font-semibold flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-            <span>© 2024 FIDA Global. All rights reserved.</span>
+            <span>© FIDA Global. All rights reserved.</span>
             <Link href="/privacy" className="hover:text-blue-600 transition-colors">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-blue-600 transition-colors">Terms of Service</Link>
           </p>
