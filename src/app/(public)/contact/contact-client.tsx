@@ -211,15 +211,15 @@ export default function ContactClient() {
                     </button>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="mb-2">
+                  <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                    <div>
                       <h2 className="contact-card__title">Send Us a Message</h2>
                       <p className="contact-card__desc">
                         Have a project in mind? Tell us a bit about your needs and we&apos;ll respond within one business day.
                       </p>
                     </div>
 
-                    <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="grid sm:grid-cols-2 gap-5">
                       <Field
                         label="Full Name"
                         id="name"

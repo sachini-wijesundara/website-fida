@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getDbConnection } from "@/lib/db";
 import { invalidateRequestCache } from "@/lib/request-cache";
@@ -92,6 +93,7 @@ export async function PUT(
 
     invalidateRequestCache("all-projects");
     invalidateRequestCache("project-summaries");
+    invalidateRequestCache("public-projects-list");
 
     return NextResponse.json({ message: "Project updated successfully" });
   } catch (error: any) {

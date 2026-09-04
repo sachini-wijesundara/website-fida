@@ -27,8 +27,9 @@ const team = [
   { name: "Isuru Munasinghe", role: "MANAGER AUTOMATION AND DIGITAL TRASFORMATION", image: "/api/images/ourteam/isuru.png", row: 2 },
 ];
 
+const SMOOTH: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
 export default function AboutClient() {
-  const SMOOTH: [number, number, number, number] = [0.16, 1, 0.3, 1];
   const row1 = team.filter(m => m.row === 1);
   const row2 = team.filter(m => m.row === 2);
 
@@ -37,8 +38,8 @@ export default function AboutClient() {
       
       {/* ── 1. Hero Section ── */}
       <section className="pt-48 md:pt-60 pb-2 md:pb-4 relative">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[300px] bg-sky-200/30 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute top-0 right-1/4 w-[400px] h-[300px] bg-emerald-100/20 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 left-1/4 w-[500px] h-[300px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(186, 230, 253, 0.3) 0%, transparent 70%)' }} />
+        <div className="absolute top-0 right-1/4 w-[400px] h-[300px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(167, 243, 208, 0.2) 0%, transparent 70%)' }} />
         
         <div className="container mx-auto px-6 text-center max-w-4xl space-y-8 md:space-y-10 relative z-10">
           <motion.h1
@@ -47,7 +48,7 @@ export default function AboutClient() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: SMOOTH }}
           >
-            Building tomorrow's workforce, <span className="text-[#06b6d4]">today.</span>
+            Building tomorrow&apos;s workforce, <span className="text-[#06b6d4]">today.</span>
           </motion.h1>
           
           <motion.p
@@ -71,6 +72,7 @@ export default function AboutClient() {
               <img
                 src="/api/images/about_team_banner.png"
                 alt="FIDA Global Team Collaboration"
+                loading="lazy"
                 className="w-full h-[280px] sm:h-[360px] md:h-[420px] object-cover"
               />
             </div>
@@ -118,7 +120,7 @@ export default function AboutClient() {
                   OUR MISSION
                 </h3>
                 <p className="text-sm md:text-[15px] font-semibold text-slate-500 leading-relaxed">
-                  Be a global player of providing quality life, with a better future for everybody.
+                Satisfy our customers by providing world class innovations, products and, services with Social Responsibility.
                 </p>
               </div>
             </div>
@@ -185,6 +187,7 @@ export default function AboutClient() {
                   <img
                     src={member.image}
                     alt={member.name}
+                    loading="lazy"
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -223,6 +226,7 @@ export default function AboutClient() {
                   <img
                     src={member.image}
                     alt={member.name}
+                    loading="lazy"
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -242,7 +246,35 @@ export default function AboutClient() {
         </div>
       </section>
 
-      {/* ── 4. Our Values Section ── */}
+      {/* ── 4. Award Banner Section ── */}
+      <section className="py-16 md:py-24 container mx-auto px-6 max-w-5xl">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-3xl md:text-[2.5rem] font-[800] text-[#052c65] tracking-tight mb-4">
+            Award - Winning
+          </h2>
+          <p className="text-slate-500 font-medium md:text-lg">
+            NBQSA Winner – recognised for excellence in IT service delivery.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: SMOOTH }}
+          className="w-full rounded-[2rem] overflow-hidden shadow-2xl shadow-cyan-500/20 border-[3px] border-[#00b4d8]"
+        >
+          <img src="/award.png" alt="FIDA Global Awards" loading="lazy" className="w-full h-auto object-cover" />
+        </motion.div>
+      </section>
+
+      {/* ── 5. Our Values Section ── */}
       <section className="py-16 md:py-24 container mx-auto px-6 max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -282,19 +314,6 @@ export default function AboutClient() {
             );
           })}
         </div>
-      </section>
-
-      {/* ── Award Banner Section ── */}
-      <section className="py-8 md:py-16 container mx-auto px-6 max-w-5xl">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: SMOOTH }}
-          className="w-full rounded-[2rem] overflow-hidden shadow-lg shadow-slate-100/50"
-        >
-          <img src="/award.png" alt="FIDA Global Awards" className="w-full h-auto object-cover" />
-        </motion.div>
       </section>
 
       {/* ── 5. Full-Spectrum IT Services Built to Scale ── */}

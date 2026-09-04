@@ -1,6 +1,7 @@
 import Hero from "@/components/home/hero";
 import HomeOverview from "@/components/home/home-overview";
 import SolutionsContent from "@/components/home/solutions-content";
+import TestimonialsSection from "@/components/home/testimonials-section";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
         <HomeOverview />
         <SolutionsContent />
       </div>
+      <TestimonialsSection />
     </main>
   );
 }

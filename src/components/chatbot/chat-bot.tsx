@@ -377,7 +377,7 @@ export default function ChatBot() {
       </AnimatePresence>
 
       {/* ── Floating Robot Launcher ─────────────────────── */}
-      <div className="fida-chatbot fixed bottom-6 right-6 z-[999] flex items-center justify-center">
+      <div className="fida-chatbot fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[999] flex items-center justify-center">
         {/* Idle Pop-Up Cloud */}
         <AnimatePresence>
           {!open && showIdleCloud && (
@@ -386,7 +386,7 @@ export default function ChatBot() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.5, y: 10 }}
               transition={{ type: "spring", stiffness: 350, damping: 25 }}
-              className="absolute right-[85px] bottom-[15px] pointer-events-none"
+              className="absolute right-[70px] md:right-[85px] bottom-[10px] md:bottom-[15px] pointer-events-none hidden md:block"
             >
               <div
                 className="relative px-5 py-3.5 rounded-3xl rounded-br-sm text-[11px] font-black text-purple-900 bg-white border border-purple-100 shadow-[0_12px_35px_rgba(168,85,247,0.2)] w-[160px] leading-relaxed"
@@ -408,7 +408,7 @@ export default function ChatBot() {
           style={{ y: open ? 0 : bobY }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="relative w-20 h-20 flex items-center justify-center focus:outline-none"
+          className="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center focus:outline-none"
           aria-label="Open FIDA AI chat"
         >
           {/* Main button bg layer for glow (only visible when open as 'X' button) */}

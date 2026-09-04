@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getDbConnection } from "@/lib/db";
 import { cachedRequest, invalidateRequestCache } from "@/lib/request-cache";
@@ -78,6 +79,7 @@ export async function POST(request: Request) {
 
     invalidateRequestCache("all-projects");
     invalidateRequestCache("project-summaries");
+    invalidateRequestCache("public-projects-list");
 
 
     if (!result.recordset || result.recordset.length === 0) {
@@ -108,6 +110,7 @@ export async function DELETE(request: Request) {
 
     invalidateRequestCache("all-projects");
     invalidateRequestCache("project-summaries");
+    invalidateRequestCache("public-projects-list");
 
     return NextResponse.json({ message: "Project deleted successfully" });
   } catch (error: any) {

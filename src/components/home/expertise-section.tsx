@@ -78,7 +78,7 @@ export default function ExpertiseSection() {
     <section className="py-32 public-themed-section overflow-hidden relative">
       {/* Background Glows */}
       <div className="absolute top-0 right-0 w-full h-full pointer-events-none opacity-20">
-        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/10 blur-[120px] rounded-full" />
+        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%]     rounded-full" style={{ background: "radial-gradient(circle, var(--tw-gradient-stops, rgba(56, 189, 248, 0.15)), transparent 70%)" }} />
       </div>
 
       <div className="container mx-auto px-6 relative z-10">

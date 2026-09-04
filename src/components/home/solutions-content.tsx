@@ -95,6 +95,7 @@ export default function SolutionsContent() {
   const [solutionImages, setSolutionImages] = useState<Record<string, SolutionImageRecord>>({});
   const [smartHrisLogo, setSmartHrisLogo] = useState<string | null>(null);
   const activeIndexRef = useRef(0);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     fetch('/api/solutions/smart-hris')
@@ -128,6 +129,17 @@ export default function SolutionsContent() {
     setExpandedSlug(slug);
   };
 
+  const handleMouseEnter = (slug: string, index: number) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      expandSolution(slug, index);
+    }, 150);
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+  };
+
   return (
     <main className="solutions-page smart-hris-page min-h-screen">
 
@@ -149,7 +161,7 @@ export default function SolutionsContent() {
               <span className="text-[#5BA3C7] font-semibold text-[28px] lg:text-[32px]">One ecosystem.</span>
               <img src={smartHrisLogo || "/api/images/FIDA%20Global%20logos.png"} alt="Smart HRIS Logo" className="h-[40px] lg:h-[52px] ml-3 object-contain" style={{ transform: 'translateY(-8%)' }} />
             </div>
-            <h1 className="leading-[1.15] max-w-[850px] mb-6 text-[#1a2b4d] font-black text-[48px] lg:text-[60px] tracking-tight">
+            <h1 className="leading-[1.15] max-w-[850px] mb-6 text-[#1a2b4d] font-black text-[36px] md:text-[48px] lg:text-[60px] tracking-tight">
               Every layer of your workforce, covered.
             </h1>
             <p className="text-[#637892] text-[17px] lg:text-[19px] leading-[1.7] max-w-[700px]">
@@ -198,8 +210,12 @@ export default function SolutionsContent() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.65, delay: i * 0.06, ease: EASE }}
-              onClick={() => expandSolution(sol.slug, i)}
-              onMouseEnter={() => expandSolution(sol.slug, i)}
+              onClick={() => {
+                if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+                expandSolution(sol.slug, i);
+              }}
+              onMouseEnter={() => handleMouseEnter(sol.slug, i)}
+              onMouseLeave={handleMouseLeave}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
                   event.preventDefault();
@@ -321,36 +337,7 @@ export default function SolutionsContent() {
         </div>
       </motion.section>
 
-      {/* ── Trusted by Visionaries ─────────────────────── */}
-      <section className="sol-clients-section">
-        <motion.div
-          className="sol-clients-section__header"
-          initial={rm ? false : { opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: EASE }}
-        >
-          <h2 className="sol-clients-section__h2">
-            Trusted by <span>Visionaries</span><span className="sol-clients-section__star">”</span>
-          </h2>
-        </motion.div>
-        <div className="sol-clients-section__logos">
-          {CLIENTS.map((c, i) => (
-            <motion.div
-              key={c.name}
-              className="sol-client-card"
-              initial={rm ? false : { opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.55, delay: i * 0.06, ease: EASE }}
-            >
-              <strong className="sol-client-card__name">{c.name}</strong>
-              <p className="sol-client-card__quote">"{c.quote}"</p>
-              <span className="sol-client-card__stars" aria-label="5 out of 5 stars">☆☆☆☆☆</span>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+
 
     </main>
   );

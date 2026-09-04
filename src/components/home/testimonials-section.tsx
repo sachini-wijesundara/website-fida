@@ -6,7 +6,6 @@ import { Quote, Star, UserPlus, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function TestimonialsSection() {
   const [testimonials, setTestimonials] = useState<any[]>([]);
-  const [index, setIndex] = useState(0);
 
   useEffect(() => {
     async function fetchTestimonials() {
@@ -22,9 +21,6 @@ export default function TestimonialsSection() {
     }
     fetchTestimonials();
   }, []);
-
-  const next = () => setIndex((prev) => (prev + 1) % testimonials.length);
-  const prev = () => setIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
 
   if (testimonials.length === 0) return null;
 
@@ -42,57 +38,65 @@ export default function TestimonialsSection() {
           </h2>
         </div>
 
-        <div className="max-w-5xl mx-auto relative h-[400px] flex items-center justify-center">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: 100, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: -100, scale: 0.95 }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="bg-white rounded-[3rem] p-12 md:p-20 shadow-2xl relative w-full border border-zinc-100"
-            >
-              <div className="flex flex-col md:flex-row gap-12 items-center">
-                <div className="w-32 h-32 md:w-48 md:h-48 shrink-0 rounded-full overflow-hidden border-4 border-zinc-50 relative">
-                  {testimonials[index].image_url ? (
-                    <img src={testimonials[index].image_url} alt={testimonials[index].client_name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-zinc-100 flex items-center justify-center text-zinc-300">
-                      <UserPlus size={48} />
-                    </div>
-                  )}
-                </div>
+        <div className="w-full overflow-x-auto md:overflow-hidden pb-12 pt-4 relative group snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {/* Fade edges for a premium look (Desktop Only) */}
+          <div className="hidden md:block absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none"></div>
+          <div className="hidden md:block absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none"></div>
 
-                <div className="flex-1 space-y-8">
-                  <div className="flex gap-1">
-                    {[...Array(testimonials[index].rating || 5)].map((_, i) => (
-                      <Star key={i} size={16} className="fill-amber-400 text-amber-400" />
-                    ))}
+          <style>{`
+            .marquee-track {
+              display: flex;
+              width: max-content;
+            }
+            @media (min-width: 768px) {
+              .marquee-track {
+                animation: marquee ${testimonials.length * 5}s linear infinite;
+              }
+              .group:hover .marquee-track {
+                animation-play-state: paused;
+              }
+            }
+            @keyframes marquee {
+              0% { transform: translateX(0%); }
+              100% { transform: translateX(-50%); }
+            }
+          `}</style>
+
+          <div className="marquee-track px-6">
+            {[...testimonials, ...testimonials].map((t, i) => (
+              <div
+                key={`${t.id || i}-${i}`}
+                className="bg-white rounded-3xl p-8 shadow-xl border border-zinc-100 flex flex-col w-[85vw] md:w-[400px] shrink-0 mr-6 transition-transform md:hover:-translate-y-2 md:hover:shadow-2xl duration-300 snap-center"
+              >
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 shrink-0 rounded-full overflow-hidden border-2 border-zinc-50 relative bg-zinc-50">
+                    {t.image_url ? (
+                      <img src={t.image_url} alt={t.client_name} className="w-full h-full object-contain" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-zinc-300">
+                        <UserPlus size={24} />
+                      </div>
+                    )}
                   </div>
-
-                  <p className="text-xl md:text-3xl font-medium text-zinc-900 italic leading-relaxed">
-                    "{testimonials[index].content}"
-                  </p>
-
-                  <div className="border-t border-zinc-100 pt-8">
-                    <h4 className="text-xl font-black text-zinc-900 uppercase tracking-tight">{testimonials[index].client_name}</h4>
-                    <p className="text-blue-600 font-bold uppercase tracking-widest text-[10px]">
-                      {testimonials[index].client_position} at {testimonials[index].client_company}
+                  <div>
+                    <h4 className="text-lg font-black text-zinc-900 uppercase tracking-tight leading-tight">{t.client_name}</h4>
+                    <p className="text-blue-600 font-bold uppercase tracking-widest text-[9px] leading-tight mt-1">
+                      {t.client_position} {t.client_company && `at ${t.client_company}`}
                     </p>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
 
-          {/* Controls */}
-          <div className="absolute -bottom-16 md:bottom-auto md:-right-12 flex md:flex-col gap-4">
-            <button onClick={prev} className="w-14 h-14 rounded-full border border-[#052c65]/10 flex items-center justify-center hover:bg-[#052c65] hover:text-white transition-all group bg-white shadow-lg">
-              <ChevronLeft size={24} className="text-black group-hover:text-white group-hover:-translate-x-1 transition-transform" />
-            </button>
-            <button onClick={next} className="w-14 h-14 rounded-full border border-[#052c65]/10 flex items-center justify-center hover:bg-[#052c65] hover:text-white transition-all group bg-white shadow-lg">
-              <ChevronRight size={24} className="text-black group-hover:text-white group-hover:translate-x-1 transition-transform" />
-            </button>
+                <div className="flex gap-1 mb-4">
+                  {[...Array(t.rating || 5)].map((_, idx) => (
+                    <Star key={idx} size={14} className="fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+
+                <p className="text-sm md:text-base text-zinc-600 italic leading-relaxed flex-1">
+                  "{t.content}"
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </div>

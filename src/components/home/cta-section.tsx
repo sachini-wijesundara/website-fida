@@ -8,7 +8,7 @@ export default function CtaSection() {
     <section className="py-32 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 gradient-green opacity-5" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-primary opacity-10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px]   opacity-10   rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, var(--tw-gradient-stops, rgba(56, 189, 248, 0.15)), transparent 70%)" }} />
 
       <div className="container mx-auto px-6 relative z-10">
         <motion.div

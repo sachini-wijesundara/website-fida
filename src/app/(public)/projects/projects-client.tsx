@@ -9,14 +9,19 @@ const PROJECT_DISPLAY: Record<number, { category: string; client: string }> = {
   1011: { category: "Task Manager", client: "Hospitality & Tourism" },
   1014: { category: "Access Control & Attendance", client: "Supply Chain" },
   1015: { category: "Access Control & Attendance", client: "Manufacturing" },
-  1029: { category: "Business Consultancy", client: "Corporate Strategy" },
+  1029: { category: "Business Consultancy", client: "ICT" },
   1030: { category: "Smart HRIS", client: "Financial Services" },
-  1031: { category: "Smart HRIS", client: "Agri-business & Logistics" },
-  1032: { category: "Smart HRIS", client: "Enterprise HR" },
+  1031: { category: "Smart HRIS", client: "Agribusiness & Logistics" },
+  1032: { category: "Smart HRIS", client: "BPO" },
 };
 
-function getProjectCategory(project: any) {
-  return PROJECT_DISPLAY[Number(project.id)]?.category || project.category_name || "Project";
+function getProjectSize(project: any) {
+  if (Number(project.id) === 1031) return "Small and Medium Enterprises";
+  return "Large Enterprise";
+}
+
+function getProjectIndustry(project: any) {
+  return PROJECT_DISPLAY[Number(project.id)]?.client || project.client_name || "ICT";
 }
 
 function getDescription(description: string | undefined) {
@@ -30,18 +35,21 @@ function getDescription(description: string | undefined) {
 }
 
 export default function ProjectsClient({ initialProjects = [] }: { initialProjects?: any[] }) {
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeSize, setActiveSize] = useState("All Sizes");
+  const [activeIndustry, setActiveIndustry] = useState("All Industries");
   const [projects, setProjects] = useState<any[]>(initialProjects);
 
   const featuredProject = projects.find((project) => Number(project.id) === 1032) || projects[0];
-  const categories = useMemo(() => {
-    return ["All", ...Array.from(new Set(projects.map(getProjectCategory)))];
-  }, [projects]);
+  
+  const sizes = ["All Sizes", "Small and Medium Enterprises", "Large Enterprise"];
+  const industries = ["All Industries", "Agribusiness & Logistics", "Financial Services", "Manufacturing", "Hospitality & Tourism", "ICT", "BPO"];
+
   const gridProjects = useMemo(() => {
     return projects
       .filter((project) => project.id !== featuredProject?.id)
-      .filter((project) => activeCategory === "All" || getProjectCategory(project) === activeCategory);
-  }, [activeCategory, featuredProject?.id, projects]);
+      .filter((project) => activeSize === "All Sizes" || getProjectSize(project) === activeSize)
+      .filter((project) => activeIndustry === "All Industries" || getProjectIndustry(project) === activeIndustry);
+  }, [activeSize, activeIndustry, featuredProject?.id, projects]);
 
   return (
     <section className="container mx-auto px-6 pb-48 md:pb-56">
@@ -80,20 +88,40 @@ export default function ProjectsClient({ initialProjects = [] }: { initialProjec
       </motion.div>}
 
       {/* Filter Tabs */}
-      <div className="flex flex-wrap justify-center gap-3 mb-16 max-w-5xl mx-auto">
-        {categories.map(cat => (
-          <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
-            className={`px-5 py-2 rounded-full text-xs font-bold transition-colors border ${
-              activeCategory === cat 
-                ? "bg-[#3b82f6] border-[#3b82f6] text-white" 
-                : "bg-white border-gray-200 text-[#64748b] hover:border-[#3b82f6]/50"
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
+      <div className="flex flex-col gap-4 mb-16 max-w-5xl mx-auto">
+        {/* Sizes Filter */}
+        <div className="flex flex-wrap justify-center gap-3">
+          {sizes.map(size => (
+            <button
+              key={size}
+              onClick={() => setActiveSize(size)}
+              className={`px-5 py-2 rounded-full text-xs font-bold transition-colors border ${
+                activeSize === size 
+                  ? "bg-[#3b82f6] border-[#3b82f6] text-white" 
+                  : "bg-white border-gray-200 text-[#64748b] hover:border-[#3b82f6]/50"
+              }`}
+            >
+              {size}
+            </button>
+          ))}
+        </div>
+
+        {/* Industries Filter */}
+        <div className="flex flex-wrap justify-center gap-3">
+          {industries.map(ind => (
+            <button
+              key={ind}
+              onClick={() => setActiveIndustry(ind)}
+              className={`px-5 py-2 rounded-full text-xs font-bold transition-colors border ${
+                activeIndustry === ind 
+                  ? "bg-[#3b82f6] border-[#3b82f6] text-white" 
+                  : "bg-white border-gray-200 text-[#64748b] hover:border-[#3b82f6]/50"
+              }`}
+            >
+              {ind}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Project Grid */}
@@ -113,9 +141,9 @@ export default function ProjectsClient({ initialProjects = [] }: { initialProjec
                  alt={proj.title} 
                  className="w-full h-full object-cover" 
                />
-               <div className="absolute top-4 left-4">
-                  <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#e6f2f0] text-[#1e293b] shadow-sm">
-                    {getProjectCategory(proj)}
+               <div className="absolute top-4 left-4 flex flex-col gap-2">
+                  <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#e6f2f0] text-[#1e293b] shadow-sm w-max">
+                    {PROJECT_DISPLAY[Number(proj.id)]?.category || proj.category_name || "Project"}
                   </span>
                </div>
             </div>
@@ -125,7 +153,7 @@ export default function ProjectsClient({ initialProjects = [] }: { initialProjec
                  {proj.title}
                </h3>
                <div className="text-sm text-[#64748b]">
-                  {PROJECT_DISPLAY[Number(proj.id)]?.client || proj.client_name}
+                  {getProjectIndustry(proj)} • {getProjectSize(proj)}
                </div>
 
                <p className="text-[#334155] text-[0.95rem] leading-relaxed line-clamp-3 flex-1 mt-4">

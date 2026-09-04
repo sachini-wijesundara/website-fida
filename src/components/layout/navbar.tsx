@@ -9,7 +9,7 @@ import { X, Menu, ArrowRight, Mail, Phone } from "lucide-react";
 const links = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
-  { name: "Company Profile", href: "https://www.fidaglobal.com/FIDAGlobalProfile2024.pdf", isExternal: true },
+  { name: "Company Profile", href: "/FIDAGlobalProfile2024.pdf", isExternal: true, download: true },
   { name: "Solutions", href: "/solutions" },
   { name: "Projects", href: "/projects" },
   { name: "Contact", href: "/contact" },
@@ -123,6 +123,7 @@ export default function Navbar() {
                         href={link.href}
                         target={link.isExternal ? "_blank" : undefined}
                         rel={link.isExternal ? "noopener noreferrer" : undefined}
+                        download={link.download ? "FIDAGlobalProfile2024.pdf" : undefined}
                         onClick={() => setMenuOpen(false)}
                         className={`group flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0 transition-all duration-200 rounded-xl px-3 -mx-3 ${
                           isActive
@@ -160,7 +161,7 @@ export default function Navbar() {
                       className="flex items-center gap-3 text-xs font-semibold text-[#536b8a] hover:text-blue-600 transition-colors"
                     >
                       <Phone className="w-4 h-4 text-[#8fa2b8] shrink-0" />
-                      <span>+94 11 576 57 57</span>
+                      <span>+94 11 710 80 20</span>
                     </a>
                   </div>
 

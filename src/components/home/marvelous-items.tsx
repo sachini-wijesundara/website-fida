@@ -26,8 +26,8 @@ export default function MarvelousItems() {
   return (
     <section className="py-24 relative overflow-hidden public-themed-section">
       {/* Background Decorative Elements */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/5 blur-[120px] rounded-full -mr-64 -mt-32" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/5 blur-[120px] rounded-full -ml-64 -mb-32" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px]     rounded-full -mr-64 -mt-32" style={{ background: "radial-gradient(circle, var(--tw-gradient-stops, rgba(56, 189, 248, 0.15)), transparent 70%)" }} />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px]     rounded-full -ml-64 -mb-32" style={{ background: "radial-gradient(circle, var(--tw-gradient-stops, rgba(56, 189, 248, 0.15)), transparent 70%)" }} />
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-16">

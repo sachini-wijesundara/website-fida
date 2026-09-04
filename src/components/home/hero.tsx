@@ -86,7 +86,7 @@ export default function Hero() {
         </p>
 
         <h1>
-          Enterprise <span>GLOBAL</span>
+          GLOBAL <span>Enterprise</span>
           <br />
           Optimum
         </h1>

@@ -40,29 +40,7 @@ const reveal = {
   visible: { opacity: 1, y: 0 },
 };
 
-const row1Config = [
-  { id: 6, key: "cable", name: "Cable Solutions" },
-  { id: 21, key: "ruhunu", name: "Ruhunu" },
-  { id: 3, key: "commercial", name: "Commercial Insurance" },
-  { id: 2, key: "monaro", name: "Monaro" },
-  { id: 23, key: "lmsl", name: "lmsl" }
-];
 
-const row2Config = [
-  { id: 1, key: "aban", name: "Abans" },
-  { id: 25, key: "acl", name: "ACL" },
-  { id: 22, key: "sas", name: "SAS" },
-  { id: 4, key: "sipway", name: "Sipway" },
-  { id: 20, key: "uwu", name: "UWU" },
-  { id: 5, key: "rotax", name: "Rotax Limited" },
-  { id: 18, key: "emg", name: "EMG Logistics" }
-];
-
-const row3Config = [
-  { id: 27, key: "kalani", name: "Kelani Cables" },
-  { id: 17, key: "kablr", name: "kablr" },
-  { id: 24, key: "sky", name: "SkyNet" }
-];
 
 export default function HomeOverview() {
   const reduceMotion = useReducedMotion();
@@ -78,40 +56,14 @@ export default function HomeOverview() {
       .then((data: Customer[]) =>
         setCustomers(
           data
-            .filter((customer) => customer.status === "Active" && customer.logo_url)
+            .filter((customer) => customer.status === "Active")
             .sort((a, b) => a.order_index - b.order_index)
         )
       )
       .catch(() => setCustomers([]));
   }, []);
 
-  const findCustomer = (id: number, keyword: string) => {
-    let found = customers.find(c => c.id === id);
-    if (!found) {
-      found = customers.find(c => c.name.toLowerCase().includes(keyword.toLowerCase()));
-    }
-    return found;
-  };
 
-  const renderLogoCard = (customer: Customer | undefined, fallbackName: string, index: number, rowNum: number) => {
-    const name = customer ? customer.name : fallbackName;
-    return (
-      <motion.div
-        key={`${rowNum}-${index}-${name}`}
-        className="home-logo-card"
-        initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ delay: (rowNum * 4 + index) * 0.03, duration: 0.45 }}
-      >
-        {customer?.logo_url ? (
-          <img src={customer.logo_url} alt={name} />
-        ) : (
-          <span>{name}</span>
-        )}
-      </motion.div>
-    );
-  };
 
   return (
     <motion.section
@@ -171,6 +123,7 @@ export default function HomeOverview() {
         </div>
       </motion.div>
 
+
       <div className="home-showcase-wrapper">
         <div className="home-showcase">
           <div className="home-technology">
@@ -204,24 +157,88 @@ export default function HomeOverview() {
             >
               Trusted by market leaders worldwide.
             </motion.h2>
-            <div className="home-logo-cloud">
-              <div className="home-logo-row home-logo-row--1">
-                {row1Config.map((item, index) => {
-                  const customer = findCustomer(item.id, item.key);
-                  return renderLogoCard(customer, item.name, index, 1);
-                })}
-              </div>
-              <div className="home-logo-row home-logo-row--2">
-                {row2Config.map((item, index) => {
-                  const customer = findCustomer(item.id, item.key);
-                  return renderLogoCard(customer, item.name, index, 2);
-                })}
-              </div>
-              <div className="home-logo-row home-logo-row--3">
-                {row3Config.map((item, index) => {
-                  const customer = findCustomer(item.id, item.key);
-                  return renderLogoCard(customer, item.name, index, 3);
-                })}
+            <div className="w-full pb-4 px-2 sm:px-4">
+              <div className="home-logo-cloud mx-auto" style={{ aspectRatio: '2.5/1', height: 'auto', maxWidth: '1000px', width: '100%', marginTop: '3rem' }}>
+                {(() => {
+                // Precision 29-item OVAL grid.
+                // Ordered from CENTER-OUTWARDS. This guarantees that if there are fewer than 29 customers,
+                // they will form a perfectly dense core in the middle of the screen without any empty holes,
+                // eliminating the need for duplicates!
+                const POSITIONS = [
+                  // --- CENTER CORE (1) ---
+                  { left: '42%', top: '44%', width: '14%', aspect: '3.0' }, // R3 I4
+
+                  // --- INNER RING (6) ---
+                  { left: '35%', top: '22%', width: '12%', aspect: '1.2' }, // R2 I3
+                  { left: '49%', top: '20%', width: '15%', aspect: '2.5' }, // R2 I4
+                  { left: '36%', top: '58%', width: '16%', aspect: '2.8' }, // R4 I3
+                  { left: '54%', top: '60%', width: '13%', aspect: '1.5' }, // R4 I4
+                  { left: '29%', top: '46%', width: '11%', aspect: '1.5' }, // R3 I3
+                  { left: '58%', top: '46%', width: '11%', aspect: '1.2' }, // R3 I5
+
+                  // --- MIDDLE RING (12) ---
+                  { left: '13%', top: '41%', width: '14%', aspect: '2.2' }, // R3 I2
+                  { left: '71%', top: '41%', width: '13%', aspect: '1.8' }, // R3 I6
+                  { left: '19%', top: '21%', width: '15%', aspect: '2.8' }, // R2 I2
+                  { left: '65%', top: '25%', width: '13%', aspect: '1.5' }, // R2 I5
+                  { left: '22%', top: '61%', width: '12%', aspect: '1.5' }, // R4 I2
+                  { left: '69%', top: '65%', width: '14%', aspect: '2.5' }, // R4 I5
+                  { left: '42%', top: '5%',  width: '16%', aspect: '2.8' }, // R1 I3
+                  { left: '46%', top: '86%', width: '12%', aspect: '1.5' }, // R5 I3
+                  { left: '28%', top: '1%',  width: '12%', aspect: '1.4' }, // R1 I2
+                  { left: '60%', top: '2%',  width: '13%', aspect: '1.5' }, // R1 I4
+                  { left: '29%', top: '81%', width: '15%', aspect: '2.8' }, // R5 I2
+                  { left: '60%', top: '80%', width: '15%', aspect: '2.5' }, // R5 I4
+
+                  // --- OUTER EDGE (10) ---
+                  { left: '1%',  top: '45%', width: '11%', aspect: '1.2' }, // R3 I1
+                  { left: '86%', top: '44%', width: '12%', aspect: '1.5' }, // R3 I7
+                  { left: '5%',  top: '24%', width: '13%', aspect: '1.5' }, // R2 I1
+                  { left: '80%', top: '22%', width: '15%', aspect: '2.5' }, // R2 I6
+                  { left: '6%',  top: '64%', width: '14%', aspect: '2.2' }, // R4 I1
+                  { left: '85%', top: '62%', width: '11%', aspect: '1.2' }, // R4 I6
+                  { left: '12%', top: '4%',  width: '14%', aspect: '2.2' }, // R1 I1
+                  { left: '75%', top: '4%',  width: '14%', aspect: '2.2' }, // R1 I5
+                  { left: '14%', top: '84%', width: '13%', aspect: '1.8' }, // R5 I1
+                  { left: '77%', top: '85%', width: '13%', aspect: '1.8' }  // R5 I5
+                ];
+
+                if (!customers || customers.length === 0) return null;
+
+                // Render EXACTLY the customers we have (no duplicates!)
+                const displayCustomers = customers.slice(0, 29);
+
+                return displayCustomers.map((customer, i) => {
+                  const pos = POSITIONS[i];
+                  return (
+                    <motion.div
+                      key={`${customer.id}-${i}`}
+                      className="home-logo-card"
+                      data-customer-name={customer.name}
+                      initial={reduceMotion ? false : { opacity: 0, scale: 0.8 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.03, duration: 0.6 }}
+                      style={{ 
+                        left: pos.left,
+                        top: pos.top,
+                        width: pos.width,
+                        aspectRatio: pos.aspect,
+                        padding: 'clamp(3px, 1vw, 12px)',
+                        zIndex: 10 + i
+                      }}
+                    >
+                      {customer.logo_url ? (
+                        <img src={customer.logo_url} alt={customer.name} loading="lazy" />
+                      ) : (
+                        <span className="text-[6px] sm:text-[8px] md:text-xs font-bold text-gray-400 uppercase tracking-wider text-center w-full truncate leading-tight">
+                          {customer.name}
+                        </span>
+                      )}
+                    </motion.div>
+                  );
+                });
+              })()}
               </div>
             </div>
           </div>

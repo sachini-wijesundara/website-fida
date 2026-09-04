@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getDbConnection, sql } from "@/lib/db";
 
@@ -18,14 +19,14 @@ export async function POST(request: Request) {
     const pool = await getDbConnection();
 
     await pool.request()
-      .input('id', sql.Int, id || null)
-      .input('client_name', sql.NVarChar(255), clientName)
-      .input('client_position', sql.NVarChar(255), clientPosition)
-      .input('client_company', sql.NVarChar(255), clientCompany)
-      .input('content', sql.NVarChar(sql.MAX), content)
-      .input('image_url', sql.NVarChar(sql.MAX), imageUrl)
-      .input('rating', sql.Int, rating || 5)
-      .input('status', sql.NVarChar(50), status || 'Active')
+      .input('id', id || null)
+      .input('client_name', clientName)
+      .input('client_position', clientPosition)
+      .input('client_company', clientCompany)
+      .input('content', content)
+      .input('image_url', imageUrl)
+      .input('rating', rating || 5)
+      .input('status', status || 'Active')
       .execute('sp_UpsertTestimonial');
 
     return NextResponse.json({ message: "Testimonial saved successfully" });
@@ -45,7 +46,7 @@ export async function DELETE(request: Request) {
 
     const pool = await getDbConnection();
     await pool.request()
-      .input('id', sql.Int, id)
+      .input('id', id)
       .query(`UPDATE testimonials SET status = 'Deleted' WHERE id = @id`); // Soft delete
 
     return NextResponse.json({ message: "Testimonial deleted successfully" });
