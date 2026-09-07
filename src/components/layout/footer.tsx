@@ -13,10 +13,10 @@ const solutionsLinks = [
   { name: "FIDA Business Consultancy", href: "/solutions/03" },
 ];
 
-const companyLinks = [
+const companyLinks: { name: string; href: string; isExternal?: boolean; download?: boolean }[] = [
   { name: "About", href: "/about" },
-  { name: "solutions", href: "/solutions" },
-  { name: "Company Profile", href: "/FIDA%20Global%20Company%20Profile.pdf", isExternal: true },
+  { name: "Solutions", href: "/solutions" },
+  { name: "Company Profile", href: "/FIDA%20Global%20Company%20Profile.pdf", isExternal: true, download: true },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -134,15 +134,26 @@ export default function Footer() {
             <ul className="space-y-4 lg:space-y-3.5">
               {companyLinks.map((link) => (
                 <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    target={link.isExternal ? "_blank" : undefined}
-                    rel={link.isExternal ? "noopener noreferrer" : undefined}
-                    download={link.download ? "FIDA Global Company Profile.pdf" : undefined}
-                    className="text-[15px] lg:text-sm text-[#475569] hover:text-blue-600 transition-colors font-semibold"
-                  >
-                    {link.name}
-                  </Link>
+                  {link.download ? (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download="FIDA Global Company Profile.pdf"
+                      className="text-[15px] lg:text-sm text-[#475569] hover:text-blue-600 transition-colors font-semibold"
+                    >
+                      {link.name}
+                    </a>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      target={link.isExternal ? "_blank" : undefined}
+                      rel={link.isExternal ? "noopener noreferrer" : undefined}
+                      className="text-[15px] lg:text-sm text-[#475569] hover:text-blue-600 transition-colors font-semibold"
+                    >
+                      {link.name}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
