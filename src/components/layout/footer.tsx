@@ -16,7 +16,7 @@ const solutionsLinks = [
 const companyLinks = [
   { name: "About", href: "/about" },
   { name: "solutions", href: "/solutions" },
-  { name: "Company Profile", href: "/FIDAGlobalProfile2024.pdf", isExternal: true, download: true },
+  { name: "Company Profile", href: "/FIDAGlobalProfile2024.pdf", isExternal: true },
   { name: "Contact", href: "/contact" },
 ];
 

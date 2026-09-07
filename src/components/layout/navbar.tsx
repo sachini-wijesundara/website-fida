@@ -9,7 +9,7 @@ import { X, Menu, ArrowRight, Mail, Phone } from "lucide-react";
 const links = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
-  { name: "Company Profile", href: "/FIDAGlobalProfile2024.pdf", isExternal: true, download: true },
+  { name: "Company Profile", href: "/FIDAGlobalProfile2024.pdf", isExternal: true },
   { name: "Solutions", href: "/solutions" },
   { name: "Projects", href: "/projects" },
   { name: "Contact", href: "/contact" },

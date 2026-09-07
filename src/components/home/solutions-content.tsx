@@ -331,9 +331,9 @@ export default function SolutionsContent() {
           <Link href="/contact" className="sol-cta-section__btn sol-cta-section__btn--primary">
             Book a Consultation
           </Link>
-          <Link href="/about" className="sol-cta-section__btn sol-cta-section__btn--outline">
+          <a href="/FIDAGlobalProfile2024.pdf" target="_blank" rel="noopener noreferrer" className="sol-cta-section__btn sol-cta-section__btn--outline">
             Company Profile
-          </Link>
+          </a>
         </div>
       </motion.section>
 

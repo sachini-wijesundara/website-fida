@@ -55,7 +55,7 @@ export default function ProjectsClient({ initialProjects = [] }: { initialProjec
     <section className="container mx-auto px-6 pb-48 md:pb-56">
       {/* Featured Project */}
       {featuredProject && <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={false}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white rounded-[2.5rem] shadow-sm border border-[#052c65]/5 overflow-hidden mb-16 flex flex-col lg:flex-row max-w-6xl mx-auto"
       >
@@ -129,7 +129,7 @@ export default function ProjectsClient({ initialProjects = [] }: { initialProjec
         {gridProjects.map((proj, i) => (
           <Link key={proj.id} href={`/projects/${proj.id}`} className="block h-full group">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1 }}
