@@ -6,7 +6,11 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const pool = await getDbConnection();
-    const result = await pool.request().query('SELECT id, title, badge, description, thumbnail_image, slug, status, order_index FROM Solutions ORDER BY order_index ASC');
+    const result = await pool.request().query(`
+      SELECT id, title, badge, description, thumbnail_image, slug, status, order_index 
+      FROM Solutions 
+      ORDER BY CASE WHEN title = 'FIDA AI' THEN -1 ELSE order_index END ASC
+    `);
     return NextResponse.json(result.recordset);
   } catch (error: any) {
     return NextResponse.json({ message: "Failed to fetch solutions", error: error.message }, { status: 500 });

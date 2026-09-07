@@ -1,8 +1,9 @@
 import AboutClient from "./about-client";
 
 export const metadata = {
-  title: "About Us | FIDA Global",
-  description: "Learn about FIDA Global's mission, values, and the team driving digital transformation worldwide.",
+  title: "About FIDA Global | IT & HR Technology Company",
+  description: "Learn about FIDA Global's history, mission, and leadership team — a Sri Lankan tech company delivering HRIS, consultancy, and software since 2011.",
+  keywords: "FIDA Global company, about FIDA Global, IT company Sri Lanka, HR technology company, Innovation, Best IT solution provider",
 };
 
 export default function AboutPage() {

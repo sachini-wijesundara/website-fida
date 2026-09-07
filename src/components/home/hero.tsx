@@ -102,7 +102,7 @@ export default function Hero() {
             <ArrowUpRight size={17} />
           </Link>
           <a
-            href="/FIDAGlobalProfile2024.pdf"
+            href="/FIDA%20Global%20Company%20Profile.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="hero-button hero-button--secondary"

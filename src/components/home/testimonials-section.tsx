@@ -71,7 +71,7 @@ export default function TestimonialsSection() {
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-16 h-16 shrink-0 rounded-full overflow-hidden border-2 border-zinc-50 relative bg-zinc-50">
                     {t.image_url ? (
-                      <img src={t.image_url} alt={t.client_name} className="w-full h-full object-contain" />
+                      <img src={t.image_url} alt={t.client_name} loading="lazy" decoding="async" className="w-full h-full object-contain" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-zinc-300">
                         <UserPlus size={24} />

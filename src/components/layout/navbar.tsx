@@ -9,7 +9,7 @@ import { X, Menu, ArrowRight, Mail, Phone } from "lucide-react";
 const links = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
-  { name: "Company Profile", href: "/FIDAGlobalProfile2024.pdf", isExternal: true },
+  { name: "Company Profile", href: "/FIDA%20Global%20Company%20Profile.pdf", isExternal: true },
   { name: "Solutions", href: "/solutions" },
   { name: "Projects", href: "/projects" },
   { name: "Contact", href: "/contact" },
@@ -123,7 +123,7 @@ export default function Navbar() {
                         href={link.href}
                         target={link.isExternal ? "_blank" : undefined}
                         rel={link.isExternal ? "noopener noreferrer" : undefined}
-                        download={link.download ? "FIDAGlobalProfile2024.pdf" : undefined}
+                        download={link.download ? "FIDA Global Company Profile.pdf" : undefined}
                         onClick={() => setMenuOpen(false)}
                         className={`group flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0 transition-all duration-200 rounded-xl px-3 -mx-3 ${
                           isActive
@@ -150,11 +150,11 @@ export default function Navbar() {
                 <div className="bg-[#f8fbfd] px-6 py-6 border-t border-gray-100 flex flex-col gap-5">
                   <div className="space-y-3">
                     <a
-                      href="mailto:hello@fidaglobal.com"
+                      href="mailto:info@fidaglobal.com"
                       className="flex items-center gap-3 text-xs font-semibold text-[#536b8a] hover:text-blue-600 transition-colors"
                     >
                       <Mail className="w-4 h-4 text-[#8fa2b8] shrink-0" />
-                      <span>hello@fidaglobal.com</span>
+                      <span>info@fidaglobal.com</span>
                     </a>
                     <a
                       href="tel:+94115765757"

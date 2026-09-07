@@ -140,7 +140,7 @@ export default function BlogSection() {
                   <div className="flex justify-end order-first lg:order-last">
                     <div className="relative w-full aspect-video lg:aspect-square max-w-sm rounded-[2rem] overflow-hidden border border-[#052c65]/10">
                       {featured.imageUrl ? (
-                        <img src={featured.imageUrl} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-smooth" />
+                        <img src={featured.imageUrl} alt={featured.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-smooth" />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-primary/30 to-transparent" />
                       )}

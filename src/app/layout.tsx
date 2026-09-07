@@ -10,9 +10,9 @@ const ptSans = PT_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "FIDA Global | Your Business Partner for Sustainable Growth",
-  description: "FIDA Global provides world-class innovations in Smart HRIS, ICT solutions, IoT energy management, and business consultancy aimed at sustainable growth.",
-  keywords: ["Smart HRIS", "S-HRM", "IoT Energy Management", "EV Charging Solutions", "Business Process Outsourcing", "BPO", "Digital Transformation", "Human Capital Management", "HCM", "ERP Integration", "Sustainable Growth", "FIDA Global", "Sri Lanka IT Consultancy"],
+  title: "FIDA Global | HRIS & Business Software Solutions Sri Lanka",
+  description: "FIDA Global delivers cloud HRIS, business consultancy, and enterprise software for companies across Sri Lanka and beyond. 14+ years of proven innovation.",
+  keywords: "HRIS Sri Lanka, HR software, business software solutions, IT solutions Sri Lanka, digital transformation, payroll software, human resource management, BPO, IoT, FIDA Global, Best IT solution provider",
   authors: [{ name: "FIDA Global" }],
   openGraph: {
     title: "FIDA Global | Intelligent Business Solutions for Sustainable Growth",
@@ -49,6 +49,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${ptSans.variable} dark h-full antialiased`}>
+      {/* Resource hints for faster loading */}
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="//www.fidaglobal.com" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
       <body className="min-h-full flex flex-col font-sans grain">
         <script
           type="application/ld+json"

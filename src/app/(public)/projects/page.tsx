@@ -3,8 +3,9 @@ import { getDbConnection } from "@/lib/db";
 import { cachedRequest } from "@/lib/request-cache";
 
 export const metadata = {
-  title: "Projects | FIDA Global",
-  description: "Browse FIDA Global's portfolio of custom implementations and specialized software projects.",
+  title: "FIDA Global Projects | Case Studies & Client Success",
+  description: "Explore FIDA Global's completed projects and client success stories across HR technology, business consultancy, and enterprise software implementations.",
+  keywords: "FIDA Global projects, HR software case studies, client success stories, IT project portfolio Sri Lanka",
 };
 
 export const dynamic = "force-dynamic";

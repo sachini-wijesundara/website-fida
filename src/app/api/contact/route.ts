@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
-import { getDbConnection, sql } from "@/lib/db";
+import { getDbConnection } from "@/lib/db";
+import * as sql from "mssql";
 import { validateContact } from "@/schemas/contact.schema";
 import { sendMail } from "@/services/email/email.service";
 
@@ -31,14 +32,14 @@ export async function POST(request: Request) {
     
     // Save to database
     await pool.request()
-      .input('name', sql.NVarChar, name)
-      .input('email', sql.NVarChar, email)
-      .input('company', sql.NVarChar, company)
-      .input('service', sql.NVarChar, category)
-      .input('message', sql.NVarChar, message)
-      .input('employee_count', sql.NVarChar, employee_count)
-      .input('division_status', sql.NVarChar, division_status)
-      .input('company_count', sql.NVarChar, company_count)
+      .input('name', name)
+      .input('email', email)
+      .input('company', company)
+      .input('service', category)
+      .input('message', message)
+      .input('employee_count', employee_count)
+      .input('division_status', division_status)
+      .input('company_count', company_count)
       .query(`
         INSERT INTO inquiries 
         (name, email, company, service, message, employee_count, division_status, company_count) 

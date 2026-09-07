@@ -25,7 +25,7 @@ const GREETING: Message = {
 
 /* ─── Real 3D Robot Material & Component ───────────────── */
 function Real3DRobot({ open, hover }: { open: boolean; hover: boolean }) {
-  const eyeColor = open ? "#ef4444" : "#a855f7"; // Red when open/working, Purple otherwise
+  const eyeColor = open ? "#ef4444" : "#0ea5e9"; // Red when open/working, Purple otherwise
   const headRef = useRef<THREE.Group>(null);
   const ringRef = useRef<THREE.Mesh>(null);
 
@@ -75,12 +75,12 @@ function Real3DRobot({ open, hover }: { open: boolean; hover: boolean }) {
           </Cylinder>
           {/* Antenna Bulb */}
           <Sphere args={[0.08, 16, 16]} position={[0, 0.8, 0]}>
-            <meshStandardMaterial color="#a855f7" emissive="#a855f7" emissiveIntensity={2} />
+            <meshStandardMaterial color="#0ea5e9" emissive="#0ea5e9" emissiveIntensity={2} />
           </Sphere>
           
           {/* Side Ears */}
           <Cylinder args={[0.15, 0.15, 1.3]} rotation={[0, 0, Math.PI / 2]}>
-            <meshStandardMaterial color="#a855f7" emissive="#7e22ce" emissiveIntensity={0.5} metalness={0.3} />
+            <meshStandardMaterial color="#0ea5e9" emissive="#0284c7" emissiveIntensity={0.5} metalness={0.3} />
           </Cylinder>
         </group>
         
@@ -96,13 +96,13 @@ function Real3DRobot({ open, hover }: { open: boolean; hover: boolean }) {
         
         {/* Chest Display/Core */}
         <RoundedBox args={[0.7, 0.35, 0.95]} radius={0.05} smoothness={4} position={[0, -0.55, 0]}>
-          <meshStandardMaterial color="#f3e8ff" emissive="#a855f7" emissiveIntensity={0.3} />
+          <meshStandardMaterial color="#e0f2fe" emissive="#0ea5e9" emissiveIntensity={0.3} />
         </RoundedBox>
 
         {/* Orbiting Ring around body */}
         <mesh ref={ringRef} position={[0, -0.6, 0]} rotation={[Math.PI / 2, 0, 0]}>
           <torusGeometry args={[1.2, 0.02, 16, 100]} />
-          <meshStandardMaterial color="#a855f7" emissive="#a855f7" emissiveIntensity={2} />
+          <meshStandardMaterial color="#0ea5e9" emissive="#0ea5e9" emissiveIntensity={2} />
         </mesh>
       </Float>
     </group>
@@ -114,7 +114,7 @@ function RobotScene({ open, hover }: { open: boolean; hover: boolean }) {
     <Canvas camera={{ position: [0, 0, 4.5], fov: 45 }} className="w-full h-full pointer-events-none">
       <ambientLight intensity={1.5} />
       <directionalLight position={[5, 10, 5]} intensity={2} color="#ffffff" />
-      <pointLight position={[-5, 0, 5]} intensity={1} color="#a855f7" />
+      <pointLight position={[-5, 0, 5]} intensity={1} color="#0ea5e9" />
       <Environment preset="city" />
       <Real3DRobot open={open} hover={hover} />
     </Canvas>
@@ -226,19 +226,19 @@ export default function ChatBot() {
             style={{
               height: "560px",
               background: "#ffffff",
-              border: "1px solid #e9d5ff",
-              boxShadow: "0 25px 50px -12px rgba(168, 85, 247, 0.25), 0 0 0 1px rgba(168, 85, 247, 0.1)",
+              border: "1px solid #bae6fd",
+              boxShadow: "0 25px 50px -12px rgba(14, 165, 233, 0.25), 0 0 0 1px rgba(14, 165, 233, 0.1)",
             }}
           >
             {/* Header */}
-            <div className="flex-shrink-0 flex items-center gap-3 px-5 py-4 border-b border-purple-100 bg-white">
-              <div className="relative w-12 h-12 rounded-2xl bg-purple-50 flex items-center justify-center overflow-hidden border border-purple-100">
+            <div className="flex-shrink-0 flex items-center gap-3 px-5 py-4 border-b border-sky-100 bg-white">
+              <div className="relative w-12 h-12 rounded-2xl bg-sky-50 flex items-center justify-center overflow-hidden border border-sky-100">
                 {/* 3D Robot Miniature */}
                 <div className="absolute inset-0 scale-[1.5] translate-y-2">
                   <RobotScene open={false} hover={true} />
                 </div>
                 <motion.span
-                  className="absolute bottom-1 right-1 w-2.5 h-2.5 rounded-full bg-purple-500 border-2 border-white"
+                  className="absolute bottom-1 right-1 w-2.5 h-2.5 rounded-full bg-sky-500 border-2 border-white"
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
@@ -246,8 +246,8 @@ export default function ChatBot() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-black text-gray-900 tracking-tight">FIDA AI</p>
-                  <div className="px-2 py-0.5 rounded-full bg-purple-100 border border-purple-200">
-                    <span className="text-[9px] font-black text-purple-700 uppercase tracking-widest">Live</span>
+                  <div className="px-2 py-0.5 rounded-full bg-sky-100 border border-sky-200">
+                    <span className="text-[9px] font-black text-sky-700 uppercase tracking-widest">Live</span>
                   </div>
                 </div>
                 <p className="text-[10px] text-gray-500 font-medium mt-0.5">Powered by Smart HRIS Intelligence</p>
@@ -255,7 +255,7 @@ export default function ChatBot() {
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => { setMessages([GREETING]); idRef.current = 1; }}
-                  className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all"
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-sky-600 hover:bg-sky-50 transition-all"
                   title="New chat"
                 >
                   <RotateCcw size={14} />
@@ -280,7 +280,7 @@ export default function ChatBot() {
                   className={`flex items-end gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
                 >
                   {msg.role === "bot" && (
-                     <div className="relative w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                     <div className="relative w-8 h-8 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                        <div className="absolute inset-0 scale-[1.5] translate-y-1.5 translate-x-0.5">
                          <RobotScene open={false} hover={false} />
                        </div>
@@ -290,10 +290,10 @@ export default function ChatBot() {
                     <div
                       className="px-4 py-3 text-sm leading-relaxed"
                       style={{
-                        background: msg.role === "user" ? "linear-gradient(135deg, #a855f7, #7e22ce)" : "#f3e8ff",
+                        background: msg.role === "user" ? "linear-gradient(135deg, #0ea5e9, #0284c7)" : "#e0f2fe",
                         borderRadius: msg.role === "user" ? "1.25rem 1.25rem 0.3rem 1.25rem" : "1.25rem 1.25rem 1.25rem 0.3rem",
-                        color: msg.role === "user" ? "white" : "#3b0764",
-                        boxShadow: msg.role === "user" ? "0 4px 15px rgba(168, 85, 247, 0.3)" : "none",
+                        color: msg.role === "user" ? "white" : "#0c4a6e",
+                        boxShadow: msg.role === "user" ? "0 4px 15px rgba(14, 165, 233, 0.3)" : "none",
                         fontWeight: 500,
                       }}
                     >
@@ -306,14 +306,14 @@ export default function ChatBot() {
 
               {loading && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-end gap-2.5">
-                  <div className="relative w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <div className="relative w-8 h-8 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                      <div className="absolute inset-0 scale-[1.5] translate-y-1.5 translate-x-0.5">
                        <RobotScene open={true} hover={false} />
                      </div>
                   </div>
-                  <div className="px-4 py-3 rounded-[1.25rem] rounded-bl-[0.3rem] bg-purple-50 border border-purple-100 flex items-center gap-1.5">
+                  <div className="px-4 py-3 rounded-[1.25rem] rounded-bl-[0.3rem] bg-sky-50 border border-sky-100 flex items-center gap-1.5">
                     {[0, 0.2, 0.4].map((d, i) => (
-                      <motion.span key={i} className="w-2 h-2 rounded-full bg-purple-500 block"
+                      <motion.span key={i} className="w-2 h-2 rounded-full bg-sky-500 block"
                         animate={{ y: [-4, 0, -4], opacity: [0.5, 1, 0.5] }}
                         transition={{ duration: 0.7, repeat: Infinity, delay: d }}
                       />
@@ -325,7 +325,7 @@ export default function ChatBot() {
             </div>
 
             {/* Quick chips */}
-            <div className="px-5 pb-3 flex gap-2 flex-wrap flex-shrink-0 border-t border-purple-50 pt-3">
+            <div className="px-5 pb-3 flex gap-2 flex-wrap flex-shrink-0 border-t border-sky-50 pt-3">
               {["Smart HRIS", "IT Solutions", "Get a Quote"].map((s) => (
                 <motion.button
                   key={s}
@@ -333,9 +333,9 @@ export default function ChatBot() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => sendMessage(s)}
                   disabled={loading}
-                  className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border border-purple-200 text-purple-700 bg-white hover:bg-purple-50 transition-all disabled:opacity-50"
+                  className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border border-sky-200 text-sky-700 bg-white hover:bg-sky-50 transition-all disabled:opacity-50"
                 >
-                  <Sparkles size={10} className="text-purple-500" />
+                  <Sparkles size={10} className="text-sky-500" />
                   {s}
                 </motion.button>
               ))}
@@ -344,7 +344,7 @@ export default function ChatBot() {
             {/* Input */}
             <div className="px-5 pb-5 flex-shrink-0">
               <div
-                className="flex items-center gap-3 rounded-2xl px-4 py-2 bg-gray-50 border border-gray-200 transition-all focus-within:border-purple-300 focus-within:ring-4 focus-within:ring-purple-200/50"
+                className="flex items-center gap-3 rounded-2xl px-4 py-2 bg-gray-50 border border-gray-200 transition-all focus-within:border-sky-300 focus-within:ring-4 focus-within:ring-sky-200/50"
               >
                 <input
                   ref={inputRef}
@@ -363,8 +363,8 @@ export default function ChatBot() {
                   disabled={!input.trim() || loading}
                   className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-50"
                   style={{
-                    background: input.trim() && !loading ? "linear-gradient(135deg, #a855f7, #7e22ce)" : "#e5e7eb",
-                    boxShadow: input.trim() && !loading ? "0 4px 12px rgba(168, 85, 247, 0.4)" : "none",
+                    background: input.trim() && !loading ? "linear-gradient(135deg, #0ea5e9, #0284c7)" : "#e5e7eb",
+                    boxShadow: input.trim() && !loading ? "0 4px 12px rgba(14, 165, 233, 0.4)" : "none",
                   }}
                 >
                   <Send size={15} className={input.trim() && !loading ? "text-white" : "text-gray-400"} />
@@ -389,7 +389,7 @@ export default function ChatBot() {
               className="absolute right-[70px] md:right-[85px] bottom-[10px] md:bottom-[15px] pointer-events-none hidden md:block"
             >
               <div
-                className="relative px-5 py-3.5 rounded-3xl rounded-br-sm text-[11px] font-black text-purple-900 bg-white border border-purple-100 shadow-[0_12px_35px_rgba(168,85,247,0.2)] w-[160px] leading-relaxed"
+                className="relative px-5 py-3.5 rounded-3xl rounded-br-sm text-[11px] font-black text-sky-900 bg-white border border-sky-100 shadow-[0_12px_35px_rgba(14,165,233,0.2)] w-[160px] leading-relaxed"
               >
                 I am here! 👋<br/>Do you want to know anything?
                 
@@ -453,7 +453,7 @@ export default function ChatBot() {
           {/* Notification badge */}
           {!open && (
             <motion.div
-              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-purple-500 border-[1.5px] border-white flex items-center justify-center z-20 shadow-[0_0_12px_rgba(168,85,247,0.8)]"
+              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-sky-500 border-[1.5px] border-white flex items-center justify-center z-20 shadow-[0_0_12px_rgba(14,165,233,0.8)]"
               animate={{ scale: [1, 1.15, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
             >

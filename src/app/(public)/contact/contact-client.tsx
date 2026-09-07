@@ -106,20 +106,21 @@ export default function ContactClient() {
         const activeCustomers = data.filter(
           (c) => c.status === "Active" && c.logo_url && !c.name.toLowerCase().includes("sipway")
         );
-        const topThree = activeCustomers
-          .filter((c) => !c.name.toLowerCase().includes("kalani") && !c.name.toLowerCase().includes("kelani"))
-          .sort((a, b) => a.order_index - b.order_index)
-          .slice(0, 3);
+        const exactMatches = ["abans", "abance", "sky net", "kablr"];
+        const topLogos: Customer[] = [];
+        
+        exactMatches.forEach(name => {
+          const match = activeCustomers.find(c => c.name.toLowerCase() === name);
+          if (match && !topLogos.some((l) => l.id === match.id)) topLogos.push(match);
+        });
 
         const kelani = activeCustomers.find(
           (c) => c.name.toLowerCase().includes("kalani") || c.name.toLowerCase().includes("kelani")
         );
+        if (kelani && !topLogos.some((l) => l.id === kelani.id)) topLogos.push(kelani);
 
-        if (kelani) {
-          topThree.push(kelani);
-        }
-
-        setCustomers(topThree);
+        setCustomers(topLogos);
+        
       })
       .catch(() => setCustomers([]));
   }, []);
@@ -183,10 +184,10 @@ export default function ContactClient() {
       {/* ── Main grid ── */}
       <section className="contact-main pb-20 md:pb-28">
         <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-12 gap-6 lg:gap-7 lg:items-stretch items-start">
+          <div className="grid lg:grid-cols-12 gap-6 lg:gap-7 lg:items-stretch items-start w-full">
             {/* Form card */}
             <motion.div
-              className="lg:col-span-7"
+              className="lg:col-span-7 min-w-0 w-full"
               initial={reduceMotion ? false : { opacity: 0, y: 32 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.15 }}
@@ -357,14 +358,22 @@ export default function ContactClient() {
                 )}
 
                 {/* Trusted logos */}
-                <div className="contact-trust">
+                <div className="contact-trust overflow-hidden">
                   <p className="contact-trust__label">Trusted by industry leaders</p>
-                  <div className="contact-trust__logos">
+                  <div className="contact-trust__logos marquee-track sm:!animate-none sm:!w-full">
                     {logos.map((logo) =>
                       logo.logo_url ? (
                         <img key={logo.id} src={logo.logo_url} alt={logo.name} />
                       ) : (
                         <span key={logo.id}>{logo.name}</span>
+                      )
+                    )}
+                    {/* Duplicate logos to create seamless infinite scroll on mobile */}
+                    {logos.map((logo) =>
+                      logo.logo_url ? (
+                        <img key={`dup-${logo.id}`} className="sm:hidden" src={logo.logo_url} alt={logo.name} />
+                      ) : (
+                        <span key={`dup-${logo.id}`} className="sm:hidden">{logo.name}</span>
                       )
                     )}
                   </div>
@@ -373,55 +382,66 @@ export default function ContactClient() {
             </motion.div>
 
             {/* Right column */}
-            <div className="lg:col-span-5 flex flex-col lg:h-full gap-5">
-              <motion.div
-                className="contact-card"
-                initial={reduceMotion ? false : { opacity: 0, y: 28 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.65, delay: 0.08, ease: SMOOTH }}
-              >
-                <h3 className="contact-card__title text-[1.15rem] mb-5">Quick Contact</h3>
-                <div className="space-y-4">
-                  <QuickRow
-                    icon={Mail}
-                    label="Email Us"
-                    value="info@fidaglobal.com"
-                    href="mailto:info@fidaglobal.com"
-                  />
-                  <QuickRow
-                    icon={Phone}
-                    label="Call Us"
-                    value="+94 11 710 80 20"
-                    href="tel:+94117108020"
-                  />
-                </div>
-              </motion.div>
-
-              <motion.div
-                className="contact-card"
-                initial={reduceMotion ? false : { opacity: 0, y: 28 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.65, delay: 0.14, ease: SMOOTH }}
-              >
-                <div className="flex items-center gap-2.5 mb-4">
-                  <div className="contact-icon-circle">
-                    <MapPin className="w-4 h-4" />
+            <div className="lg:col-span-5 flex flex-col lg:h-full gap-5 min-w-0 w-full">
+              <div className="flex flex-row sm:flex-col gap-3 sm:gap-5">
+                <motion.div
+                  className="contact-card w-1/2 sm:w-full !p-3 sm:!p-6 flex flex-col"
+                  initial={reduceMotion ? false : { opacity: 0, y: 28 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.65, delay: 0.08, ease: SMOOTH }}
+                >
+                  <h3 className="font-bold text-[#0F172A] text-[12px] sm:text-[1.15rem] mb-3 sm:mb-5">Quick Contact</h3>
+                  <div className="space-y-3 sm:space-y-4">
+                    <a href="mailto:info@fidaglobal.com" className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 group">
+                      <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-[#f0f9ff] flex items-center justify-center shrink-0 group-hover:bg-[#e0f2fe] transition-colors">
+                        <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0284c7]" />
+                      </div>
+                      <div>
+                        <p className="text-[8px] sm:text-[10px] text-[#94a3b8] font-bold uppercase tracking-wider mb-0.5">Email Us</p>
+                        <p className="text-[9px] sm:text-[13px] font-bold text-[#0f172a] group-hover:text-[#2563eb] transition-colors break-all">info@fidaglobal.com</p>
+                      </div>
+                    </a>
+                    <a href="tel:+94117108020" className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 group">
+                      <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-[#f0f9ff] flex items-center justify-center shrink-0 group-hover:bg-[#e0f2fe] transition-colors">
+                        <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0284c7]" />
+                      </div>
+                      <div>
+                        <p className="text-[8px] sm:text-[10px] text-[#94a3b8] font-bold uppercase tracking-wider mb-0.5">Call Us</p>
+                        <p className="text-[9px] sm:text-[13px] font-bold text-[#0f172a] group-hover:text-[#2563eb] transition-colors whitespace-nowrap">+94 11 710 80 20</p>
+                      </div>
+                    </a>
                   </div>
-                  <h3 className="contact-card__title text-[1.15rem] mb-0">Our Office</h3>
-                </div>
-                <p className="text-[14px] leading-relaxed text-[#64748B]">
-                  No. 215 C, Raththanapitiya,
-                  <br />
-                  Boralesgamuwa 10290,
-                  <br />
-                  Sri Lanka
-                </p>
-                <a href="tel:+94117108020" className="contact-office-phone">
-                  +94 11 710 80 20
-                </a>
-              </motion.div>
+                </motion.div>
+
+                <motion.div
+                  className="contact-card w-1/2 sm:w-full !p-3 sm:!p-6 flex flex-col"
+                  initial={reduceMotion ? false : { opacity: 0, y: 28 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.65, delay: 0.14, ease: SMOOTH }}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2.5 mb-2.5 sm:mb-4">
+                    <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-[#f0f9ff] flex items-center justify-center shrink-0">
+                      <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0284c7]" />
+                    </div>
+                    <h3 className="font-bold text-[#0F172A] text-[12px] sm:text-[1.15rem] m-0">Our Office</h3>
+                  </div>
+                  <div className="text-[9px] sm:text-[13px] leading-relaxed text-[#64748B] mb-2 sm:mb-4 flex-1">
+                    <p className="font-semibold text-[#0F172A] mb-1">FIDA Global Office</p>
+                    Raththanapitiya,
+                    <br />
+                    215 C Colombo - Horana Rd,
+                    <br />
+                    Boralesgamuwa
+                    <br />
+                    10290
+                  </div>
+                  <a href="tel:+94117108020" className="text-[10px] sm:text-[13px] font-bold text-[#2563eb] hover:text-[#1d4ed8] transition-colors mt-auto block whitespace-nowrap">
+                    +94 11 710 80 20
+                  </a>
+                </motion.div>
+              </div>
 
               <motion.div
                 className={`contact-map${mapFocused ? " contact-map--focused" : ""} lg:flex-1`}

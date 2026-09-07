@@ -16,7 +16,7 @@ const solutionsLinks = [
 const companyLinks = [
   { name: "About", href: "/about" },
   { name: "solutions", href: "/solutions" },
-  { name: "Company Profile", href: "/FIDAGlobalProfile2024.pdf", isExternal: true },
+  { name: "Company Profile", href: "/FIDA%20Global%20Company%20Profile.pdf", isExternal: true },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -85,16 +85,17 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 text-center lg:text-left">
 
           {/* Column 1: Brand details */}
-          <div className="lg:col-span-3 space-y-6 flex flex-col items-center lg:items-start">
+          <div className="lg:col-span-3 space-y-1.5 flex flex-col items-center lg:items-start">
             <Link href="/" className="flex items-center gap-3 group w-fit">
               <img
-                src="/Fidalong.png"
+                src="/footer logo.png"
                 alt="FIDA Global"
-                className="h-20 md:h-24 w-auto object-contain lg:-ml-2"
+                className="h-20 md:h-28 w-auto object-contain lg:-ml-4"
               />
             </Link>
             <p className="text-[#536b8a] text-[15px] lg:text-[14px] leading-relaxed font-semibold max-w-[280px]">
-              The technology layer behind borderless workforces.
+              BUSINESS PARTNER FOR SUCCESS AND BEYOND
+
             </p>
             {/* Social Icons (Plain, no border/background cards) */}
             <div className="flex items-center justify-center lg:justify-start gap-5 pt-2">
@@ -137,7 +138,7 @@ export default function Footer() {
                     href={link.href}
                     target={link.isExternal ? "_blank" : undefined}
                     rel={link.isExternal ? "noopener noreferrer" : undefined}
-                    download={link.download ? "FIDAGlobalProfile2024.pdf" : undefined}
+                    download={link.download ? "FIDA Global Company Profile.pdf" : undefined}
                     className="text-[15px] lg:text-sm text-[#475569] hover:text-blue-600 transition-colors font-semibold"
                   >
                     {link.name}

@@ -1,9 +1,9 @@
 import SolutionsClient from "./solutions-client";
 
 export const metadata = {
-  title: "Solutions | FIDA Global",
-  description:
-    "Discover FIDA Global's purpose-built solutions — from HR automation to task management, access control, helpdesk, and strategic consultancy.",
+  title: "Business Software Solutions | FIDA Global",
+  description: "Browse FIDA Global's full range of business solutions — Smart HRIS, payroll, CRM, task management, helpdesk, and AI-powered tools for growing companies.",
+  keywords: "business software solutions Sri Lanka, enterprise IT solutions, ICT solutions provider, HR and workforce management software, Best IT solution provider",
 };
 
 export default function SolutionsPage() {

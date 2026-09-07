@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function ProjectDetailPage() {
@@ -10,7 +11,15 @@ export default function ProjectDetailPage() {
   const [data, setData] = React.useState<any>(null);
   const [moreStudies, setMoreStudies] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
-  
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const scrollAmount = direction === "left" ? -300 : 300;
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
+
   useEffect(() => {
      window.scrollTo(0, 0);
      
@@ -158,26 +167,47 @@ export default function ProjectDetailPage() {
         {/* More Case Studies */}
         {moreStudies.length > 0 && (
           <div>
-            <h2 className="text-3xl font-extrabold text-[#0f172a] mb-10">More Case Studies</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {moreStudies.map(study => (
-                <Link href={`/projects/${study.id}`} key={study.id} className="bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(5,44,101,0.03)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(5,44,101,0.06)] transition-all cursor-pointer">
-                  <div className="h-48 overflow-hidden bg-gray-100 p-2">
-                    {study.image_url ? (
-                      <img src={study.image_url} alt={study.title} className="w-full h-full object-cover rounded-2xl" />
-                    ) : (
-                      <div className="w-full h-full bg-slate-200 rounded-2xl" />
-                    )}
-                  </div>
-                  <div className="p-6 flex flex-col flex-1">
-                    <div className="text-[10px] font-bold text-[#3b82f6] uppercase tracking-widest mb-2">
-                      {study.category_name || "Project"}
+            <div className="flex items-center justify-between mb-8 md:mb-10">
+              <h2 className="text-2xl md:text-3xl font-extrabold text-[#0f172a]">More Case Studies</h2>
+            </div>
+            <div 
+              ref={scrollRef}
+              className="flex overflow-x-auto md:grid md:grid-cols-3 gap-5 md:gap-8 pb-8 -mx-6 px-6 md:mx-0 md:px-0 snap-x snap-mandatory"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              <style>{`
+                div::-webkit-scrollbar { display: none; }
+              `}</style>
+              {moreStudies.map((study, index) => (
+                <motion.div
+                  key={study.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="min-w-[85vw] sm:min-w-[320px] md:min-w-0 snap-center flex-shrink-0"
+                >
+                  <Link 
+                    href={`/projects/${study.id}`} 
+                    className="bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(5,44,101,0.03)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(5,44,101,0.06)] transition-all cursor-pointer h-full"
+                  >
+                    <div className="h-48 overflow-hidden bg-gray-100 p-2">
+                      {study.image_url ? (
+                        <img src={study.image_url} alt={study.title} className="w-full h-full object-cover rounded-2xl" />
+                      ) : (
+                        <div className="w-full h-full bg-slate-200 rounded-2xl" />
+                      )}
                     </div>
-                    <h3 className="text-base font-extrabold text-[#0f172a] mb-3">
-                      {study.title}
-                    </h3>
-                  </div>
-                </Link>
+                    <div className="p-6 flex flex-col flex-1">
+                      <div className="text-[10px] font-bold text-[#3b82f6] uppercase tracking-widest mb-2">
+                        {study.category_name || "Project"}
+                      </div>
+                      <h3 className="text-base font-extrabold text-[#0f172a] mb-3">
+                        {study.title}
+                      </h3>
+                    </div>
+                  </Link>
+                </motion.div>
               ))}
             </div>
           </div>

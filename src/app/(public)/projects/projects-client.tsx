@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Users } from "lucide-react";
+import { ArrowRight, Users, ChevronDown } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 
 const PROJECT_DISPLAY: Record<number, { category: string; client: string }> = {
@@ -38,6 +38,7 @@ export default function ProjectsClient({ initialProjects = [] }: { initialProjec
   const [activeSize, setActiveSize] = useState("All Sizes");
   const [activeIndustry, setActiveIndustry] = useState("All Industries");
   const [projects, setProjects] = useState<any[]>(initialProjects);
+  const [isFeaturedExpanded, setIsFeaturedExpanded] = useState(false);
 
   const featuredProject = projects.find((project) => Number(project.id) === 1032) || projects[0];
   
@@ -74,9 +75,17 @@ export default function ProjectsClient({ initialProjects = [] }: { initialProjec
            <h2 className="text-4xl font-extrabold text-[#052c65] uppercase tracking-tight mb-4">
              {featuredProject.title}
            </h2>
-           <p className="text-[#64748b] leading-relaxed mb-6">
-             {getDescription(featuredProject.description)}
-           </p>
+           <div className="mb-6 relative">
+             <p className={`text-[#64748b] leading-relaxed ${!isFeaturedExpanded ? "line-clamp-4 md:line-clamp-none" : ""}`}>
+               {getDescription(featuredProject.description)}
+             </p>
+             <button 
+               onClick={() => setIsFeaturedExpanded(!isFeaturedExpanded)}
+               className="text-[#3b82f6] font-bold text-[13px] mt-2 md:hidden hover:text-[#2563eb] transition-colors"
+             >
+               {isFeaturedExpanded ? "Show Less" : "Read More"}
+             </button>
+           </div>
            <div className="flex items-center gap-2 text-[#0284c7] font-semibold text-sm mb-8">
            </div>
            <div>
@@ -89,13 +98,47 @@ export default function ProjectsClient({ initialProjects = [] }: { initialProjec
 
       {/* Filter Tabs */}
       <div className="flex flex-col gap-4 mb-16 max-w-5xl mx-auto">
-        {/* Sizes Filter */}
-        <div className="flex flex-wrap justify-center gap-3">
+        {/* Mobile Dropdowns (hidden on md and above) */}
+        <div className="grid grid-cols-2 gap-3 px-4 md:hidden pb-6">
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-extrabold text-[#052c65] uppercase tracking-wider pl-1 whitespace-nowrap overflow-hidden text-ellipsis">Enterprise Size</label>
+            <div className="relative group">
+              <select 
+                value={activeSize}
+                onChange={(e) => setActiveSize(e.target.value)}
+                className="w-full p-3 pr-8 rounded-xl border border-[#e2e8f0] bg-white/90 backdrop-blur-sm text-xs font-bold text-[#334155] outline-none focus:border-[#3b82f6] focus:ring-4 focus:ring-[#3b82f6]/10 shadow-[0_8px_24px_rgba(5,44,101,0.04)] appearance-none transition-all cursor-pointer hover:border-[#cbd5e1] hover:shadow-[0_12px_32px_rgba(5,44,101,0.06)]"
+              >
+                {sizes.map(size => (
+                  <option key={size} value={size}>{size}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8] pointer-events-none transition-colors group-hover:text-[#3b82f6]" />
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-extrabold text-[#052c65] uppercase tracking-wider pl-1 whitespace-nowrap overflow-hidden text-ellipsis">Industry Wise</label>
+            <div className="relative group">
+              <select 
+                value={activeIndustry}
+                onChange={(e) => setActiveIndustry(e.target.value)}
+                className="w-full p-3 pr-8 rounded-xl border border-[#e2e8f0] bg-white/90 backdrop-blur-sm text-xs font-bold text-[#334155] outline-none focus:border-[#3b82f6] focus:ring-4 focus:ring-[#3b82f6]/10 shadow-[0_8px_24px_rgba(5,44,101,0.04)] appearance-none transition-all cursor-pointer hover:border-[#cbd5e1] hover:shadow-[0_12px_32px_rgba(5,44,101,0.06)]"
+              >
+                {industries.map(ind => (
+                  <option key={ind} value={ind}>{ind}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8] pointer-events-none transition-colors group-hover:text-[#3b82f6]" />
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Sizes Filter (hidden on mobile) */}
+        <div className="hidden md:flex flex-wrap gap-3 justify-center w-full">
           {sizes.map(size => (
             <button
               key={size}
               onClick={() => setActiveSize(size)}
-              className={`px-5 py-2 rounded-full text-xs font-bold transition-colors border ${
+              className={`flex-shrink-0 whitespace-nowrap px-5 py-2 rounded-full text-xs font-bold transition-colors border leading-tight flex items-center justify-center text-center ${
                 activeSize === size 
                   ? "bg-[#3b82f6] border-[#3b82f6] text-white" 
                   : "bg-white border-gray-200 text-[#64748b] hover:border-[#3b82f6]/50"
@@ -106,13 +149,13 @@ export default function ProjectsClient({ initialProjects = [] }: { initialProjec
           ))}
         </div>
 
-        {/* Industries Filter */}
-        <div className="flex flex-wrap justify-center gap-3">
+        {/* Desktop Industries Filter (hidden on mobile) */}
+        <div className="hidden md:flex flex-wrap gap-3 justify-center w-full pb-4">
           {industries.map(ind => (
             <button
               key={ind}
               onClick={() => setActiveIndustry(ind)}
-              className={`px-5 py-2 rounded-full text-xs font-bold transition-colors border ${
+              className={`flex-shrink-0 whitespace-nowrap px-5 py-2 rounded-full text-xs font-bold transition-colors border leading-tight flex items-center justify-center text-center ${
                 activeIndustry === ind 
                   ? "bg-[#3b82f6] border-[#3b82f6] text-white" 
                   : "bg-white border-gray-200 text-[#64748b] hover:border-[#3b82f6]/50"
@@ -125,7 +168,7 @@ export default function ProjectsClient({ initialProjects = [] }: { initialProjec
       </div>
 
       {/* Project Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mb-24">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 max-w-6xl mx-auto mb-24 px-2 md:px-0">
         {gridProjects.map((proj, i) => (
           <Link key={proj.id} href={`/projects/${proj.id}`} className="block h-full group">
           <motion.div
@@ -133,37 +176,39 @@ export default function ProjectsClient({ initialProjects = [] }: { initialProjec
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1 }}
-            className="bg-white rounded-[2rem] overflow-hidden shadow-[0_4px_24px_rgba(5,44,101,0.04)] border border-[#052c65]/5 transition-all flex flex-col h-full cursor-pointer group-hover:-translate-y-1 group-hover:shadow-[0_12px_32px_rgba(5,44,101,0.08)]"
+            className="bg-white rounded-[1.25rem] md:rounded-[2rem] overflow-hidden shadow-[0_4px_24px_rgba(5,44,101,0.04)] border border-[#052c65]/5 transition-all flex flex-col h-full cursor-pointer group-hover:-translate-y-1 group-hover:shadow-[0_12px_32px_rgba(5,44,101,0.08)]"
           >
-            <div className="relative h-56 overflow-hidden">
+            <div className="relative h-32 md:h-56 overflow-hidden">
                <img 
                  src={proj.image_url} 
                  alt={proj.title} 
+                 loading="lazy"
+                 decoding="async"
                  className="w-full h-full object-cover" 
                />
-               <div className="absolute top-4 left-4 flex flex-col gap-2">
-                  <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#e6f2f0] text-[#1e293b] shadow-sm w-max">
+               <div className="absolute top-2 left-2 md:top-4 md:left-4 flex flex-col gap-1 md:gap-2">
+                  <span className="px-2 py-1 md:px-3 md:py-1.5 rounded-full text-[8px] md:text-xs font-medium bg-[#e6f2f0] text-[#1e293b] shadow-sm w-max">
                     {PROJECT_DISPLAY[Number(proj.id)]?.category || proj.category_name || "Project"}
                   </span>
                </div>
             </div>
 
-            <div className="p-8 space-y-3 flex flex-col flex-1">
-               <h3 className="text-[1.35rem] font-bold text-[#0f172a] leading-tight">
+            <div className="p-4 md:p-8 space-y-1.5 md:space-y-3 flex flex-col flex-1">
+               <h3 className="text-[13px] md:text-[1.35rem] font-bold text-[#0f172a] leading-tight line-clamp-2 md:line-clamp-none">
                  {proj.title}
                </h3>
-               <div className="text-sm text-[#64748b]">
+               <div className="text-[9px] md:text-sm text-[#64748b]">
                   {getProjectIndustry(proj)} • {getProjectSize(proj)}
                </div>
 
-               <p className="text-[#334155] text-[0.95rem] leading-relaxed line-clamp-3 flex-1 mt-4">
+               <p className="text-[#334155] text-[10px] md:text-[0.95rem] leading-relaxed line-clamp-2 flex-1 mt-2 md:mt-4">
                   {getDescription(proj.description)}
                </p>
 
-               <div className="pt-6 mt-4">
-                  <div className="border-t border-gray-200 mb-6"></div>
-                  <div className="flex items-center gap-1.5 text-sm font-semibold text-[#3b82f6]">
-                     Project Detail <ArrowRight size={16} />
+               <div className="pt-3 md:pt-6 mt-auto">
+                  <div className="border-t border-gray-200 mb-3 md:mb-6"></div>
+                  <div className="flex items-center gap-1 md:gap-1.5 text-[10px] md:text-sm font-semibold text-[#3b82f6]">
+                     Project Detail <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
                   </div>
                </div>
             </div>

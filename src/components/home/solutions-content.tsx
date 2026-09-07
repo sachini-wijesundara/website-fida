@@ -171,10 +171,10 @@ export default function SolutionsContent() {
           </motion.div>
           <div className="sol-target-stage">
             <motion.div className="sol-target-dashboard" initial={rm ? false : { opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 1, delay: 0.25, ease: EASE }}>
-              <img src="/api/images/homepageimages/image5.png" alt="Smart HRIS dashboard" />
+              <img src="/api/images/homepageimages/smartrhris_dashboard.png" alt="Smart HRIS dashboard" loading="lazy" decoding="async" />
             </motion.div>
             <motion.div className="sol-target-mobile" initial={rm ? false : { opacity: 0, x: -30, y: 30 }} whileInView={{ opacity: 1, x: 0, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.9, delay: 0.4, ease: EASE }}>
-              <img src="/api/images/homepageimages/IMG_8542.PNG" alt="Smart HRIS mobile app" />
+              <img src="/api/images/homepageimages/IMG_8542.PNG" alt="Smart HRIS mobile app" loading="lazy" decoding="async" />
             </motion.div>
             <div className="sol-target-robot sol-target-robot--left" aria-hidden="true"><img src="/api/images/stylus_left.png" alt="" /></div>
             <div className="sol-target-robot sol-target-robot--right" aria-hidden="true"><img src="/api/images/stylus_right.png" alt="Robotic hand with stylus" /></div>
@@ -199,7 +199,7 @@ export default function SolutionsContent() {
             const expanded = expandedSlug === sol.slug;
             const databaseImages = solutionImages[sol.dbSlug || sol.slug];
             const detailImage = sol.slug === "smart-hris"
-              ? "/api/images/homepageimages/image5.png"
+              ? "/api/images/homepageimages/smartrhris_dashboard.png"
               : databaseImages?.detail_image_1 || sol.image;
 
             return (
@@ -277,7 +277,7 @@ export default function SolutionsContent() {
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 0.85, delay: 0.15, ease: EASE }}
           >
-            <img src="/api/images/solutions_images/homeLAST.png" alt="Business leaders reviewing enterprise analytics" />
+            <img src="/api/images/solutions_images/homeLAST.png" alt="Business leaders reviewing enterprise analytics" loading="lazy" decoding="async" />
           </motion.div>
         </div>
 
@@ -311,31 +311,7 @@ export default function SolutionsContent() {
         </div>
       </section>
 
-      {/* ── CTA ────────────────────────────────────────── */}
-      <motion.section
-        className="sol-cta-section"
-        initial={rm ? false : { opacity: 0, y: 36 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, ease: EASE }}
-      >
-        <h2 className="sol-cta-section__h2">
-          Ready to bring every layer of your<br />
-          workforce onto one system?
-        </h2>
-        <p className="sol-cta-section__sub">
-          Talk to our team about what FIDA Global can take off your plate. We've built the
-          infrastructure so you can focus on the innovation.
-        </p>
-        <div className="sol-cta-section__btns">
-          <Link href="/contact" className="sol-cta-section__btn sol-cta-section__btn--primary">
-            Book a Consultation
-          </Link>
-          <a href="/FIDAGlobalProfile2024.pdf" target="_blank" rel="noopener noreferrer" className="sol-cta-section__btn sol-cta-section__btn--outline">
-            Company Profile
-          </a>
-        </div>
-      </motion.section>
+
 
 
 

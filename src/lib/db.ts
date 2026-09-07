@@ -1,4 +1,4 @@
-import sql from 'mssql';
+import * as sql from 'mssql';
 
 if (!process.env.DB_USER || !process.env.DB_SERVER) {
   console.warn("⚠️ Database environment variables are missing! Login will fail.");

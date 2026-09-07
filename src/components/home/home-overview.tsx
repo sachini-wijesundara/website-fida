@@ -115,7 +115,7 @@ export default function HomeOverview() {
             <img src="/api/images/homepageimages/image3.png" alt="FIDA Global consultant" />
           </div>
           <div className="home-bento__stat home-bento__stat--red">
-            <span><strong><Counter value={14} suffix="+" /></strong> Years Experience</span>
+            <span><strong><Counter value={15} suffix="+" /></strong> Years Experience</span>
           </div>
           <div className="home-bento__media home-bento__photo--office">
             <img src="/api/images/homepageimages/image04.jpeg" alt="FIDA Global office" />
