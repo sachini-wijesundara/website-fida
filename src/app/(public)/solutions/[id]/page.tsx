@@ -266,15 +266,17 @@ export default function SolutionDetailPage() {
 
             <div className="flex flex-row md:flex-col gap-3 md:gap-6 justify-center items-stretch">
                <div className="flex-1 bg-white rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-[inset_0_0_40px_rgba(253,224,71,0.3)] border border-[#fef08a]/50">
-                  {data.stats.before_title && (
-                    <h4 className="text-[12px] md:text-sm font-bold text-[#0f172a] mb-1.5 md:mb-2">{data.stats.before_title}</h4>
-                  )}
+                  <h4 className="text-[12px] md:text-sm font-bold text-[#0f172a] mb-1.5 md:mb-2">
+                    Before {data.hero?.title},
+                  </h4>
                   <p className="text-[#475569] text-[10px] md:text-xs leading-relaxed font-medium whitespace-pre-line">
                     {data.stats.before_text}
                   </p>
                </div>
                <div className="flex-1 bg-white rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-[inset_0_0_40px_rgba(56,189,248,0.25)] border border-[#bae6fd]/50">
-                  <h4 className="text-[12px] md:text-sm font-bold text-[#0f172a] mb-1.5 md:mb-2">{data.stats.after_title || "After FIDA"}</h4>
+                  <h4 className="text-[12px] md:text-sm font-bold text-[#0f172a] mb-1.5 md:mb-2">
+                    After {data.hero?.title},
+                  </h4>
                   <p className="text-[#475569] text-[10px] md:text-xs leading-relaxed font-medium whitespace-pre-line">
                     {data.stats.after_text}
                   </p>
