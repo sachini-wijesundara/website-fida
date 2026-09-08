@@ -29,9 +29,23 @@ const team = [
 
 const SMOOTH: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-export default function AboutClient({ awardImageUrl }: { awardImageUrl: string }) {
+import { useState, useEffect } from "react";
+
+export default function AboutClient() {
   const row1 = team.filter(m => m.row === 1);
   const row2 = team.filter(m => m.row === 2);
+  const [awardImageUrl, setAwardImageUrl] = useState("/AWARD.JPG");
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.award_image) {
+          setAwardImageUrl(data.award_image);
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   return (
     <div className="pb-36 overflow-hidden">
