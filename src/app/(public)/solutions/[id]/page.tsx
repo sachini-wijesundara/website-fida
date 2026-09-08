@@ -179,7 +179,7 @@ export default function SolutionDetailPage() {
             </Link>
           </div>
 
-          <div className="w-[43%] md:w-1/2 relative shrink-0 pt-8 md:pt-0">
+          <div className="w-[43%] md:w-1/2 relative shrink-0 pt-[56px] md:pt-0">
             <div className="absolute inset-0 bg-gradient-to-r from-[#e0f2fe] to-[#dcfce3] rounded-2xl md:rounded-[3rem] -rotate-3 scale-105 opacity-60 blur-xl" />
             <img src={data.hero?.image || data.detail_image_1 || data.thumbnail_image || "/placeholder.jpg"} alt={`Preview`} className="relative w-full rounded-xl md:rounded-[2.5rem] shadow-2xl border border-white/50 object-cover aspect-[4/3]" />
           </div>
