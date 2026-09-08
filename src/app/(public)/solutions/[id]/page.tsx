@@ -361,7 +361,7 @@ export default function SolutionDetailPage() {
                </p>
             </div>
 
-            <div className="flex flex-row gap-3 md:gap-6 justify-center items-stretch">
+            <div className="flex flex-col gap-3 md:gap-4">
                <div className="flex-1 bg-white rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-[inset_0_0_40px_rgba(253,224,71,0.3)] border border-[#fef08a]/50">
                   <h4 className="text-[11px] md:text-sm font-bold text-[#0f172a] mb-1.5 md:mb-2">
                     Before {formatSlugName(data.slug as string ?? '')}

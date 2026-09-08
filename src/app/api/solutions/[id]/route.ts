@@ -8,20 +8,20 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const pool = await getDbConnection();
     
     const isNumeric = !isNaN(Number(params.id));
-    const request = pool.request();
+    const dbRequest = pool.request();
     
     let query = 'SELECT * FROM Solutions WHERE ';
     
     if (isNumeric) {
        // Support fetching by order_index (e.g., "01", "02") or by exact ID
        query += '(order_index = @NumId OR id = @NumId)';
-       request.input('NumId', parseInt(params.id));
+       dbRequest.input('NumId', parseInt(params.id));
     } else {
        query += 'slug = @Slug'; 
-       request.input('Slug', params.id);
+       dbRequest.input('Slug', params.id);
     }
 
-    const result = await request.query(query);
+    const result = await dbRequest.query(query);
 
     if (result.recordset.length === 0) {
       return NextResponse.json({ message: "Solution not found" }, { status: 404 });
