@@ -301,45 +301,38 @@ export default function SolutionsClient() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1, duration: 0.6 }}
-                  className="w-full"
+                  className="flex flex-row flex-nowrap gap-3 md:gap-12 items-start justify-between w-full"
                 >
-                  {/* Number on top */}
-                  <div className="text-4xl md:text-6xl font-black text-[#a5f3fc] leading-none mb-2 md:mb-4 tracking-tighter">
-                    {visualNumber}
-                  </div>
-
-                  {/* Text + Image side by side */}
-                  <div className="flex flex-row flex-nowrap gap-3 md:gap-12 items-start justify-between w-full mb-4 md:mb-8">
-                    {/* Content Column */}
-                    <div className="flex-1 min-w-0 flex flex-col justify-start">
-                       <div className="mb-2 md:mb-4">
-                          <span className="px-2 py-0.5 md:px-3 md:py-1 bg-[#e0f2fe] text-[#0284c7] rounded-full text-[8px] md:text-[10px] font-extrabold uppercase tracking-widest inline-block">
-                            {sol.badge || "SOLUTION"}
-                          </span>
-                       </div>
-
-                       <h2 className="text-base md:text-2xl font-black text-[#052c65] uppercase tracking-tight mb-2 md:mb-4 group-hover:text-[#2563eb] transition-colors leading-tight">
-                         {sol.title}
-                       </h2>
-
-                       <p className="text-[#475569] text-[9px] md:text-sm leading-relaxed max-w-lg line-clamp-3 md:line-clamp-none">
-                         {sol.description}
-                       </p>
+                  {/* Content Column — number, badge, title, desc, button all stacked */}
+                  <div className="flex-1 min-w-0 flex flex-col justify-start">
+                    <div className="text-4xl md:text-6xl font-black text-[#a5f3fc] leading-none mb-2 md:mb-4 tracking-tighter">
+                      {visualNumber}
                     </div>
 
-                    {/* Image Column */}
-                    <div className="w-[42%] md:w-5/12 shrink-0">
-                       <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-sm bg-gray-100">
-                          <img src={sol.thumbnail_image || sol.detail_image_1 || "/placeholder.jpg"} alt={sol.title} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" loading="lazy" />
-                       </div>
+                    <div className="mb-1.5 md:mb-3">
+                      <span className="px-2 py-0.5 md:px-3 md:py-1 bg-[#e0f2fe] text-[#0284c7] rounded-full text-[8px] md:text-[10px] font-extrabold uppercase tracking-widest inline-block">
+                        {sol.badge || "SOLUTION"}
+                      </span>
                     </div>
+
+                    <h2 className="text-base md:text-2xl font-black text-[#052c65] uppercase tracking-tight mb-1.5 md:mb-3 group-hover:text-[#2563eb] transition-colors leading-tight">
+                      {sol.title}
+                    </h2>
+
+                    <p className="text-[#475569] text-[9px] md:text-sm leading-relaxed max-w-lg mb-3 md:mb-5 line-clamp-3 md:line-clamp-none">
+                      {sol.description}
+                    </p>
+
+                    <span className="inline-flex items-center gap-1.5 md:gap-2 px-3 py-1.5 md:px-6 md:py-3 rounded-xl md:rounded-full bg-[#052c65] text-white text-[9px] md:text-xs font-bold transition-colors group-hover:bg-[#167fa8] w-max">
+                      Learn More <ArrowRight className="w-2.5 h-2.5 md:w-[14px] md:h-[14px]" />
+                    </span>
                   </div>
 
-                  {/* Learn More button below */}
-                  <div>
-                     <span className="inline-flex items-center gap-1.5 md:gap-2 px-3 py-1.5 md:px-6 md:py-3 rounded-xl md:rounded-full bg-[#052c65] text-white text-[9px] md:text-xs font-bold transition-colors group-hover:bg-[#167fa8] w-max">
-                        Learn More <ArrowRight className="w-2.5 h-2.5 md:w-[14px] md:h-[14px]" />
-                     </span>
+                  {/* Image Column — top-aligned, beside the number */}
+                  <div className="w-[42%] md:w-5/12 shrink-0">
+                    <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-sm bg-gray-100">
+                      <img src={sol.thumbnail_image || sol.detail_image_1 || "/placeholder.jpg"} alt={sol.title} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" loading="lazy" />
+                    </div>
                   </div>
                 </motion.div>
               </Link>
