@@ -290,7 +290,7 @@ export default function SolutionsClient() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1, duration: 0.6 }}
-                  className="flex flex-row flex-nowrap gap-3 md:gap-12 items-start md:items-center justify-between w-full"
+                  className="flex flex-row flex-nowrap gap-3 md:gap-12 items-start justify-between w-full"
                 >
                   {/* Content Column */}
                   <div className="w-[55%] md:w-7/12 flex flex-col justify-start order-1 md:order-2 pr-1 md:pr-0 shrink-0">

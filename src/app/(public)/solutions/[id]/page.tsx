@@ -139,7 +139,7 @@ export default function SolutionDetailPage() {
         </Link>
 
         {/* Hero Section */}
-        <div className="flex flex-row flex-nowrap gap-2 md:gap-16 mb-20 md:mb-32 items-start md:items-center justify-between w-full">
+        <div className="flex flex-row flex-nowrap gap-2 md:gap-16 mb-20 md:mb-32 items-start justify-between w-full">
           <div className="w-[55%] md:w-1/2 pr-1 md:pr-0 shrink-0 flex flex-col justify-start">
             {/* Logo */}
             <div className="mb-3 md:mb-8 flex items-center gap-6">
