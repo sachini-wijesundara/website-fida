@@ -118,7 +118,7 @@ export default function BlogDetailPage() {
               transition={{ delay: 0.3 }}
               className="rounded-[40px] overflow-hidden mb-16 shadow-2xl border border-[var(--grey-dark)] aspect-video relative"
             >
-              <img src={blog.imageUrl} alt={blog.title} className="w-full h-full object-cover" />
+              <img src={blog.imageUrl} alt={blog.title} className="w-full h-full object-cover" loading="lazy" />
             </motion.div>
           )}
 

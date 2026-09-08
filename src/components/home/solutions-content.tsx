@@ -159,7 +159,7 @@ export default function SolutionsContent() {
           >
             <div className="flex items-center flex-wrap mb-4">
               <span className="text-[#5BA3C7] font-semibold text-[28px] lg:text-[32px]">One ecosystem.</span>
-              <img src={smartHrisLogo || "/api/images/FIDA%20Global%20logos.png"} alt="Smart HRIS Logo" className="h-[40px] lg:h-[52px] ml-3 object-contain" style={{ transform: 'translateY(-8%)' }} />
+              <img src={smartHrisLogo || "/api/images/FIDA%20Global%20logos.png"} alt="Smart HRIS Logo" className="h-[40px] lg:h-[52px] ml-3 object-contain" style={{ transform: 'translateY(-8%)' }} loading="lazy" />
             </div>
             <h1 className="leading-[1.15] max-w-[850px] mb-6 text-[#1a2b4d] font-black text-[36px] md:text-[48px] lg:text-[60px] tracking-tight">
               Every layer of your workforce, covered.
@@ -176,8 +176,8 @@ export default function SolutionsContent() {
             <motion.div className="sol-target-mobile" initial={rm ? false : { opacity: 0, x: -30, y: 30 }} whileInView={{ opacity: 1, x: 0, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.9, delay: 0.4, ease: EASE }}>
               <img src="/api/images/homepageimages/IMG_8542.PNG" alt="Smart HRIS mobile app" loading="lazy" decoding="async" />
             </motion.div>
-            <div className="sol-target-robot sol-target-robot--left" aria-hidden="true"><img src="/api/images/stylus_left.png" alt="" /></div>
-            <div className="sol-target-robot sol-target-robot--right" aria-hidden="true"><img src="/api/images/stylus_right.png" alt="Robotic hand with stylus" /></div>
+            <div className="sol-target-robot sol-target-robot--left" aria-hidden="true"><img src="/api/images/stylus_left.png" alt="" loading="lazy" /></div>
+            <div className="sol-target-robot sol-target-robot--right" aria-hidden="true"><img src="/api/images/stylus_right.png" alt="Robotic hand with stylus" loading="lazy" /></div>
           </div>
         </div>
       </motion.section>
@@ -234,7 +234,7 @@ export default function SolutionsContent() {
                   {expanded ? sol.details : sol.desc}
                 </motion.p>
               </div>
-              <Link href={`/solutions/${(i + 1).toString().padStart(2, '0')}`} className="sol-list-item__link" onClick={(event) => event.stopPropagation()}>
+              <Link href={`/solutions/${sol.dbSlug}`} className="sol-list-item__link" onClick={(event) => event.stopPropagation()}>
                 Learn more <ArrowRight size={14} />
               </Link>
               <AnimatePresence>
@@ -246,7 +246,7 @@ export default function SolutionsContent() {
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <img src={detailImage} alt={`${sol.title} solution preview`} />
+                    <img src={detailImage} alt={`${sol.title} solution preview`} loading="lazy" />
                   </motion.div>
                 )}
               </AnimatePresence>

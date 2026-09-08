@@ -12,8 +12,18 @@ import {
   Ticket,
   TrendingUp,
   MessageSquare,
-  Shield
+  Shield,
+  AlertCircle
 } from "lucide-react";
+
+const UPPERCASE_WORDS = new Set(["crm", "hris", "fida", "hrms", "erp", "ai", "hr"]);
+
+function formatSlugName(slug: string): string {
+  return slug
+    .split('-')
+    .map((w) => UPPERCASE_WORDS.has(w.toLowerCase()) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
 
 function getCardIcon(title: string, index: number) {
   const t = title.toLowerCase();
@@ -75,17 +85,19 @@ export default function SolutionDetailPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isHeroTextExpanded, setIsHeroTextExpanded] = useState(false);
 
   useEffect(() => {
      window.scrollTo(0, 0);
      
-     async function fetchSolution() {
+     let isMounted = true;
+     async function fetchSolution(retries = 3) {
        try {
          const res = await fetch(`/api/solutions/${id}?t=${Date.now()}`, { cache: "no-store" });
          if (res.ok) {
            const json = await res.json();
-           if (json.template_data) {
+           if (json.template_data && isMounted) {
               setData({ 
                 ...json.template_data, 
                 order_index: json.order_index, 
@@ -93,25 +105,40 @@ export default function SolutionDetailPage() {
                 thumbnail_image: json.thumbnail_image,
                 detail_image_1: json.detail_image_1
               });
-           } else {
-              console.warn("No template_data found, redirecting");
-              router.push("/solutions");
+              setLoading(false);
+           } else if (isMounted) {
+              console.warn("No template_data found in JSON:", json);
+              setErrorMsg(`No template_data found for solution: ${id}. Raw API response: ${JSON.stringify(json).substring(0, 200)}`);
+              setLoading(false);
            }
          } else {
            console.error("API returned not ok:", res.status, res.statusText);
-           const errText = await res.text();
-           console.error("API Error details:", errText);
-           router.push("/solutions");
+           if (retries > 0 && isMounted) {
+             console.log(`Retrying... (${retries} attempts left)`);
+             setTimeout(() => fetchSolution(retries - 1), 1500);
+             return;
+           }
+           if (isMounted) {
+              setErrorMsg(`Failed to load solution. API returned ${res.status}: ${res.statusText}`);
+              setLoading(false);
+           }
          }
-       } catch (err) {
+       } catch (err: any) {
          console.error("Fetch threw an error:", err);
-         router.push("/solutions");
-       } finally {
-         setLoading(false);
+         if (retries > 0 && isMounted) {
+           console.log(`Retrying... (${retries} attempts left)`);
+           setTimeout(() => fetchSolution(retries - 1), 1500);
+           return;
+         }
+         if (isMounted) {
+            setErrorMsg(`Network or parsing error: ${err.message}`);
+            setLoading(false);
+         }
        }
      }
      
      if (id) fetchSolution();
+     return () => { isMounted = false; };
   }, [id, router]);
 
   if (loading) {
@@ -119,6 +146,26 @@ export default function SolutionDetailPage() {
       <div className="min-h-screen flex items-center justify-center bg-[#fafcff]">
         <Loader2 className="animate-spin text-blue-500 w-12 h-12" />
       </div>
+    );
+  }
+
+  if (errorMsg) {
+    return (
+      <main className="min-h-screen pt-24 pb-20 bg-gray-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center border border-red-100">
+          <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+             <AlertCircle size={32} />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Oops! Something went wrong</h2>
+          <p className="text-sm text-gray-600 mb-6">{errorMsg}</p>
+          <button 
+            onClick={() => router.push("/solutions")}
+            className="px-6 py-3 bg-[#052c65] text-white rounded-xl font-bold hover:bg-[#167fa8] transition-colors"
+          >
+            Back to Solutions
+          </button>
+        </div>
+      </main>
     );
   }
 
@@ -139,93 +186,143 @@ export default function SolutionDetailPage() {
         </Link>
 
         {/* Hero Section */}
-        <div className="flex flex-row flex-nowrap gap-2 md:gap-16 mb-20 md:mb-32 items-start justify-between w-full">
-          <div className="w-[55%] md:w-1/2 pr-1 md:pr-0 shrink-0 flex flex-col justify-start">
-            {/* Logo */}
-            <div className="mb-3 md:mb-8 flex items-center gap-6">
-               <img src={data.hero?.logo_image || "/api/images/FIDA%20Global%20logos.png"} alt={`Logo`} className="max-w-[80px] md:max-w-[260px] max-h-[40px] md:max-h-[120px] w-auto h-auto object-contain object-left" />
+        <div className="mb-20 md:mb-32 w-full"> 
+
+          {/* ── MOBILE layout ── */}
+          <div className="md:hidden">
+            {/* Logo — full width */}
+            <div className="mb-3 flex items-center">
+              <img src={data.hero?.logo_image || "/api/images/FIDA%20Global%20logos.png"} alt="Logo" className="max-w-[90px] max-h-[40px] w-auto h-auto object-contain object-left" loading="eager" fetchPriority="high" />
             </div>
 
-            <h1 className="text-[20px] leading-[1.15] md:text-5xl lg:text-6xl font-black text-[#0f172a] tracking-tight mb-2 md:mb-6 mt-0">
-              {data.hero?.title} <br/>
-              <span className="text-[#38bdf8]">{data.hero?.subtitle}</span>
-            </h1>
+            {/* Title + Image — side by side */}
+            <div className="flex flex-row gap-3 items-center mb-4">
+              <h1 className="flex-1 text-[17px] leading-[1.2] font-black text-[#0f172a] tracking-tight">
+                {data.hero?.title}<br/>
+                <span className="text-[#38bdf8]">{data.hero?.subtitle}</span>
+              </h1>
+              <div className="w-[42%] shrink-0 relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-[#e0f2fe] to-[#dcfce3] rounded-2xl -rotate-3 scale-105 opacity-60 blur-xl" />
+                <img
+                  src={data.hero?.image || data.detail_image_1 || data.thumbnail_image || "/placeholder.jpg"}
+                  alt="Preview"
+                  className="relative w-full rounded-2xl shadow-2xl border border-white/50 object-cover aspect-square" loading="eager" fetchPriority="high"
+                />
+              </div>
+            </div>
 
-            <div className="mb-3 md:mb-8 max-w-md">
-              <p className={`text-[#475569] text-[11px] md:text-base leading-relaxed whitespace-pre-line transition-all ${isHeroTextExpanded ? '' : 'line-clamp-4 md:line-clamp-none'}`}>
+            {/* Description + Read More */}
+            <div className="mb-4">
+              <p className={`text-[#475569] text-[12px] leading-relaxed whitespace-pre-line transition-all ${isHeroTextExpanded ? '' : 'line-clamp-4'}`}>
                 {data.hero?.description}
               </p>
-              <button 
-                 onClick={() => setIsHeroTextExpanded(!isHeroTextExpanded)}
-                 className="text-[#3b82f6] font-bold text-[11px] mt-1 md:hidden hover:text-[#2563eb] transition-colors"
-               >
-                 {isHeroTextExpanded ? "Show Less" : "Read More"}
-               </button>
+              <button
+                onClick={() => setIsHeroTextExpanded(!isHeroTextExpanded)}
+                className="text-[#3b82f6] font-bold text-[12px] mt-1 hover:text-[#2563eb] transition-colors"
+              >
+                {isHeroTextExpanded ? "Show Less" : "Read More"}
+              </button>
             </div>
 
-            <div className="flex flex-row flex-wrap lg:flex-nowrap gap-2 md:gap-2.5 lg:gap-3 mb-4 md:mb-10 overflow-hidden">
+            {/* Features */}
+            <div className="flex flex-col gap-2 mb-5">
               {data.hero?.features?.map((feat: string, fidx: number) => (
                 feat && (
-                  <div key={fidx} className="flex items-center gap-1.5 md:gap-1.5 text-[10px] md:text-[11px] lg:text-xs font-bold text-[#052c65] whitespace-nowrap">
-                    <CheckCircle2 className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#3b82f6] shrink-0" /> 
-                    <span className="leading-tight">{feat}</span>
+                  <div key={fidx} className="flex items-center gap-2 text-[12px] font-bold text-[#052c65]">
+                    <CheckCircle2 className="w-4 h-4 text-[#3b82f6] shrink-0" />
+                    <span>{feat}</span>
                   </div>
                 )
               ))}
             </div>
 
-            <Link href="/contact" className="inline-flex items-center gap-1.5 md:gap-2 px-3 py-2 md:px-8 md:py-4 rounded-xl bg-[#052c65] text-white font-bold text-[11px] md:text-sm hover:bg-[#167fa8] transition-colors shadow-lg w-max">
-              Book a Demo <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
+            {/* Book a Demo button */}
+            <Link href="/contact" className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#052c65] text-white font-bold text-[12px] hover:bg-[#167fa8] transition-colors shadow-lg w-max">
+              Book a Demo <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          <div className="w-[43%] md:w-1/2 relative shrink-0 pt-[56px] md:pt-0">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#e0f2fe] to-[#dcfce3] rounded-2xl md:rounded-[3rem] -rotate-3 scale-105 opacity-60 blur-xl" />
-            <img src={data.hero?.image || data.detail_image_1 || data.thumbnail_image || "/placeholder.jpg"} alt={`Preview`} className="relative w-full rounded-xl md:rounded-[2.5rem] shadow-2xl border border-white/50 object-cover aspect-[4/3]" />
+          {/* ── DESKTOP layout ── */}
+          <div className="hidden md:flex flex-row gap-16 items-center justify-between w-full">
+            {/* Text column */}
+            <div className="w-1/2 min-w-0 flex flex-col justify-start">
+              <div className="mb-8 flex items-center gap-6">
+                <img src={data.hero?.logo_image || "/api/images/FIDA%20Global%20logos.png"} alt="Logo" className="max-w-[260px] max-h-[120px] w-auto h-auto object-contain object-left" loading="eager" fetchPriority="high" />
+              </div>
+              <h1 className="text-5xl lg:text-6xl font-black text-[#0f172a] tracking-tight mb-6 mt-0">
+                {data.hero?.title} <br/>
+                <span className="text-[#38bdf8]">{data.hero?.subtitle}</span>
+              </h1>
+              <div className="mb-8 max-w-md">
+                <p className="text-[#475569] text-base leading-relaxed whitespace-pre-line">
+                  {data.hero?.description}
+                </p>
+              </div>
+              <div className="flex flex-row flex-wrap lg:flex-nowrap gap-2.5 lg:gap-3 mb-10 overflow-hidden">
+                {data.hero?.features?.map((feat: string, fidx: number) => (
+                  feat && (
+                    <div key={fidx} className="flex items-center gap-1.5 text-[11px] lg:text-xs font-bold text-[#052c65] whitespace-nowrap">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#3b82f6] shrink-0" />
+                      <span className="leading-tight">{feat}</span>
+                    </div>
+                  )
+                ))}
+              </div>
+              <Link href="/contact" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#052c65] text-white font-bold text-sm hover:bg-[#167fa8] transition-colors shadow-lg w-max">
+                Book a Demo <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            {/* Image column */}
+            <div className="w-1/2 relative shrink-0">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#e0f2fe] to-[#dcfce3] rounded-[3rem] -rotate-3 scale-105 opacity-60 blur-xl" />
+              <img src={data.hero?.image || data.detail_image_1 || data.thumbnail_image || "/placeholder.jpg"} alt="Preview" className="relative w-full rounded-[2.5rem] shadow-2xl border border-white/50 object-cover aspect-[4/3]" loading="eager" fetchPriority="high" />
+            </div>
           </div>
+
         </div>
 
         {/* Dynamic Features Section */}
         {data.features_section && data.features_section.cards && data.features_section.cards.length > 0 && (
-          <div className="mb-32">
-            <h2 className="text-3xl lg:text-4xl font-black text-[#052c65] text-center mb-16">
+          <div className="mb-20 md:mb-32">
+            <h2 className="text-xl md:text-4xl font-black text-[#052c65] text-center mb-8 md:mb-16 px-2">
               {data.features_section.title}
             </h2>
 
-            <div className="grid grid-cols-2 lg:grid-cols-2 gap-4 lg:gap-12 items-stretch relative">
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-6 lg:gap-12 items-stretch relative">
               {data.features_section.cards.map((card: any, index: number) => {
                 const hasImage = card.image && card.image.trim() !== "";
                 if (hasImage) {
                   return (
-                    <div key={index} className="col-span-2 lg:col-span-2 flex flex-row flex-wrap md:flex-nowrap gap-4 md:gap-12 items-center">
+                    <div key={index} className="col-span-2 flex flex-row gap-4 md:gap-12 items-center">
                       {index % 2 === 0 ? (
                         <>
-                          <div className="w-[50%] md:w-1/2 bg-white rounded-[1.25rem] md:rounded-3xl p-5 md:p-10 shadow-[10px_10px_30px_-10px_rgba(2,132,199,0.2)] md:shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.3)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all h-full justify-center">
-                             <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center font-bold shadow-md mb-4 md:mb-8 shrink-0" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
-                                <span className="scale-75 md:scale-100 flex items-center justify-center">
+                          <div className="w-1/2 bg-white rounded-2xl md:rounded-3xl p-4 md:p-10 shadow-[10px_10px_30px_-10px_rgba(2,132,199,0.15)] md:shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.2)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all justify-center min-h-[160px] md:h-full">
+                             <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl flex items-center justify-center font-bold shadow-md mb-3 md:mb-8 shrink-0" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
+                                <span className="scale-90 md:scale-100 flex items-center justify-center">
                                   {getCardIcon(card.title, index)}
                                 </span>
                              </div>
-                             <h3 className="text-[13px] md:text-2xl font-bold text-[#0f172a] mb-2 md:mb-4 leading-tight">{card.title}</h3>
-                             <p className="text-[#64748b] text-[10px] md:text-sm leading-relaxed whitespace-pre-line">{card.description}</p>
+                             <h3 className="text-sm md:text-2xl font-bold text-[#0f172a] mb-1.5 md:mb-4 leading-tight">{card.title}</h3>
+                             <p className="text-[#64748b] text-[11px] md:text-sm leading-relaxed whitespace-pre-line">{card.description}</p>
                           </div>
-                          <div className="w-[45%] md:w-1/2 flex justify-center lg:justify-end ml-auto">
-                             <img src={card.image} alt={card.title} className="w-full h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500" />
+                          <div className="w-1/2 flex justify-center">
+                             <img src={card.image} alt={card.title} className="w-full h-auto object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 max-h-[200px] md:max-h-none" loading="lazy" />
                           </div>
                         </>
                       ) : (
                         <>
-                          <div className="w-[45%] md:w-1/2 flex justify-center lg:justify-start">
-                             <img src={card.image} alt={card.title} className="w-full h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500" />
+                          <div className="w-1/2 flex justify-center">
+                             <img src={card.image} alt={card.title} className="w-full h-auto object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 max-h-[200px] md:max-h-none" loading="lazy" />
                           </div>
-                          <div className="w-[50%] md:w-1/2 bg-white rounded-[1.25rem] md:rounded-3xl p-5 md:p-10 shadow-[10px_10px_30px_-10px_rgba(2,132,199,0.2)] md:shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.3)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all h-full justify-center ml-auto">
-                             <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center font-bold shadow-md mb-4 md:mb-8 shrink-0" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
-                                <span className="scale-75 md:scale-100 flex items-center justify-center">
+                          <div className="w-1/2 bg-white rounded-2xl md:rounded-3xl p-4 md:p-10 shadow-[10px_10px_30px_-10px_rgba(2,132,199,0.15)] md:shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.2)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all justify-center min-h-[160px] md:h-full">
+                             <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl flex items-center justify-center font-bold shadow-md mb-3 md:mb-8 shrink-0" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
+                                <span className="scale-90 md:scale-100 flex items-center justify-center">
                                   {getCardIcon(card.title, index)}
                                 </span>
                              </div>
-                             <h3 className="text-[13px] md:text-2xl font-bold text-[#0f172a] mb-2 md:mb-4 leading-tight">{card.title}</h3>
-                             <p className="text-[#64748b] text-[10px] md:text-sm leading-relaxed whitespace-pre-line">{card.description}</p>
+                             <h3 className="text-sm md:text-2xl font-bold text-[#0f172a] mb-1.5 md:mb-4 leading-tight">{card.title}</h3>
+                             <p className="text-[#64748b] text-[11px] md:text-sm leading-relaxed whitespace-pre-line">{card.description}</p>
                           </div>
                         </>
                       )}
@@ -233,13 +330,13 @@ export default function SolutionDetailPage() {
                   );
                 } else {
                   return (
-                    <div key={index} className="col-span-1 bg-white rounded-[1.25rem] md:rounded-3xl p-5 md:p-10 shadow-[10px_10px_30px_-10px_rgba(2,132,199,0.2)] md:shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.3)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all h-full justify-center">
-                       <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center font-bold shadow-md mb-4 md:mb-8 shrink-0" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
-                          <span className="scale-75 md:scale-100 flex items-center justify-center">
+                    <div key={index} className="col-span-1 bg-white rounded-2xl md:rounded-3xl p-4 md:p-10 shadow-[10px_10px_30px_-10px_rgba(2,132,199,0.15)] md:shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.2)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all h-full justify-center">
+                       <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl flex items-center justify-center font-bold shadow-md mb-3 md:mb-8 shrink-0" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
+                          <span className="scale-90 md:scale-100 flex items-center justify-center">
                             {getCardIcon(card.title, index)}
                           </span>
                        </div>
-                       <h3 className="text-[13px] md:text-2xl font-bold text-[#0f172a] mb-2 md:mb-4 leading-tight">{card.title}</h3>
+                       <h3 className="text-[12px] md:text-xl font-bold text-[#0f172a] mb-1.5 md:mb-4 leading-tight">{card.title}</h3>
                        <p className="text-[#64748b] text-[10px] md:text-sm leading-relaxed whitespace-pre-line">{card.description}</p>
                     </div>
                   );
@@ -249,7 +346,7 @@ export default function SolutionDetailPage() {
           </div>
         )}
 
-      {/* Stat Block */}
+        {/* Stat Block */}
         {data.stats && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-8">
             <div className="bg-[#f0f9ff]/80 rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-10 lg:p-14 shadow-[0_0_20px_rgba(56,189,248,0.25)] border-2 border-[#38bdf8] flex flex-col justify-center">
@@ -259,23 +356,23 @@ export default function SolutionDetailPage() {
                <h4 className="text-xs md:text-sm font-black text-[#0f172a] uppercase tracking-widest mb-4 md:mb-6 leading-relaxed">
                   {data.stats.title}
                </h4>
-               <p className="text-[#475569] text-[11px] md:text-sm leading-relaxed whitespace-pre-line">
+               <p className="text-[#475569] text-xs md:text-sm leading-relaxed whitespace-pre-line">
                   {data.stats.description}
                </p>
             </div>
 
-            <div className="flex flex-row md:flex-col gap-3 md:gap-6 justify-center items-stretch">
+            <div className="flex flex-row gap-3 md:gap-6 justify-center items-stretch">
                <div className="flex-1 bg-white rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-[inset_0_0_40px_rgba(253,224,71,0.3)] border border-[#fef08a]/50">
-                  <h4 className="text-[12px] md:text-sm font-bold text-[#0f172a] mb-1.5 md:mb-2">
-                    Before {data.hero?.title},
+                  <h4 className="text-[11px] md:text-sm font-bold text-[#0f172a] mb-1.5 md:mb-2">
+                    Before {formatSlugName(data.slug as string ?? '')}
                   </h4>
                   <p className="text-[#475569] text-[10px] md:text-xs leading-relaxed font-medium whitespace-pre-line">
                     {data.stats.before_text}
                   </p>
                </div>
                <div className="flex-1 bg-white rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-[inset_0_0_40px_rgba(56,189,248,0.25)] border border-[#bae6fd]/50">
-                  <h4 className="text-[12px] md:text-sm font-bold text-[#0f172a] mb-1.5 md:mb-2">
-                    After {data.hero?.title},
+                  <h4 className="text-[11px] md:text-sm font-bold text-[#0f172a] mb-1.5 md:mb-2">
+                    After {formatSlugName(data.slug as string ?? '')}
                   </h4>
                   <p className="text-[#475569] text-[10px] md:text-xs leading-relaxed font-medium whitespace-pre-line">
                     {data.stats.after_text}
@@ -323,7 +420,7 @@ export default function SolutionDetailPage() {
             {MORE_SOLUTIONS.filter(sol => sol.id !== data.slug && sol.id !== id).slice(0, 3).map(sol => (
               <Link href={`/solutions/${sol.id}`} key={sol.id} className="bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(5,44,101,0.03)] border border-[#052c65]/5 flex flex-row md:flex-col group hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(5,44,101,0.06)] transition-all cursor-pointer items-center md:items-stretch">
                 <div className="w-[35%] md:w-full h-28 md:h-48 overflow-hidden bg-gray-100 p-1.5 md:p-2 shrink-0">
-                  <img src={sol.image} alt={sol.title} className="w-full h-full object-cover rounded-xl md:rounded-2xl transition-all duration-500 group-hover:scale-105" />
+                  <img src={sol.image} alt={sol.title} className="w-full h-full object-cover rounded-xl md:rounded-2xl transition-all duration-500 group-hover:scale-105" loading="lazy" />
                 </div>
                 <div className="p-4 md:p-6 flex flex-col flex-1">
                   <h3 className="text-[11px] md:text-sm font-extrabold text-[#0f172a] mb-1.5 md:mb-3 uppercase tracking-tight">

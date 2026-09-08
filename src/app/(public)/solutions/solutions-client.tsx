@@ -31,8 +31,8 @@ function GlobeImage() {
         }}
       >
         {/* Render map twice for seamless loop */}
-        <img src="/world-map.svg" alt="" style={{ width: '50%', height: '100%', objectFit: 'cover', opacity: 0.55, filter: 'hue-rotate(10deg) saturate(1.2)' }} />
-        <img src="/world-map.svg" alt="" style={{ width: '50%', height: '100%', objectFit: 'cover', opacity: 0.55, filter: 'hue-rotate(10deg) saturate(1.2)' }} />
+        <img src="/world-map.svg" alt="" style={{ width: '50%', height: '100%', objectFit: 'cover', opacity: 0.55, filter: 'hue-rotate(10deg) saturate(1.2)' }} loading="lazy" />
+        <img src="/world-map.svg" alt="" style={{ width: '50%', height: '100%', objectFit: 'cover', opacity: 0.55, filter: 'hue-rotate(10deg) saturate(1.2)' }} loading="lazy" />
       </motion.div>
 
       {/* Sphere glass overlay — top highlight */}
@@ -65,7 +65,7 @@ function FullPageLoader({ isLoaded, onComplete }: { isLoaded: boolean, onComplet
       setProgress(100);
       const timeout = setTimeout(() => {
         onComplete();
-      }, 150); 
+      }, 50); 
       return () => clearTimeout(timeout);
     }
 
@@ -83,8 +83,8 @@ function FullPageLoader({ isLoaded, onComplete }: { isLoaded: boolean, onComplet
   return (
     <motion.div 
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 1.03 }}
-      transition={{ duration: 0.7, ease: "easeInOut" }}
+      exit={{ opacity: 0, scale: 1.02 }}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden"
       style={{ background: 'linear-gradient(145deg, #f0f8ff 0%, #e8f5fd 40%, #d6f0f7 70%, #c8edf7 100%)' }}
     >
@@ -218,18 +218,29 @@ export default function SolutionsClient() {
   const [showLoader, setShowLoader] = useState(true);
 
   useEffect(() => {
-    async function fetchSolutions() {
+    let isMounted = true;
+    async function fetchSolutions(retries = 3) {
+      let willRetry = false;
       try {
         const res = await fetch("/api/solutions");
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
-        setSolutions(data);
+        if (isMounted) {
+          setSolutions(Array.isArray(data) ? data : []);
+          setDataLoaded(true);
+        }
       } catch (err) {
         console.error("Failed to fetch solutions", err);
-      } finally {
-        setDataLoaded(true);
+        if (retries > 0 && isMounted) {
+          willRetry = true;
+          setTimeout(() => fetchSolutions(retries - 1), 800);
+        } else if (isMounted) {
+          setDataLoaded(true); // give up, hide loader
+        }
       }
     }
     fetchSolutions();
+    return () => { isMounted = false; };
   }, []);
 
   return (
@@ -290,7 +301,7 @@ export default function SolutionsClient() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1, duration: 0.6 }}
-                  className="flex flex-row flex-nowrap gap-3 md:gap-12 items-start justify-between w-full"
+                  className="flex flex-row flex-nowrap gap-3 md:gap-12 items-start md:items-center justify-between w-full"
                 >
                   {/* Content Column */}
                   <div className="w-[55%] md:w-7/12 flex flex-col justify-start order-1 md:order-2 pr-1 md:pr-0 shrink-0">
@@ -322,7 +333,7 @@ export default function SolutionsClient() {
                   {/* Image Column */}
                   <div className="w-[42%] md:w-5/12 order-2 md:order-1 shrink-0 pt-2">
                      <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-sm bg-gray-100 mt-0">
-                        <img src={sol.thumbnail_image || sol.detail_image_1 || "/placeholder.jpg"} alt={sol.title} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" />
+                        <img src={sol.thumbnail_image || sol.detail_image_1 || "/placeholder.jpg"} alt={sol.title} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" loading="lazy" />
                      </div>
                   </div>
                 </motion.div>

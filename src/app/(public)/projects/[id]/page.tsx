@@ -125,7 +125,7 @@ export default function ProjectDetailPage() {
 
           <div className="rounded-3xl overflow-hidden shadow-lg border border-[#052c65]/5 aspect-[4/3]">
             {data.image ? (
-              <img src={data.image} alt={data.title} className="w-full h-full object-cover" />
+              <img src={data.image} alt={data.title} className="w-full h-full object-cover" loading="lazy" />
             ) : (
               <div className="w-full h-full bg-slate-200 flex items-center justify-center">
                 <span className="text-slate-400 font-bold uppercase tracking-widest text-sm">No Image Provided</span>
@@ -193,7 +193,7 @@ export default function ProjectDetailPage() {
                   >
                     <div className="h-48 overflow-hidden bg-gray-100 p-2">
                       {study.image_url ? (
-                        <img src={study.image_url} alt={study.title} className="w-full h-full object-cover rounded-2xl" />
+                        <img src={study.image_url} alt={study.title} className="w-full h-full object-cover rounded-2xl" loading="lazy" />
                       ) : (
                         <div className="w-full h-full bg-slate-200 rounded-2xl" />
                       )}

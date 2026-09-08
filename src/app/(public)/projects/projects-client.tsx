@@ -61,7 +61,7 @@ export default function ProjectsClient({ initialProjects = [] }: { initialProjec
         className="bg-white rounded-[2.5rem] shadow-sm border border-[#052c65]/5 overflow-hidden mb-16 flex flex-col lg:flex-row max-w-6xl mx-auto"
       >
         <div className="lg:w-3/5 h-64 lg:h-auto">
-           <img src={featuredProject.image_url} alt={featuredProject.title} className="w-full h-full object-cover" />
+           <img src={featuredProject.image_url} alt={featuredProject.title} className="w-full h-full object-cover" loading="lazy" />
         </div>
         <div className="lg:w-2/5 p-10 lg:p-14 flex flex-col justify-center bg-white relative">
            <div className="flex gap-3 mb-6">

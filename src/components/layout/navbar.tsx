@@ -6,10 +6,10 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Menu, ArrowRight, Mail, Phone } from "lucide-react";
 
-const links = [
+const links: { name: string; href: string; isExternal?: boolean; download?: boolean }[] = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
-  { name: "Company Profile", href: "/FIDA%20Global%20Company%20Profile.pdf", isExternal: true },
+  { name: "Company Profile", href: "/FIDA%20Global%20Company%20Profile.pdf", isExternal: true, download: true },
   { name: "Solutions", href: "/solutions" },
   { name: "Projects", href: "/projects" },
   { name: "Contact", href: "/contact" },
