@@ -290,10 +290,10 @@ export default function SolutionsClient() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1, duration: 0.6 }}
-                  className="flex flex-row flex-wrap md:flex-nowrap gap-3 md:gap-12 items-center"
+                  className="flex flex-row flex-nowrap gap-3 md:gap-12 items-center justify-between w-full"
                 >
                   {/* Content Column */}
-                  <div className="w-[55%] md:w-7/12 flex flex-col justify-center order-1 md:order-2 pr-1 md:pr-0">
+                  <div className="w-[55%] md:w-7/12 flex flex-col justify-center order-1 md:order-2 pr-1 md:pr-0 shrink-0">
                      <div className="text-4xl md:text-6xl font-black text-[#a5f3fc] leading-none mb-2 md:mb-4 tracking-tighter">
                        {visualNumber}
                      </div>
@@ -320,8 +320,8 @@ export default function SolutionsClient() {
                   </div>
 
                   {/* Image Column */}
-                  <div className="w-[42%] md:w-5/12 order-2 md:order-1 ml-auto">
-                     <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-sm bg-gray-100 mt-2 md:mt-0">
+                  <div className="w-[42%] md:w-5/12 order-2 md:order-1 shrink-0">
+                     <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-sm bg-gray-100 mt-0">
                         <img src={sol.thumbnail_image || sol.detail_image_1 || "/placeholder.jpg"} alt={sol.title} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" />
                      </div>
                   </div>
