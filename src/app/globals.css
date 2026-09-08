@@ -2524,11 +2524,20 @@ body:has(.home-page) .fida-chatbot { display: none !important; }
 
 .contact-cta__actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
   gap: .75rem;
   margin-bottom: 1.75rem;
+}
+
+@media (max-width: 640px) {
+  .contact-cta__actions .contact-btn {
+    flex: 1;
+    padding: 0.8rem 0.5rem;
+    font-size: 0.85rem;
+    text-align: center;
+  }
 }
 
 .contact-subscribe {
