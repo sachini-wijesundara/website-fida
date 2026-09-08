@@ -175,7 +175,7 @@ export default function AboutClient({ awardImageUrl }: { awardImageUrl: string }
           transition={{ duration: 0.8, ease: SMOOTH }}
           className="w-full rounded-[2rem] overflow-hidden shadow-2xl shadow-cyan-500/20 border-[3px] border-[#00b4d8]"
         >
-          <img src={awardImageUrl || "/AWARD.png"} alt="FIDA Global Awards" loading="lazy" className="w-full h-auto object-cover" />
+          <img src={awardImageUrl || "/AWARD.JPG"} alt="FIDA Global Awards" loading="lazy" className="w-full h-auto object-cover" />
         </motion.div>
       </section>
 

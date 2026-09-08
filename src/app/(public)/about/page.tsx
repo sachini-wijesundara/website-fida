@@ -9,7 +9,7 @@ export const metadata = {
 };
 
 export default async function AboutPage() {
-  let awardImageUrl = "/AWARD.png";
+  let awardImageUrl = "/AWARD.JPG";
   try {
     const pool = await getDbConnection();
     const res = await pool.request()
