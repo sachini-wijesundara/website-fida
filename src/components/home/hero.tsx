@@ -101,14 +101,23 @@ export default function Hero() {
             Explore solutions
             <ArrowUpRight size={17} />
           </Link>
-          <a
-            href="/FIDA%20Global%20Company%20Profile.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hero-button hero-button--secondary"
-          >
-            Company profile
-          </a>
+          <div className="flex items-center gap-3">
+            <a
+              href="/FIDA%20Global%20Company%20Profile.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hero-button hero-button--secondary"
+            >
+              Company profile
+            </a>
+            <a
+              href="/FIDA%20Global%20Company%20Profile.pdf"
+              download="FIDA Global Company Profile.pdf"
+              className="text-sm font-semibold text-[#052c65] underline underline-offset-4 hover:text-[#0047e1]"
+            >
+              Download PDF
+            </a>
+          </div>
         </div>
         </motion.div>
 
