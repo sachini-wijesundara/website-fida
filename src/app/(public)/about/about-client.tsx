@@ -29,7 +29,7 @@ const team = [
 
 const SMOOTH: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-export default function AboutClient() {
+export default function AboutClient({ awardImageUrl }: { awardImageUrl: string }) {
   const row1 = team.filter(m => m.row === 1);
   const row2 = team.filter(m => m.row === 2);
 
@@ -175,7 +175,7 @@ export default function AboutClient() {
           transition={{ duration: 0.8, ease: SMOOTH }}
           className="w-full rounded-[2rem] overflow-hidden shadow-2xl shadow-cyan-500/20 border-[3px] border-[#00b4d8]"
         >
-          <img src="/award.png" alt="FIDA Global Awards" loading="lazy" className="w-full h-auto object-cover" />
+          <img src={awardImageUrl || "/AWARD.png"} alt="FIDA Global Awards" loading="lazy" className="w-full h-auto object-cover" />
         </motion.div>
       </section>
 
