@@ -139,8 +139,8 @@ export default function SolutionDetailPage() {
         </Link>
 
         {/* Hero Section */}
-        <div className="flex flex-row flex-wrap md:flex-nowrap gap-2 md:gap-16 mb-20 md:mb-32 items-start md:items-center">
-          <div className="w-[55%] md:w-1/2 pr-1 md:pr-0">
+        <div className="flex flex-row flex-nowrap gap-2 md:gap-16 mb-20 md:mb-32 items-start md:items-center justify-between w-full">
+          <div className="w-[55%] md:w-1/2 pr-1 md:pr-0 shrink-0">
             {/* Logo */}
             <div className="mb-3 md:mb-8 flex items-center gap-6">
                <img src={data.hero?.logo_image || "/api/images/FIDA%20Global%20logos.png"} alt={`Logo`} className="max-w-[80px] md:max-w-[260px] max-h-[40px] md:max-h-[120px] w-auto h-auto object-contain object-left" />
@@ -179,7 +179,7 @@ export default function SolutionDetailPage() {
             </Link>
           </div>
 
-          <div className="w-[43%] md:w-1/2 relative ml-auto">
+          <div className="w-[43%] md:w-1/2 relative shrink-0">
             <div className="absolute inset-0 bg-gradient-to-r from-[#e0f2fe] to-[#dcfce3] rounded-2xl md:rounded-[3rem] -rotate-3 scale-105 opacity-60 blur-xl" />
             <img src={data.hero?.image || data.detail_image_1 || data.thumbnail_image || "/placeholder.jpg"} alt={`Preview`} className="relative w-full rounded-xl md:rounded-[2.5rem] shadow-2xl border border-white/50 object-cover aspect-[4/3]" />
           </div>
