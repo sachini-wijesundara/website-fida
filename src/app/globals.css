@@ -1823,8 +1823,8 @@ body:has(.home-page) .fida-chatbot { display: none !important; }
   .home-hero__eyebrow { font-size: .61rem; letter-spacing: .11em; }
   .home-hero h1 { font-size: clamp(3.1rem, 15vw, 4.8rem); }
   .home-hero__intro { max-width: 34rem; padding: 0 .65rem; }
-  .home-hero__actions { gap: .7rem; }
-  .hero-button { min-width: calc(50% - .5rem); }
+  .home-hero__actions { gap: .5rem; }
+  .hero-button { min-width: calc(50% - .25rem); padding: 0 0.5rem; font-size: 0.75rem; min-height: 48px; }
   .home-hero__profile { width: 100%; justify-content: center; }
   .home-hero__foot p { display: none; }
   .home-hero__foot { justify-content: center; bottom: 1.3rem; }

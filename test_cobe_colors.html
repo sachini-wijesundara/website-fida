@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { background: #80deea; margin: 0; padding: 20px; }
+    canvas { background: transparent; mix-blend-mode: multiply; border: 1px solid red; }
+  </style>
+</head>
+<body>
+  <canvas id="cobe" width="400" height="400"></canvas>
+  <script type="module">
+    import createGlobe from 'https://cdn.skypack.dev/cobe';
+    createGlobe(document.getElementById("cobe"), {
+      devicePixelRatio: 2,
+      width: 800,
+      height: 800,
+      phi: 0,
+      theta: 0,
+      dark: 0, 
+      diffuse: 0,
+      mapSamples: 4000,
+      mapBrightness: 6,
+      baseColor: [1, 0, 0], // IS THIS THE DOTS OR THE SPHERE?
+      markerColor: [0, 1, 0],
+      glowColor: [1, 1, 1],
+      markers: [],
+      onRender: () => {}
+    });
+  </script>
+</body>
+</html>

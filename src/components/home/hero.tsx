@@ -3,36 +3,82 @@
 import Link from "next/link";
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import SeasonalDecor from "@/components/animations/seasonal-decor";
 
-const dots = Array.from({ length: 13 * 21 }, (_, index) => {
-  const row = Math.floor(index / 21);
-  const column = index % 21;
-  const x = (column - 10) / 10;
-  const y = (row - 6) / 6;
-  const inside = x * x + y * y < 0.94;
-  const longitude = Math.sin(column * 1.63 + row * 0.71) > -0.18;
-  const latitude = Math.cos(row * 1.8 - column * 0.21) > -0.48;
-  return { index, row, column, visible: inside && longitude && latitude };
-});
+import { Canvas, useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
+import globeData from "./globe-dots.json";
+
+function InstancedDots() {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  
+  // Set up the instanced mesh once
+  useEffect(() => {
+    if (!meshRef.current) return;
+    
+    const matrix = new THREE.Matrix4();
+    const radius = 2.0;
+    
+    globeData.forEach((d, i) => {
+      // Apply radius to the normalized coordinates
+      matrix.setPosition(d[0] * radius, d[1] * radius, d[2] * radius);
+      meshRef.current!.setMatrixAt(i, matrix);
+    });
+    meshRef.current.instanceMatrix.needsUpdate = true;
+  }, []);
+
+  // Spin the entire globe group
+  useFrame(() => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += 0.002;
+    }
+  });
+
+  const customMaterial = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uColor: { value: new THREE.Color("#E5E5E5") }, // Much lighter ash
+      },
+      vertexShader: `
+        varying float vZ;
+        void main() {
+          vec4 worldPos = modelMatrix * instanceMatrix * vec4(position, 1.0);
+          vZ = worldPos.z;
+          gl_Position = projectionMatrix * viewMatrix * worldPos;
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 uColor;
+        varying float vZ;
+        void main() {
+          if (vZ < 0.0) discard;
+          // Smoothly fade the dots as they approach the edge (z = 0)
+          float alpha = smoothstep(0.0, 1.5, vZ) * 0.9;
+          gl_FragColor = vec4(uColor, alpha);
+        }
+      `,
+      transparent: true,
+    });
+  }, []);
+
+  return (
+    <group ref={groupRef} rotation={[0, -Math.PI / 2, 0]}>
+      {/* 7,160 perfectly uniform, perfectly colored tiny 3D spheres */}
+      <instancedMesh ref={meshRef} args={[undefined, undefined, globeData.length]} material={customMaterial}>
+        <sphereGeometry args={[0.008, 6, 6]} /> {/* Reduced from 0.015 to 0.008 */}
+      </instancedMesh>
+    </group>
+  );
+}
 
 function DottedGlobe() {
   return (
-    <div
-      aria-hidden="true"
-      className="hero-globe"
-    >
-      <div className="hero-globe__dots">
-        {dots.map((dot) =>
-          dot.visible ? (
-            <span
-              key={dot.index}
-              style={{ left: `${dot.column * 5}%`, top: `${dot.row * 8}%` }}
-            />
-          ) : null,
-        )}
-      </div>
+    <div className="hero-globe">
+      <Canvas camera={{ position: [0, 0, 5], fov: 45 }} style={{ background: 'transparent' }}>
+        <InstancedDots />
+      </Canvas>
       <div className="hero-globe__shine" />
     </div>
   );
@@ -101,23 +147,14 @@ export default function Hero() {
             Explore solutions
             <ArrowUpRight size={17} />
           </Link>
-          <div className="flex items-center gap-3">
-            <a
-              href="/FIDA%20Global%20Company%20Profile.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hero-button hero-button--secondary"
-            >
-              Company profile
-            </a>
-            <a
-              href="/FIDA%20Global%20Company%20Profile.pdf"
-              download="FIDA Global Company Profile.pdf"
-              className="text-sm font-semibold text-[#052c65] underline underline-offset-4 hover:text-[#0047e1]"
-            >
-              Download PDF
-            </a>
-          </div>
+          <a
+            href="/FIDA%20Global%20Company%20Profile.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hero-button hero-button--secondary"
+          >
+            Company profile
+          </a>
         </div>
         </motion.div>
 

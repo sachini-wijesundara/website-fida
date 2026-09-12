@@ -20,7 +20,7 @@ const GREETING: Message = {
   id: 0,
   role: "bot",
   text: "👋 Hello! I'm FIDA AI — your highly intelligent assistant. Tell me about your business needs or ask anything about Smart HRIS!",
-  time: getTime(),
+  time: "Just now",
 };
 
 /* ─── Real 3D Robot Material & Component ───────────────── */

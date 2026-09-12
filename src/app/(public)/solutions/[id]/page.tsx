@@ -348,8 +348,9 @@ export default function SolutionDetailPage() {
 
         {/* Stat Block */}
         {data.stats && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-8">
-            <div className="bg-[#f0f9ff]/80 rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-10 lg:p-14 shadow-[0_0_20px_rgba(56,189,248,0.25)] border-2 border-[#38bdf8] flex flex-col justify-center">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 mb-8 items-stretch">
+            {/* Big stat card — left, wider */}
+            <div className="md:col-span-7 bg-[#f0f9ff]/80 rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-10 lg:p-14 shadow-[0_0_20px_rgba(56,189,248,0.25)] border-2 border-[#38bdf8] flex flex-col justify-center">
                <div className="text-5xl md:text-7xl lg:text-8xl font-black text-[#7dd3fc] tracking-tighter leading-none mb-3 md:mb-4">
                   {data.stats.percentage}
                </div>
@@ -361,8 +362,9 @@ export default function SolutionDetailPage() {
                </p>
             </div>
 
-            <div className="flex flex-col gap-3 md:gap-4">
-               <div className="flex-1 bg-white rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-[inset_0_0_40px_rgba(253,224,71,0.3)] border border-[#fef08a]/50">
+            {/* Before / After cards — right, stacked vertically */}
+            <div className="md:col-span-5 grid grid-cols-1 gap-3 md:gap-4 h-full">
+               <div className="h-full bg-white rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-[inset_0_0_40px_rgba(253,224,71,0.3)] border border-[#fef08a]/50 flex flex-col justify-center">
                   <h4 className="text-[11px] md:text-sm font-bold text-[#0f172a] mb-1.5 md:mb-2">
                     Before {formatSlugName(data.slug as string ?? '')}
                   </h4>
@@ -370,7 +372,7 @@ export default function SolutionDetailPage() {
                     {data.stats.before_text}
                   </p>
                </div>
-               <div className="flex-1 bg-white rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-[inset_0_0_40px_rgba(56,189,248,0.25)] border border-[#bae6fd]/50">
+               <div className="h-full bg-white rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-[inset_0_0_40px_rgba(56,189,248,0.25)] border border-[#bae6fd]/50 flex flex-col justify-center">
                   <h4 className="text-[11px] md:text-sm font-bold text-[#0f172a] mb-1.5 md:mb-2">
                     After {formatSlugName(data.slug as string ?? '')}
                   </h4>
@@ -383,10 +385,12 @@ export default function SolutionDetailPage() {
         )}
 
         {/* Text Line Below Stat Block */}
-        {data.bottom_text && (
-          <div className="flex items-center justify-center gap-2 mb-16 text-[13px]">
-             <CheckCircle2 size={20} className="text-[#38bdf8]" />
-             <span className="text-[#052c65] font-bold">{data.bottom_text}</span>
+        {(data.bottom_text || (data.slug === 'smart-hris' ? "HR shifted from cost centre to profit engine - automated, self-service, and fully in your control." : null)) && (
+           <div className="flex items-start justify-center gap-2 mb-16 px-4 md:px-0 text-[10px] md:text-[13px] max-w-[90%] md:max-w-none mx-auto">
+             <CheckCircle2 className="text-[#38bdf8] shrink-0 w-4 h-4 md:w-5 md:h-5 mt-[2px] md:mt-0 md:self-center" />
+             <span className="text-[#052c65] font-bold text-left">
+               {data.bottom_text || (data.slug === 'smart-hris' ? "HR shifted from cost centre to profit engine - automated, self-service, and fully in your control." : null)}
+             </span>
           </div>
         )}
 

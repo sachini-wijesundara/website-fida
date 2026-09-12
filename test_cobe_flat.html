@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { background: linear-gradient(135deg, #e0f7fa, #80deea); margin: 0; padding: 20px; }
+  </style>
+</head>
+<body>
+  <canvas id="cobe" style="width: 400px; height: 400px; mix-blend-mode: multiply;"></canvas>
+  <script type="module">
+    import createGlobe from 'https://cdn.skypack.dev/cobe';
+
+    let phi = 0;
+    const canvas = document.getElementById("cobe");
+
+    const globe = createGlobe(canvas, {
+      devicePixelRatio: 2,
+      width: 800,
+      height: 800,
+      phi: 0,
+      theta: 0.1,
+      dark: 0, 
+      diffuse: 0, // NO SHADING!
+      mapSamples: 16000,
+      mapBrightness: 6,
+      baseColor: [0.6, 0.6, 0.6], // Ash dots
+      markerColor: [0.1, 0.3, 0.6],
+      glowColor: [1, 1, 1], // Pure white glow
+      markers: [],
+      onRender: (state) => {
+        state.phi = phi;
+        phi += 0.005;
+      }
+    });
+  </script>
+</body>
+</html>

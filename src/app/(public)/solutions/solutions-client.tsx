@@ -65,7 +65,7 @@ function FullPageLoader({ isLoaded, onComplete }: { isLoaded: boolean, onComplet
       setProgress(100);
       const timeout = setTimeout(() => {
         onComplete();
-      }, 50); 
+      }, 400); 
       return () => clearTimeout(timeout);
     }
 
@@ -220,9 +220,12 @@ export default function SolutionsClient() {
   useEffect(() => {
     let isMounted = true;
     async function fetchSolutions(retries = 3) {
-      let willRetry = false;
       try {
-        const res = await fetch("/api/solutions");
+        // Force minimum 1.5s delay so the loading animation is visible
+        const [res] = await Promise.all([
+          fetch("/api/solutions"),
+          new Promise(resolve => setTimeout(resolve, 1500))
+        ]);
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
         if (isMounted) {
@@ -232,10 +235,9 @@ export default function SolutionsClient() {
       } catch (err) {
         console.error("Failed to fetch solutions", err);
         if (retries > 0 && isMounted) {
-          willRetry = true;
           setTimeout(() => fetchSolutions(retries - 1), 800);
         } else if (isMounted) {
-          setDataLoaded(true); // give up, hide loader
+          setDataLoaded(true);
         }
       }
     }
@@ -285,8 +287,8 @@ export default function SolutionsClient() {
       </AnimatePresence>
 
       {/* Solutions List */}
-      <div className={`space-y-16 transition-opacity duration-700 ${showLoader ? "opacity-0" : "opacity-100"}`}>
-        {!showLoader && Array.isArray(solutions) ? (
+      <div className={`space-y-24 md:space-y-32 transition-opacity duration-700 ${showLoader ? "opacity-0" : "opacity-100"}`}>
+        {!showLoader && Array.isArray(solutions) && solutions.length > 0 ? (
           solutions.map((sol, index) => {
              const visualNumber = (index + 1).toString().padStart(2, "0");
             
@@ -301,48 +303,48 @@ export default function SolutionsClient() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1, duration: 0.6 }}
-                  className="flex flex-row flex-nowrap gap-3 md:gap-12 items-start justify-between w-full"
+                  className="flex flex-row gap-4 md:gap-16 lg:gap-24 items-center justify-between w-full"
                 >
-                  {/* Content Column — number, badge, title, desc, button all stacked */}
-                  <div className="flex-1 min-w-0 flex flex-col justify-start">
-                    <div className="text-4xl md:text-6xl font-black text-[#a5f3fc] leading-none mb-2 md:mb-4 tracking-tighter">
+                  {/* Image Column — Left */}
+                  <div className="w-[42%] md:w-[45%] lg:w-[42%] shrink-0">
+                    <div className="relative aspect-[4/3] rounded-[1rem] md:rounded-[1.5rem] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] group-hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] transition-all duration-500">
+                      <img src={sol.thumbnail_image || sol.detail_image_1 || "/placeholder.jpg"} alt={sol.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" />
+                    </div>
+                  </div>
+
+                  {/* Content Column — Right */}
+                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                    <div className="text-3xl md:text-7xl lg:text-8xl font-black text-[#a5f3fc] leading-none mb-2 md:mb-4 tracking-tighter opacity-90">
                       {visualNumber}
                     </div>
 
-                    <div className="mb-1.5 md:mb-3">
-                      <span className="px-2 py-0.5 md:px-3 md:py-1 bg-[#e0f2fe] text-[#0284c7] rounded-full text-[8px] md:text-[10px] font-extrabold uppercase tracking-widest inline-block">
-                        {sol.badge || "SOLUTION"}
+                    <div className="mb-2 md:mb-4">
+                      <span className="px-2 md:px-4 py-1 md:py-1.5 bg-[#e0f2fe] text-[#0ea5e9] rounded-full text-[8px] md:text-[11px] font-black uppercase tracking-widest inline-block">
+                        {sol.badge || "SOFTWARE SOLUTION"}
                       </span>
                     </div>
 
-                    <h2 className="text-base md:text-2xl font-black text-[#052c65] uppercase tracking-tight mb-1.5 md:mb-3 group-hover:text-[#2563eb] transition-colors leading-tight">
+                    <h2 className="text-sm md:text-3xl lg:text-4xl font-black uppercase tracking-tight mb-2 md:mb-4 text-[#052c65] group-hover:text-[#2563eb] transition-colors duration-300 leading-tight">
                       {sol.title}
                     </h2>
 
-                    <p className="text-[#475569] text-[9px] md:text-sm leading-relaxed max-w-lg mb-3 md:mb-5 line-clamp-3 md:line-clamp-none">
+                    <p className="hidden md:block text-[#64748b] text-[13px] md:text-[15px] leading-relaxed max-w-[90%] lg:max-w-xl mb-8">
                       {sol.description}
                     </p>
 
-                    <span className="inline-flex items-center gap-1.5 md:gap-2 px-3 py-1.5 md:px-6 md:py-3 rounded-xl md:rounded-full bg-[#052c65] text-white text-[9px] md:text-xs font-bold transition-colors group-hover:bg-[#167fa8] w-max">
-                      Learn More <ArrowRight className="w-2.5 h-2.5 md:w-[14px] md:h-[14px]" />
+                    <span className="inline-flex items-center gap-1 md:gap-2 px-3 md:px-8 py-2 md:py-3.5 rounded-full text-[10px] md:text-[13px] font-bold transition-all duration-300 shadow-md group-hover:shadow-xl group-hover:-translate-y-0.5 w-max text-white bg-[#052c65] group-hover:bg-[#167fa8]">
+                      Learn More <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
                     </span>
-                  </div>
-
-                  {/* Image Column — top-aligned, beside the number */}
-                  <div className="w-[42%] md:w-5/12 shrink-0">
-                    <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-sm bg-gray-100">
-                      <img src={sol.thumbnail_image || sol.detail_image_1 || "/placeholder.jpg"} alt={sol.title} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" loading="lazy" />
-                    </div>
                   </div>
                 </motion.div>
               </Link>
             );
           })
-        ) : (
+        ) : !showLoader && dataLoaded && (!Array.isArray(solutions) || solutions.length === 0) ? (
           <div className="flex justify-center items-center py-20 text-red-500 font-bold">
             Failed to load solutions. Data is not an array. Please try refreshing the page.
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -91,11 +91,16 @@ const CLIENTS = [
 export default function SolutionsContent() {
   const rm = useReducedMotion();
   const router = useRouter();
-  const [expandedSlug, setExpandedSlug] = useState("smart-hris");
+  const [expandedSlug, setExpandedSlug] = useState("");
   const [solutionImages, setSolutionImages] = useState<Record<string, SolutionImageRecord>>({});
   const [smartHrisLogo, setSmartHrisLogo] = useState<string | null>(null);
   const activeIndexRef = useRef(0);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    // Set default expanded item only on the client after mount
+    setExpandedSlug("smart-hris");
+  }, []);
 
   useEffect(() => {
     fetch('/api/solutions/smart-hris')

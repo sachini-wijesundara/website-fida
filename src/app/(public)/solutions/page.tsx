@@ -1,4 +1,6 @@
-import SolutionsClient from "./solutions-client";
+import dynamic from "next/dynamic";
+
+const SolutionsClient = dynamic(() => import("./solutions-client"), { ssr: false });
 
 export const metadata = {
   title: "Business Software Solutions | FIDA Global",
