@@ -24,6 +24,16 @@ const nextConfig = {
 
   // ── HTTP caching headers ─────────────────────────────
   async headers() {
+    if (process.env.NODE_ENV === 'development') {
+      return [
+        {
+          source: '/_next/static/:path*',
+          headers: [
+            { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+          ],
+        },
+      ];
+    }
     return [
       {
         // Long-lived cache for Next.js static assets (hashed filenames)

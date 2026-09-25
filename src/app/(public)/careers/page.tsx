@@ -1,4 +1,3 @@
-import PageHero from "@/components/shared/page-hero";
 import CareersClient from "./careers-client";
 
 export const metadata = {
@@ -9,13 +8,6 @@ export const metadata = {
 export default function CareersPage() {
   return (
     <main className="public-pastel-page min-h-screen">
-      <PageHero
-        badge="Join the Team"
-        badgeColor="green"
-        accent="green"
-        title={<>Build the <span style={{ color: "var(--green)" }} className="italic">Future</span><br />of Enterprise IT</>}
-        subtitle="We're a team of engineers, strategists, and problem-solvers united by one goal: making technology work better for businesses worldwide."
-      />
       <CareersClient />
     </main>
   );

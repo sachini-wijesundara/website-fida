@@ -11,7 +11,7 @@ export async function GET(
     const pool = await getDbConnection();
     
     const result = await pool.request()
-      .input('BlogId', sql.Int, parseInt(id))
+      .input('BlogId', parseInt(id))
       .execute('sp_GetBlogById');
 
 

@@ -24,11 +24,11 @@ export async function POST(req: Request) {
 
     const pool = await getDbConnection();
     await pool.request()
-      .input("title", sql.NVarChar, title)
-      .input("dept", sql.NVarChar, dept)
-      .input("type", sql.NVarChar, type)
-      .input("location", sql.NVarChar, location)
-      .input("color", sql.NVarChar, themeColor)
+      .input("title", title)
+      .input("dept", dept)
+      .input("type", type)
+      .input("location", location)
+      .input("color", themeColor)
       .query(`
         INSERT INTO careers (title, dept, type, location, color, is_active, created_at)
         VALUES (@title, @dept, @type, @location, @color, 1, GETDATE())

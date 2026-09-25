@@ -85,14 +85,14 @@ export default function HomeOverview() {
           <div className="home-bento__media home-bento__photo--woman">
             <img src="/api/images/homepageimages/image1.png" alt="FIDA Global team member" loading="lazy" />
           </div>
-          <div className="home-bento__stat home-bento__stat--green">
-            <span><strong><Counter value={370} suffix="+" /></strong> Clients</span>
+          <div className="home-bento__stat home-bento__stat--green" style={{ position: 'relative', overflow: 'hidden' }}>
+            <img src="/api/images/homepageimages/clients.png" alt="370+ Clients" className="absolute inset-0 w-full h-full object-cover z-0" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
           </div>
         </div>
 
         <div className="home-bento__col home-bento__col--2">
-          <div className="home-bento__stat home-bento__stat--blue">
-            <span><strong><Counter value={4} /></strong> Countries</span>
+          <div className="home-bento__stat home-bento__stat--blue" style={{ position: 'relative', overflow: 'hidden' }}>
+            <img src="/api/images/homepageimages/coutries.png" alt="4+ Countries" className="absolute inset-0 w-full h-full object-cover z-0" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
           </div>
           <div className="home-bento__media home-bento__photo--product">
             <img src="/api/images/homepageimages/image2.png" alt="FIDA Global product experience" loading="lazy" />
@@ -104,9 +104,8 @@ export default function HomeOverview() {
             <strong><Counter value={50} suffix="K+" /></strong>
             <span>Uptime Cloud<br/>Payroll Employees</span>
           </div>
-          <div className="home-bento__stat home-bento__stat--yellow">
-            <strong><Counter value={10} suffix=" +" /></strong>
-            <span>Products</span>
+          <div className="home-bento__stat home-bento__stat--yellow" style={{ position: 'relative', overflow: 'hidden' }}>
+            <img src="/api/images/homepageimages/products.png" alt="10+ Products" className="absolute inset-0 w-full h-full object-cover z-0" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
           </div>
         </div>
 
@@ -114,8 +113,8 @@ export default function HomeOverview() {
           <div className="home-bento__media home-bento__photo--desk">
             <img src="/api/images/homepageimages/image3.png" alt="FIDA Global consultant" loading="lazy" />
           </div>
-          <div className="home-bento__stat home-bento__stat--red">
-            <span><strong><Counter value={15} suffix="+" /></strong> Years Experience</span>
+          <div className="home-bento__stat home-bento__stat--red" style={{ position: 'relative', overflow: 'hidden' }}>
+            <img src="/api/images/homepageimages/years.png" alt="15+ Years Experience" className="absolute inset-0 w-full h-full object-cover z-0" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
           </div>
           <div className="home-bento__media home-bento__photo--office">
             <img src="/api/images/homepageimages/image04.jpeg" alt="FIDA Global office" loading="lazy" />

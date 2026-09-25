@@ -12,6 +12,8 @@ const links: { name: string; href: string; isExternal?: boolean; download?: bool
   { name: "Company Profile", href: "/FIDA%20Global%20Company%20Profile.pdf", isExternal: true },
   { name: "Solutions", href: "/solutions" },
   { name: "Projects", href: "/projects" },
+  { name: "Careers", href: "/careers" },
+  { name: "Blog", href: "/blog" },
   { name: "Contact", href: "/contact" },
 ];
 
