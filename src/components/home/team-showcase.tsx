@@ -24,10 +24,11 @@ export default function TeamShowcase() {
           const data = await res.json();
           // Map API data to the component's format
           const formatted = data.map((m: any, idx: number) => ({
+            id: m.id,
             name: m.name,
             role: m.position,
-            tag: m.position.split(' ').pop()?.toUpperCase() || "TEAM",
-            image: m.image_url || "/team-placeholder.jpg",
+            tag: m.position?.split(' ').pop()?.toUpperCase() || "TEAM",
+            image: m.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name || 'Team')}&background=052c65&color=fff&size=512`,
             accent: m.accent || (idx % 2 === 0 ? "#76c442" : "#38a3f5"),
             index: (idx + 1).toString().padStart(2, '0')
           }));
@@ -63,8 +64,8 @@ export default function TeamShowcase() {
 
   if (loading) {
     return (
-      <section className="h-screen bg-black flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <section className="h-[400px] flex items-center justify-center" style={{ background: "var(--bg-base)" }}>
+        <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
       </section>
     );
   }

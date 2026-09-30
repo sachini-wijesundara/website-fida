@@ -8,7 +8,7 @@ export async function GET() {
     const result = await pool.request().execute("sp_GetAllSiteSettings");
     
     const settings: { [key: string]: string } = {};
-    result.recordset.forEach(row => {
+    result.recordset.forEach((row: any) => {
       settings[row.setting_key] = row.setting_value;
     });
     

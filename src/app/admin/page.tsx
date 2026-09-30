@@ -136,6 +136,7 @@ export default function AdminDashboard() {
                        <span className="text-xs text-[var(--text-secondary)]">{item.label}</span>
                        <span className="text-[10px] font-bold text-[var(--green)] uppercase tracking-widest">{item.status}</span>
                     </div>
+                    
                  ))}
               </div>
            </div>

@@ -56,29 +56,111 @@ function GlobeImage() {
   );
 }
 
+const DEFAULT_SOLUTIONS = [
+  {
+    id: 17,
+    title: "FIDA AI",
+    badge: "SOFTWARE SOLUTION",
+    description: "A multilingual AI automation platform that connects across your systems, handling tasks and reporting instantly, in any language.",
+    slug: "fida-ai",
+    status: "Active",
+    order_index: 1,
+    thumbnail_image: "/api/images/uploads/1787292155377-FIDAAIlogo.png"
+  },
+  {
+    id: 14,
+    title: "SMART HRIS",
+    badge: "SOFTWARE SOLUTION",
+    description: "Centralize human resources, payroll, and performance management into a single automated ecosystem built for growth.",
+    slug: "smart-hris",
+    status: "Active",
+    order_index: 2,
+    thumbnail_image: "/api/images/solutions_images/smarthris.png"
+  },
+  {
+    id: 10,
+    title: "Access Control & Attendance",
+    badge: "ACCESS CONTROL",
+    description: "Enterprise-grade biometric security and automated attendance tracking for high-traffic environments and secure facilities.",
+    slug: "access-control-attendance",
+    status: "Active",
+    order_index: 3,
+    thumbnail_image: "/api/images/solutions_images/attendance.png"
+  },
+  {
+    id: 11,
+    title: "Payroll Services",
+    badge: "CONSULTANCY",
+    description: "Strategic advisory and digital transformation expertise to scale your enterprise operations with precision and clarity.",
+    slug: "business-consultancy",
+    status: "Active",
+    order_index: 4,
+    thumbnail_image: "/api/images/solutions_images/bpo&services.png"
+  },
+  {
+    id: 12,
+    title: "FIDA Task Manager",
+    badge: "SOFTWARE SOLUTION",
+    description: "Streamline project workflows with intelligent task prioritization and real-time team synchronization across your entire organization.",
+    slug: "task-manager",
+    status: "Active",
+    order_index: 5,
+    thumbnail_image: "/api/images/solutions_images/taskmanager.png"
+  },
+  {
+    id: 13,
+    title: "FIDA Helpdesk System",
+    badge: "SOFTWARE SOLUTION",
+    description: "Resolution-focused support infrastructure designed for rapid deployment and high customer satisfaction rates.",
+    slug: "helpdesk",
+    status: "Active",
+    order_index: 6,
+    thumbnail_image: "/api/images/solutions_images/helpdesk.png"
+  },
+  {
+    id: 16,
+    title: "FIDA CRM",
+    badge: "SOFTWARE SOLUTION",
+    description: "A secure, fully customizable CRM to manage leads, deals, and pipelines — with role-based access and real-time dashboards.",
+    slug: "fida-crm",
+    status: "Active",
+    order_index: 7,
+    thumbnail_image: "/api/images/uploads/1787292088404-FIDACRMlogo.png"
+  },
+  {
+    id: 18,
+    title: "ICT SOLUTIONS",
+    badge: "CONSULTANCY",
+    description: "End-to-end ICT consulting — from IT strategy to cloud, security, and system integration — built for scalable digital transformation.",
+    slug: "ict-solutions",
+    status: "Active",
+    order_index: 8,
+    thumbnail_image: "/api/images/uploads/1787292169336-ICTsolutions.png"
+  },
+  {
+    id: 19,
+    title: "FIDA Global LMS",
+    badge: "SOFTWARE SOLUTION",
+    description: "A role-based learning platform for building quizzes, tracking progress, and delivering results — simple enough for every learner, every age.",
+    slug: "fida-global-lms",
+    status: "Active",
+    order_index: 9,
+    thumbnail_image: "/api/images/uploads/1787292195431-FIDALMSlogo.png"
+  }
+];
+
 function FullPageLoader({ isLoaded, onComplete }: { isLoaded: boolean, onComplete: () => void }) {
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(100);
   const [dotCount, setDotCount] = useState(1);
 
   useEffect(() => {
-    if (isLoaded) {
-      setProgress(100);
-      const timeout = setTimeout(() => {
-        onComplete();
-      }, 400); 
-      return () => clearTimeout(timeout);
-    }
+    const timeout = setTimeout(() => {
+      onComplete();
+    }, 1);
+    return () => clearTimeout(timeout);
+  }, [onComplete]);
 
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 92) return prev; 
-        return prev + Math.random() * 25;
-      });
-    }, 50);
-    return () => clearInterval(interval);
-  }, [isLoaded, onComplete]);
-
-  const pct = Math.min(Math.round(progress), 100);
+  const pct = 100;
 
   return (
     <motion.div 
@@ -211,37 +293,30 @@ function FullPageLoader({ isLoaded, onComplete }: { isLoaded: boolean, onComplet
   );
 }
 
-export default function SolutionsClient() {
+export default function SolutionsClient({ initialSolutions = [] }: { initialSolutions?: any[] }) {
   const [activeCategory, setActiveCategory] = useState("All");
-  const [solutions, setSolutions] = useState<any[]>([]);
-  const [dataLoaded, setDataLoaded] = useState(false);
-  const [showLoader, setShowLoader] = useState(true);
+  const [solutions, setSolutions] = useState<any[]>(
+    initialSolutions && initialSolutions.length > 0 ? initialSolutions : DEFAULT_SOLUTIONS
+  );
+  const [dataLoaded, setDataLoaded] = useState(true);
+  const [showLoader, setShowLoader] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
-    async function fetchSolutions(retries = 3) {
+    async function refreshSolutions() {
       try {
-        // Force minimum 1.5s delay so the loading animation is visible
-        const [res] = await Promise.all([
-          fetch("/api/solutions"),
-          new Promise(resolve => setTimeout(resolve, 1500))
-        ]);
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const res = await fetch("/api/solutions");
+        if (!res.ok) return;
         const data = await res.json();
-        if (isMounted) {
-          setSolutions(Array.isArray(data) ? data : []);
+        if (isMounted && Array.isArray(data) && data.length > 0) {
+          setSolutions(data);
           setDataLoaded(true);
         }
       } catch (err) {
-        console.error("Failed to fetch solutions", err);
-        if (retries > 0 && isMounted) {
-          setTimeout(() => fetchSolutions(retries - 1), 800);
-        } else if (isMounted) {
-          setDataLoaded(true);
-        }
+        console.error("Failed to refresh solutions in background", err);
       }
     }
-    fetchSolutions();
+    refreshSolutions();
     return () => { isMounted = false; };
   }, []);
 
@@ -287,8 +362,8 @@ export default function SolutionsClient() {
       </AnimatePresence>
 
       {/* Solutions List */}
-      <div className={`space-y-24 md:space-y-32 transition-opacity duration-700 ${showLoader ? "opacity-0" : "opacity-100"}`}>
-        {!showLoader && Array.isArray(solutions) && solutions.length > 0 ? (
+      <div className="space-y-24 md:space-y-32">
+        {Array.isArray(solutions) && solutions.length > 0 ? (
           solutions.map((sol, index) => {
              const visualNumber = (index + 1).toString().padStart(2, "0");
             

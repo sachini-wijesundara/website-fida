@@ -16,6 +16,20 @@ export default function ErrorPage({
 
   useEffect(() => {
     console.error("Route exception captured:", error);
+    // Auto-recover from chunk loading errors (stale HMR / deployment chunks)
+    if (
+      error?.name === "ChunkLoadError" ||
+      error?.message?.includes("Loading chunk") ||
+      error?.message?.includes("failed to fetch dynamically imported module")
+    ) {
+      const storageKey = `chunk_reload_${window.location.pathname}`;
+      const lastReload = sessionStorage.getItem(storageKey);
+      const now = Date.now();
+      if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+        sessionStorage.setItem(storageKey, String(now));
+        window.location.reload();
+      }
+    }
   }, [error]);
 
   return (

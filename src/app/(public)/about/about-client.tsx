@@ -14,17 +14,17 @@ const values = [
   { icon: Handshake, title: "Right-Sized & Cost-Efficient", desc: "We scale up or scale down with your business — delivering exactly what you need, never paying for more than you use." },
 ];
 
-// Team from the screenshot
-const team = [
+// Default fallback team
+const defaultTeam = [
   // Row 1
-  { name: "Upendra Wickramatunga", role: "MANAGING DIRECTOR", image: "/api/images/ourteam/upendra.png", row: 1 },
-  { name: "Toshani Munasinghe", role: "DIRECTOR HCM", image: "/api/images/ourteam/toshani.png", row: 1 },
-  { name: "Charmi Pallawela", role: "MANAGER BUSINESS DEVELOPMENT & OPERATION", image: "/api/images/ourteam/charmi.png", row: 1 },
-  { name: "Rukshan Peiris", role: "SENIOR SOFTWARE ENGINEER", image: "/api/images/ourteam/rukshan.png", row: 1 },
+  { name: "Upendra Wickramatunga", role: "MANAGING DIRECTOR", image: "/api/images/ourteam/upendra.png", linkedin: "#", twitter: "#" },
+  { name: "Toshani Munasinghe", role: "DIRECTOR HCM", image: "/api/images/ourteam/toshani.png", linkedin: "#", twitter: "#" },
+  { name: "Charmi Pallawela", role: "MANAGER BUSINESS DEVELOPMENT & OPERATION", image: "/api/images/ourteam/charmi.png", linkedin: "#", twitter: "#" },
+  { name: "Rukshan Peiris", role: "SENIOR SOFTWARE ENGINEER", image: "/api/images/ourteam/rukshan.png", linkedin: "#", twitter: "#" },
   // Row 2
-  { name: "Yuwanthi Perera", role: "SENIOR SOFTWARE ENGINEER", image: "/api/images/ourteam/yuwanthi.png", row: 2 },
-  { name: "Gihan Nayanajith", role: "SOFTWARE ENGINEER", image: "/api/images/ourteam/gihan.png", row: 2 },
-  { name: "Isuru Munasinghe", role: "MANAGER AUTOMATION AND DIGITAL TRASFORMATION", image: "/api/images/ourteam/isuru.png", row: 2 },
+  { name: "Yuwanthi Perera", role: "SENIOR SOFTWARE ENGINEER", image: "/api/images/ourteam/yuwanthi.png", linkedin: "#", twitter: "#" },
+  { name: "Gihan Nayanajith", role: "SOFTWARE ENGINEER", image: "/api/images/ourteam/gihan.png", linkedin: "#", twitter: "#" },
+  { name: "Isuru Munasinghe", role: "MANAGER AUTOMATION AND DIGITAL TRASFORMATION", image: "/api/images/ourteam/isuru.png", linkedin: "#", twitter: "#" },
 ];
 
 const SMOOTH: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -32,9 +32,8 @@ const SMOOTH: [number, number, number, number] = [0.16, 1, 0.3, 1];
 import { useState, useEffect } from "react";
 
 export default function AboutClient() {
-  const row1 = team.filter(m => m.row === 1);
-  const row2 = team.filter(m => m.row === 2);
   const [awardImageUrl, setAwardImageUrl] = useState("/AWARD.JPG");
+  const [teamMembers, setTeamMembers] = useState<any[]>(defaultTeam);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -45,10 +44,33 @@ export default function AboutClient() {
         }
       })
       .catch(console.error);
+
+    fetch("/api/teams")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map((m: any, idx: number) => ({
+            id: m.id,
+            name: m.name,
+            role: m.position,
+            image: m.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name || 'Team')}&background=052c65&color=fff&size=512`,
+            linkedin: m.linkedin_url,
+            twitter: m.twitter_url,
+            accent: m.accent,
+            order: m.order_index ?? idx,
+          }));
+          setTeamMembers(mapped);
+        }
+      })
+      .catch(console.error);
   }, []);
 
+  const mid = Math.ceil(teamMembers.length / 2);
+  const row1 = teamMembers.slice(0, mid);
+  const row2 = teamMembers.slice(mid);
+
   return (
-    <div className="pb-36 overflow-hidden">
+    <div className="overflow-hidden">
       
       {/* ── 1. Hero Section ── */}
       <section className="pt-48 md:pt-60 pb-2 md:pb-4 relative">
@@ -84,10 +106,13 @@ export default function AboutClient() {
           >
             <div className="rounded-[2rem] overflow-hidden border border-slate-100 shadow-xl shadow-blue-50/50">
               <img
-                src="/api/images/about_team_banner.png"
+                src="/api/images/about_team_banner.png?v=2"
                 alt="FIDA Global Team Collaboration"
                 loading="lazy"
                 className="w-full h-[280px] sm:h-[360px] md:h-[420px] object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = "/about image 1.jpg";
+                }}
               />
             </div>
           </motion.div>
@@ -257,7 +282,7 @@ export default function AboutClient() {
             const zIndex = 10 - index;
             return (
               <motion.div
-                key={member.name}
+                key={member.id || member.name}
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -273,6 +298,9 @@ export default function AboutClient() {
                     alt={member.name}
                     loading="lazy"
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name || 'Team')}&background=052c65&color=fff`;
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-400" />
@@ -291,47 +319,52 @@ export default function AboutClient() {
         </div>
 
         {/* Row 2 */}
-        <div className="flex flex-row w-full justify-center items-center relative py-4 mt-4 sm:mt-6">
-          {row2.map((member, index) => {
-            const zIndex = 10 - index;
-            return (
-              <motion.div
-                key={member.name}
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.08, duration: 0.6, ease: SMOOTH }}
-                style={{ zIndex }}
-                className={`relative w-[26%] h-[160px] sm:h-[260px] md:h-[350px] rounded-[1rem] sm:rounded-[1.5rem] border-2 sm:border-[3px] border-white shadow-xl shadow-slate-200/50 overflow-hidden cursor-pointer ${
-                  index > 0 ? "-ml-[2%]" : ""
-                }`}
-              >
-                {member.image ? (
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    loading="lazy"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-400" />
-                )}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent h-1/2 flex flex-col justify-end items-center text-center p-2.5 sm:p-5 text-white">
-                  <span className="text-[9px] sm:text-[13px] md:text-[15px] font-[800] tracking-tight leading-tight block">
-                    {member.name}
-                  </span>
-                  <span className="text-[7px] sm:text-[9px] md:text-[10.5px] font-bold tracking-wider opacity-85 block mt-1 uppercase">
-                    {member.role}
-                  </span>
-                </div>
-              </motion.div>
-            );
-          })} 
-        </div>
+        {row2.length > 0 && (
+          <div className="flex flex-row w-full justify-center items-center relative py-4 mt-4 sm:mt-6">
+            {row2.map((member, index) => {
+              const zIndex = 10 - index;
+              return (
+                <motion.div
+                  key={member.id || member.name}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.08, duration: 0.6, ease: SMOOTH }}
+                  style={{ zIndex }}
+                  className={`relative w-[26%] h-[160px] sm:h-[260px] md:h-[350px] rounded-[1rem] sm:rounded-[1.5rem] border-2 sm:border-[3px] border-white shadow-xl shadow-slate-200/50 overflow-hidden cursor-pointer ${
+                    index > 0 ? "-ml-[2%]" : ""
+                  }`}
+                >
+                  {member.image ? (
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name || 'Team')}&background=052c65&color=fff`;
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-400" />
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent h-1/2 flex flex-col justify-end items-center text-center p-2.5 sm:p-5 text-white">
+                    <span className="text-[9px] sm:text-[13px] md:text-[15px] font-[800] tracking-tight leading-tight block">
+                      {member.name}
+                    </span>
+                    <span className="text-[7px] sm:text-[9px] md:text-[10.5px] font-bold tracking-wider opacity-85 block mt-1 uppercase">
+                      {member.role}
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            })} 
+          </div>
+        )}
       </section>
 
       {/* ── 5. Full-Spectrum IT Services Built to Scale ── */}
-      <section className="pt-16 md:pt-24 pb-72 md:pb-96 container mx-auto px-4 sm:px-6 max-w-5xl">
+      <section className="pt-16 md:pt-24 pb-20 md:pb-28 container mx-auto px-4 sm:px-6 max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -191,22 +191,22 @@ export default function CareersClient() {
       </section>
 
       <div className="relative z-10 container mx-auto px-6 max-w-6xl">
-        {/* ── 2. Wide Office Banner ── */}
+        {/* ── 2. Office Banner ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.15 }}
-          className="mb-16"
+          className="mb-16 max-w-5xl mx-auto"
         >
-          <div className="rounded-[2rem] overflow-hidden aspect-[21/9] sm:aspect-[24/9] border border-slate-100 shadow-[0_20px_50px_rgba(5,44,101,0.06)] bg-slate-100 relative flex items-center justify-center">
-            {/* Office Workspace Image */}
+          <div className="rounded-[2rem] overflow-hidden aspect-[4/3] sm:aspect-[16/11] md:aspect-[16/10] border border-slate-100 shadow-[0_20px_50px_rgba(5,44,101,0.06)] bg-slate-100 relative flex items-center justify-center">
+            {/* Team Collaboration Image */}
             <img
-              src="/images/careers/office.png"
-              alt="FIDA Modern Office"
+              src="/api/images/careers_banner.png?v=2"
+              alt="FIDA Team Collaboration"
               className="w-full h-full object-cover"
+              style={{ objectPosition: 'center 36%' }}
               onError={(e) => {
-                // If office image is missing or replaced, fallback smoothly
-                e.currentTarget.src = "/api/images/about_team_banner.png";
+                e.currentTarget.src = "/ images.png";
               }}
             />
           </div>

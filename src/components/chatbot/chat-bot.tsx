@@ -4,9 +4,43 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useAnimationFrame, useMotionValue } from "framer-motion";
 import { X, Send, Loader2, RotateCcw, ChevronDown, Sparkles, Bot } from "lucide-react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, Environment, PerspectiveCamera, RoundedBox, Sphere, Cylinder } from "@react-three/drei";
+import { Float, RoundedBox, Sphere, Cylinder } from "@react-three/drei";
 import * as THREE from "three";
 import { usePathname } from "next/navigation";
+
+// Error boundary to prevent 3D canvas from crashing React on low-end devices
+class RobotErrorBoundary extends React.Component<{ children: React.ReactNode; fallback: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: React.ReactNode; fallback: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(err: any) {
+    console.warn("Robot 3D fallback active:", err);
+  }
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
+}
+
+function FallbackRobotIcon({ hover }: { hover?: boolean }) {
+  return (
+    <div className={`w-full h-full rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white shadow-md transition-transform duration-300 ${hover ? "scale-105" : ""}`}>
+      <Bot className="w-8 h-8 text-white drop-shadow-sm" />
+    </div>
+  );
+}
+
+function BotAvatar() {
+  return (
+    <div className="w-full h-full rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white shadow-sm">
+      <Bot className="w-4 h-4 text-white" />
+    </div>
+  );
+}
 
 const WEBHOOK_URL = process.env.NEXT_PUBLIC_CHATBOT_WEBHOOK || "https://fidan8n.smarthris.live/webhook/378b9872-188c-4124-92f5-7f4ef3fe4359";
 
@@ -25,13 +59,12 @@ const GREETING: Message = {
 
 /* ─── Real 3D Robot Material & Component ───────────────── */
 function Real3DRobot({ open, hover }: { open: boolean; hover: boolean }) {
-  const eyeColor = open ? "#ef4444" : "#0ea5e9"; // Red when open/working, Purple otherwise
+  const eyeColor = open ? "#ef4444" : "#0ea5e9";
   const headRef = useRef<THREE.Group>(null);
   const ringRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
     if (headRef.current) {
-      // Look around subtly
       if (hover && !open) {
         headRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 4) * 0.3;
         headRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 2) * 0.1;
@@ -52,20 +85,20 @@ function Real3DRobot({ open, hover }: { open: boolean; hover: boolean }) {
         {/* Head assembly */}
         <group ref={headRef} position={[0, 0.4, 0]}>
           {/* Main Head */}
-          <RoundedBox args={[1.2, 0.9, 1]} radius={0.15} smoothness={4}>
-            <meshStandardMaterial color="#ffffff" roughness={0.1} metalness={0.5} />
+          <RoundedBox args={[1.2, 0.9, 1]} radius={0.15} smoothness={3}>
+            <meshStandardMaterial color="#ffffff" roughness={0.15} metalness={0.4} />
           </RoundedBox>
           
           {/* Visor Area */}
-          <RoundedBox args={[1.0, 0.45, 1.05]} radius={0.1} smoothness={4} position={[0, 0.05, 0.02]}>
-            <meshStandardMaterial color="#111827" roughness={0.2} metalness={0.9} />
+          <RoundedBox args={[1.0, 0.45, 1.05]} radius={0.1} smoothness={3} position={[0, 0.05, 0.02]}>
+            <meshStandardMaterial color="#111827" roughness={0.2} metalness={0.8} />
           </RoundedBox>
           
           {/* Eyes */}
-          <Sphere args={[0.07, 16, 16]} position={[-0.25, 0.05, 0.55]}>
+          <Sphere args={[0.07, 12, 12]} position={[-0.25, 0.05, 0.55]}>
             <meshStandardMaterial color={eyeColor} emissive={eyeColor} emissiveIntensity={2} />
           </Sphere>
-          <Sphere args={[0.07, 16, 16]} position={[0.25, 0.05, 0.55]}>
+          <Sphere args={[0.07, 12, 12]} position={[0.25, 0.05, 0.55]}>
             <meshStandardMaterial color={eyeColor} emissive={eyeColor} emissiveIntensity={2} />
           </Sphere>
           
@@ -74,7 +107,7 @@ function Real3DRobot({ open, hover }: { open: boolean; hover: boolean }) {
             <meshStandardMaterial color="#e5e7eb" />
           </Cylinder>
           {/* Antenna Bulb */}
-          <Sphere args={[0.08, 16, 16]} position={[0, 0.8, 0]}>
+          <Sphere args={[0.08, 12, 12]} position={[0, 0.8, 0]}>
             <meshStandardMaterial color="#0ea5e9" emissive="#0ea5e9" emissiveIntensity={2} />
           </Sphere>
           
@@ -90,18 +123,18 @@ function Real3DRobot({ open, hover }: { open: boolean; hover: boolean }) {
         </Cylinder>
         
         {/* Upper Body */}
-        <RoundedBox args={[1.3, 0.8, 0.9]} radius={0.2} smoothness={4} position={[0, -0.6, 0]}>
-          <meshStandardMaterial color="#ffffff" roughness={0.1} metalness={0.4} />
+        <RoundedBox args={[1.3, 0.8, 0.9]} radius={0.2} smoothness={3} position={[0, -0.6, 0]}>
+          <meshStandardMaterial color="#ffffff" roughness={0.15} metalness={0.4} />
         </RoundedBox>
         
         {/* Chest Display/Core */}
-        <RoundedBox args={[0.7, 0.35, 0.95]} radius={0.05} smoothness={4} position={[0, -0.55, 0]}>
+        <RoundedBox args={[0.7, 0.35, 0.95]} radius={0.05} smoothness={3} position={[0, -0.55, 0]}>
           <meshStandardMaterial color="#e0f2fe" emissive="#0ea5e9" emissiveIntensity={0.3} />
         </RoundedBox>
 
         {/* Orbiting Ring around body */}
         <mesh ref={ringRef} position={[0, -0.6, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[1.2, 0.02, 16, 100]} />
+          <torusGeometry args={[1.2, 0.02, 12, 60]} />
           <meshStandardMaterial color="#0ea5e9" emissive="#0ea5e9" emissiveIntensity={2} />
         </mesh>
       </Float>
@@ -110,14 +143,36 @@ function Real3DRobot({ open, hover }: { open: boolean; hover: boolean }) {
 }
 
 function RobotScene({ open, hover }: { open: boolean; hover: boolean }) {
+  const [hasWebGL, setHasWebGL] = useState(true);
+
+  useEffect(() => {
+    try {
+      const canvas = document.createElement("canvas");
+      const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+      if (!gl) setHasWebGL(false);
+    } catch {
+      setHasWebGL(false);
+    }
+  }, []);
+
+  if (!hasWebGL) {
+    return <FallbackRobotIcon hover={hover} />;
+  }
+
   return (
-    <Canvas camera={{ position: [0, 0, 4.5], fov: 45 }} className="w-full h-full pointer-events-none">
-      <ambientLight intensity={1.5} />
-      <directionalLight position={[5, 10, 5]} intensity={2} color="#ffffff" />
-      <pointLight position={[-5, 0, 5]} intensity={1} color="#0ea5e9" />
-      <Environment preset="city" />
-      <Real3DRobot open={open} hover={hover} />
-    </Canvas>
+    <RobotErrorBoundary fallback={<FallbackRobotIcon hover={hover} />}>
+      <Canvas
+        camera={{ position: [0, 0, 4.5], fov: 45 }}
+        dpr={[1, 1.5]}
+        gl={{ powerPreference: "low-power", antialias: true, alpha: true }}
+        className="w-full h-full pointer-events-none"
+      >
+        <ambientLight intensity={1.8} />
+        <directionalLight position={[5, 10, 5]} intensity={2.2} color="#ffffff" />
+        <pointLight position={[-5, 0, 5]} intensity={1.5} color="#0ea5e9" />
+        <Real3DRobot open={open} hover={hover} />
+      </Canvas>
+    </RobotErrorBoundary>
   );
 }
 
@@ -232,13 +287,10 @@ export default function ChatBot() {
           >
             {/* Header */}
             <div className="flex-shrink-0 flex items-center gap-3 px-5 py-4 border-b border-sky-100 bg-white">
-              <div className="relative w-12 h-12 rounded-2xl bg-sky-50 flex items-center justify-center overflow-hidden border border-sky-100">
-                {/* 3D Robot Miniature */}
-                <div className="absolute inset-0 scale-[1.5] translate-y-2">
-                  <RobotScene open={false} hover={true} />
-                </div>
+              <div className="relative w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center overflow-hidden border border-sky-100 flex-shrink-0">
+                <BotAvatar />
                 <motion.span
-                  className="absolute bottom-1 right-1 w-2.5 h-2.5 rounded-full bg-sky-500 border-2 border-white"
+                  className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white"
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
@@ -280,10 +332,8 @@ export default function ChatBot() {
                   className={`flex items-end gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
                 >
                   {msg.role === "bot" && (
-                     <div className="relative w-8 h-8 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                       <div className="absolute inset-0 scale-[1.5] translate-y-1.5 translate-x-0.5">
-                         <RobotScene open={false} hover={false} />
-                       </div>
+                     <div className="relative w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0">
+                       <BotAvatar />
                      </div>
                   )}
                   <div className={`max-w-[78%] flex flex-col gap-1 ${msg.role === "user" ? "items-end" : "items-start"}`}>

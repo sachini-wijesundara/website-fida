@@ -1,4 +1,5 @@
-import ProjectsClient from "./projects-client";
+import dynamicImport from "next/dynamic";
+const ProjectsClient = dynamicImport(() => import("./projects-client"), { ssr: false });
 import { getDbConnection } from "@/lib/db";
 import { cachedRequest } from "@/lib/request-cache";
 

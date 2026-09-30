@@ -1,32 +1,84 @@
 // No `export const dynamic` — let Next.js use its default (static where possible)
 import { NextResponse } from "next/server";
 import { getDbConnection } from "@/lib/db";
+import fs from "fs";
+import path from "path";
 
-// ── In-memory image cache ──────────────────────────────────────────────────
-// Avoids repeated DB hits for the same image within a server instance.
-const IMAGE_CACHE = new Map<string, { data: string; ts: number }>();
-const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
-const CACHE_MAX = 200;
+// ── In-memory & disk image cache ──────────────────────────────────────────
+const IMAGE_CACHE = new Map<string, { buffer: Buffer; mimeType: string; ts: number }>();
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const CACHE_MAX = 300;
 
-function getCached(key: string): string | null {
-  const entry = IMAGE_CACHE.get(key);
-  if (!entry) return null;
-  if (Date.now() - entry.ts > CACHE_TTL_MS) {
-    IMAGE_CACHE.delete(key);
-    return null;
-  }
-  return entry.data;
+const DISK_CACHE_DIR = path.join(process.cwd(), ".cache", "fida-images");
+
+function ensureDiskCacheDir() {
+  try {
+    if (!fs.existsSync(DISK_CACHE_DIR)) {
+      fs.mkdirSync(DISK_CACHE_DIR, { recursive: true });
+    }
+  } catch {}
 }
 
-function setCached(key: string, value: string) {
+function getDiskCachePath(key: string): { filePath: string; metaPath: string } {
+  const safeKey = Buffer.from(key).toString("hex");
+  return {
+    filePath: path.join(DISK_CACHE_DIR, `${safeKey}.bin`),
+    metaPath: path.join(DISK_CACHE_DIR, `${safeKey}.meta`),
+  };
+}
+
+function getCached(key: string): { buffer: Buffer; mimeType: string } | null {
+  // 1. Memory check
+  const entry = IMAGE_CACHE.get(key);
+  if (entry) {
+    if (Date.now() - entry.ts > CACHE_TTL_MS) {
+      IMAGE_CACHE.delete(key);
+    } else {
+      return { buffer: entry.buffer, mimeType: entry.mimeType };
+    }
+  }
+
+  // 2. Disk check
+  try {
+    const { filePath, metaPath } = getDiskCachePath(key);
+    if (fs.existsSync(filePath) && fs.existsSync(metaPath)) {
+      const buffer = fs.readFileSync(filePath);
+      const mimeType = fs.readFileSync(metaPath, "utf8").trim() || "image/jpeg";
+      setCached(key, buffer, mimeType, false);
+      return { buffer, mimeType };
+    }
+  } catch {}
+
+  return null;
+}
+
+function setCached(key: string, buffer: Buffer, mimeType: string, writeToDisk = true) {
   if (IMAGE_CACHE.size >= CACHE_MAX) {
-    // Evict oldest entry
     const firstKey = IMAGE_CACHE.keys().next().value;
     if (firstKey !== undefined) IMAGE_CACHE.delete(firstKey);
   }
-  IMAGE_CACHE.set(key, { data: value, ts: Date.now() });
+  IMAGE_CACHE.set(key, { buffer, mimeType, ts: Date.now() });
+
+  if (writeToDisk) {
+    try {
+      ensureDiskCacheDir();
+      const { filePath, metaPath } = getDiskCachePath(key);
+      fs.writeFileSync(filePath, buffer);
+      fs.writeFileSync(metaPath, mimeType, "utf8");
+    } catch {}
+  }
 }
 // ──────────────────────────────────────────────────────────────────────────
+
+function parseDataUri(dataUri: string): { mimeType: string; buffer: Buffer } | null {
+  const commaIdx = dataUri.indexOf(",");
+  if (commaIdx === -1) return null;
+  const meta = dataUri.substring(0, commaIdx);
+  const match = meta.match(/^data:([^;,]+);base64$/i);
+  const mimeType = match ? match[1] : "image/jpeg";
+  const base64Data = dataUri.substring(commaIdx + 1);
+  return { mimeType, buffer: Buffer.from(base64Data, "base64") };
+}
 
 export async function GET(
   request: Request,
@@ -36,28 +88,20 @@ export async function GET(
     let relativePath = params.path.join("/");
     relativePath = decodeURIComponent(relativePath);
 
-    // ── Browser / CDN cache headers ──────────────────────────────────────
     const CACHE_HEADERS = {
-      "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+      "Cache-Control": "public, max-age=31536000, immutable",
     };
 
-    // ── Check in-memory cache first ──────────────────────────────────────
+    const etag = `"${relativePath.replace(/[^a-z0-9]/gi, "_")}"`;
+    if (request.headers.get("if-none-match") === etag) {
+      return new NextResponse(null, { status: 304, headers: { ...CACHE_HEADERS, ETag: etag } });
+    }
+
+    // ── Check cache first (memory & disk) ─────────────────────────────────
     const cached = getCached(relativePath);
     if (cached) {
-      // Check ETag for 304 Not Modified
-      const etag = `"${relativePath.replace(/[^a-z0-9]/gi, "_")}"`;
-      if (request.headers.get("if-none-match") === etag) {
-        return new NextResponse(null, { status: 304, headers: { ...CACHE_HEADERS, ETag: etag } });
-      }
-
-      if (!cached.startsWith("data:")) {
-        return NextResponse.redirect(new URL(cached, request.url));
-      }
-      const match = cached.match(/^data:([^;,]+);base64,([\s\S]+)$/);
-      if (!match) return NextResponse.json({ message: "Invalid stored image" }, { status: 500 });
-
-      return new NextResponse(Buffer.from(match[2], "base64"), {
-        headers: { "Content-Type": match[1], ...CACHE_HEADERS, ETag: etag },
+      return new NextResponse(new Uint8Array(cached.buffer), {
+        headers: { "Content-Type": cached.mimeType, ...CACHE_HEADERS, ETag: etag },
       });
     }
 
@@ -74,23 +118,21 @@ export async function GET(
       return new NextResponse(null, { status: 404 });
     }
 
-    // Store in cache for next request
-    setCached(relativePath, imageUrl);
-
-    const etag = `"${relativePath.replace(/[^a-z0-9]/gi, "_")}"`;
-
     if (!imageUrl.startsWith("data:")) {
       return NextResponse.redirect(new URL(imageUrl, request.url));
     }
 
-    const match = imageUrl.match(/^data:([^;,]+);base64,([\s\S]+)$/);
-    if (!match) {
+    const parsed = parseDataUri(imageUrl);
+    if (!parsed) {
       return NextResponse.json({ message: "Invalid stored image" }, { status: 500 });
     }
 
-    return new NextResponse(Buffer.from(match[2], "base64"), {
+    // Store in memory & disk cache
+    setCached(relativePath, parsed.buffer, parsed.mimeType, true);
+
+    return new NextResponse(new Uint8Array(parsed.buffer), {
       headers: {
-        "Content-Type": match[1],
+        "Content-Type": parsed.mimeType,
         ...CACHE_HEADERS,
         ETag: etag,
       },

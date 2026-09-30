@@ -1,10 +1,13 @@
-import * as sql from 'mssql';
+import type * as sqlTypes from 'mssql';
+import sqlModule from 'mssql';
+
+const sql: typeof sqlModule = (sqlModule as any).default || sqlModule;
 
 if (!process.env.DB_USER || !process.env.DB_SERVER) {
   console.warn("⚠️ Database environment variables are missing! Login will fail.");
 }
 
-const config: sql.config = {
+const config: sqlTypes.config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   server: process.env.DB_SERVER || '',
@@ -22,12 +25,12 @@ const config: sql.config = {
 console.log(`📡 DB Config Initialized: Server=${config.server}, User=${config.user}, Db=${config.database}, Port=${config.port}`);
 
 type DbGlobal = typeof globalThis & {
-  __fidaSqlPoolPromise?: Promise<sql.ConnectionPool>;
+  __fidaSqlPoolPromise?: Promise<sqlTypes.ConnectionPool>;
 };
 
 const dbGlobal = globalThis as DbGlobal;
 
-export const getDbConnection = async (): Promise<sql.ConnectionPool> => {
+export const getDbConnection = async (): Promise<sqlTypes.ConnectionPool> => {
   if (dbGlobal.__fidaSqlPoolPromise) return dbGlobal.__fidaSqlPoolPromise;
 
   dbGlobal.__fidaSqlPoolPromise = new sql.ConnectionPool(config)

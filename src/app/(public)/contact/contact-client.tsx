@@ -49,8 +49,6 @@ const faqs = [
   },
 ];
 
-const fallbackLogos = ["Abans", "SkyNet", "Köhl", "Commercial Insurance"];
-
 const FIDA_HQ = {
   lat: 6.8482656,
   lng: 79.8972186,
@@ -66,14 +64,6 @@ function getMapEmbedSrc(focused: boolean) {
     return `https://maps.google.com/maps?q=${place}&z=17&hl=en&output=embed`;
   }
   return `https://maps.google.com/maps?q=${FIDA_HQ.lat},${FIDA_HQ.lng}&z=15&hl=en&output=embed`;
-}
-
-interface Customer {
-  id: number;
-  name: string;
-  logo_url: string | null;
-  order_index: number;
-  status: string;
 }
 
 const emptyForm = {
@@ -94,36 +84,9 @@ export default function ContactClient() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [customers, setCustomers] = useState<Customer[]>([]);
   const [subscribeEmail, setSubscribeEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [mapFocused, setMapFocused] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/customers")
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data: Customer[]) => {
-        const activeCustomers = data.filter(
-          (c) => c.status === "Active" && c.logo_url && !c.name.toLowerCase().includes("sipway")
-        );
-        const exactMatches = ["abans", "abance", "sky net", "kablr"];
-        const topLogos: Customer[] = [];
-        
-        exactMatches.forEach(name => {
-          const match = activeCustomers.find(c => c.name.toLowerCase() === name);
-          if (match && !topLogos.some((l) => l.id === match.id)) topLogos.push(match);
-        });
-
-        const kelani = activeCustomers.find(
-          (c) => c.name.toLowerCase().includes("kalani") || c.name.toLowerCase().includes("kelani")
-        );
-        if (kelani && !topLogos.some((l) => l.id === kelani.id)) topLogos.push(kelani);
-
-        setCustomers(topLogos);
-        
-      })
-      .catch(() => setCustomers([]));
-  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -150,10 +113,6 @@ export default function ContactClient() {
       setLoading(false);
     }
   };
-
-  let logos = customers.length
-    ? customers
-    : fallbackLogos.map((name, i) => ({ id: i, name, logo_url: null, order_index: i, status: "Active" }));
 
   return (
     <>
@@ -356,28 +315,6 @@ export default function ContactClient() {
                     )}
                   </form>
                 )}
-
-                {/* Trusted logos */}
-                <div className="contact-trust overflow-hidden">
-                  <p className="contact-trust__label">Trusted by industry leaders</p>
-                  <div className="contact-trust__logos marquee-track sm:!animate-none sm:!w-full">
-                    {logos.map((logo) =>
-                      logo.logo_url ? (
-                        <img key={logo.id} src={logo.logo_url} alt={logo.name} />
-                      ) : (
-                        <span key={logo.id}>{logo.name}</span>
-                      )
-                    )}
-                    {/* Duplicate logos to create seamless infinite scroll on mobile */}
-                    {logos.map((logo) =>
-                      logo.logo_url ? (
-                        <img key={`dup-${logo.id}`} className="sm:hidden" src={logo.logo_url} alt={logo.name} />
-                      ) : (
-                        <span key={`dup-${logo.id}`} className="sm:hidden">{logo.name}</span>
-                      )
-                    )}
-                  </div>
-                </div>
               </div>
             </motion.div>
 
@@ -486,7 +423,7 @@ export default function ContactClient() {
       </section>
 
       {/* ── FAQ ── */}
-      <section className="contact-faq pb-72 md:pb-96">
+      <section className="contact-faq pb-12 md:pb-16">
         <div className="container mx-auto px-6 max-w-3xl">
           <motion.h2
             className="contact-faq__title"

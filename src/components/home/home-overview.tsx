@@ -46,8 +46,7 @@ export default function HomeOverview() {
   const reduceMotion = useReducedMotion();
   const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const fragmentationRef = useRef<HTMLElement>(null);
-
+ 
 
 
   useEffect(() => {
@@ -83,7 +82,18 @@ export default function HomeOverview() {
       >
         <div className="home-bento__col home-bento__col--1">
           <div className="home-bento__media home-bento__photo--woman">
-            <img src="/api/images/homepageimages/image1.png" alt="FIDA Global team member" loading="lazy" />
+            <img
+              src="/api/images/homepageimages/image1.png?v=2"
+              alt="FIDA Global team member"
+              loading="lazy"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.src.includes('/homepg%20bento.jpg')) {
+                  target.src = '/homepg%20bento.jpg';
+                }
+              }}
+            />
+            
           </div>
           <div className="home-bento__stat home-bento__stat--green" style={{ position: 'relative', overflow: 'hidden' }}>
             <img src="/api/images/homepageimages/clients.png" alt="370+ Clients" className="absolute inset-0 w-full h-full object-cover z-0" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
@@ -117,7 +127,17 @@ export default function HomeOverview() {
             <img src="/api/images/homepageimages/years.png" alt="15+ Years Experience" className="absolute inset-0 w-full h-full object-cover z-0" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
           </div>
           <div className="home-bento__media home-bento__photo--office">
-            <img src="/api/images/homepageimages/image04.jpeg" alt="FIDA Global office" loading="lazy" />
+            <img
+              src="/api/images/homepageimages/image04.jpeg?v=2"
+              alt="FIDA Global office"
+              loading="lazy"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.src.includes('/homepg%20bento4.jpg')) {
+                  target.src = '/homepg%20bento4.jpg';
+                }
+              }}
+            />
           </div>
         </div>
       </motion.div>
@@ -157,49 +177,48 @@ export default function HomeOverview() {
               Trusted by market leaders worldwide.
             </motion.h2>
             <div className="w-full pb-4 px-2 sm:px-4">
-              <div className="home-logo-cloud mx-auto" style={{ aspectRatio: '2.5/1', height: 'auto', maxWidth: '1000px', width: '100%', marginTop: '3rem' }}>
+              <div className="home-logo-cloud mx-auto" style={{ aspectRatio: '2.3/1', height: 'auto', maxWidth: '1000px', width: '100%', marginTop: '1.5rem', paddingTop: '1rem' }}>
                 {(() => {
-                // Precision 29-item OVAL grid.
-                // Ordered from CENTER-OUTWARDS. This guarantees that if there are fewer than 29 customers,
-                // they will form a perfectly dense core in the middle of the screen without any empty holes,
-                // eliminating the need for duplicates!
+                // Precision 29-item non-overlapping OVAL grid.
+                // Ordered from CENTER-OUTWARDS so fewer customers always form a dense core.
+                // Hexagonal/honeycomb staggered distribution guarantees zero overlap between any items.
                 const POSITIONS = [
                   // --- CENTER CORE (1) ---
-                  { left: '42%', top: '44%', width: '14%', aspect: '3.0' }, // R3 I4
+                  { left: '43.1%', top: '42.5%', width: '11.8%', aspect: '1.95' }, // R3 I4
 
                   // --- INNER RING (6) ---
-                  { left: '35%', top: '22%', width: '12%', aspect: '1.2' }, // R2 I3
-                  { left: '49%', top: '20%', width: '15%', aspect: '2.5' }, // R2 I4
-                  { left: '36%', top: '58%', width: '16%', aspect: '2.8' }, // R4 I3
-                  { left: '54%', top: '60%', width: '13%', aspect: '1.5' }, // R4 I4
-                  { left: '29%', top: '46%', width: '11%', aspect: '1.5' }, // R3 I3
-                  { left: '58%', top: '46%', width: '11%', aspect: '1.2' }, // R3 I5
+                  { left: '37.1%', top: '23.0%', width: '11.8%', aspect: '1.95' }, // R2 I3
+                  { left: '51.4%', top: '23.0%', width: '11.8%', aspect: '1.95' }, // R2 I4
+                  { left: '37.1%', top: '62.0%', width: '11.8%', aspect: '1.95' }, // R4 I3
+                  { left: '51.4%', top: '62.0%', width: '11.8%', aspect: '1.95' }, // R4 I4
+                  { left: '29.4%', top: '42.5%', width: '11.8%', aspect: '1.95' }, // R3 I3
+                  { left: '56.8%', top: '42.5%', width: '11.8%', aspect: '1.95' }, // R3 I5
 
                   // --- MIDDLE RING (12) ---
-                  { left: '13%', top: '41%', width: '14%', aspect: '2.2' }, // R3 I2
-                  { left: '71%', top: '41%', width: '13%', aspect: '1.8' }, // R3 I6
-                  { left: '19%', top: '21%', width: '15%', aspect: '2.8' }, // R2 I2
-                  { left: '65%', top: '25%', width: '13%', aspect: '1.5' }, // R2 I5
-                  { left: '22%', top: '61%', width: '12%', aspect: '1.5' }, // R4 I2
-                  { left: '69%', top: '65%', width: '14%', aspect: '2.5' }, // R4 I5
-                  { left: '42%', top: '5%',  width: '16%', aspect: '2.8' }, // R1 I3
-                  { left: '46%', top: '86%', width: '12%', aspect: '1.5' }, // R5 I3
-                  { left: '28%', top: '1%',  width: '12%', aspect: '1.4' }, // R1 I2
-                  { left: '60%', top: '2%',  width: '13%', aspect: '1.5' }, // R1 I4
-                  { left: '29%', top: '81%', width: '15%', aspect: '2.8' }, // R5 I2
-                  { left: '60%', top: '80%', width: '15%', aspect: '2.5' }, // R5 I4
+                  { left: '22.8%', top: '23.0%', width: '11.8%', aspect: '1.95' }, // R2 I2
+                  { left: '65.7%', top: '23.0%', width: '11.8%', aspect: '1.95' }, // R2 I5
+                  { left: '22.8%', top: '62.0%', width: '11.8%', aspect: '1.95' }, // R4 I2
+                  { left: '65.7%', top: '62.0%', width: '11.8%', aspect: '1.95' }, // R4 I5
+                  { left: '15.7%', top: '42.5%', width: '11.8%', aspect: '1.95' }, // R3 I2
+                  { left: '70.5%', top: '42.5%', width: '11.8%', aspect: '1.95' }, // R3 I6
+                  { left: '44.4%', top: '3.5%',  width: '11.8%', aspect: '1.95' }, // R1 I3
+                  { left: '44.4%', top: '81.5%', width: '11.8%', aspect: '1.95' }, // R5 I3
+                  { left: '30.2%', top: '3.5%',  width: '11.8%', aspect: '1.95' }, // R1 I2
+                  { left: '58.6%', top: '3.5%',  width: '11.8%', aspect: '1.95' }, // R1 I4
+                  { left: '30.2%', top: '81.5%', width: '11.8%', aspect: '1.95' }, // R5 I2
+                  { left: '58.6%', top: '81.5%', width: '11.8%', aspect: '1.95' }, // R5 I4
 
                   // --- OUTER EDGE (10) ---
-                  { left: '1%',  top: '45%', width: '11%', aspect: '1.2' }, // R3 I1
-                  { left: '86%', top: '44%', width: '12%', aspect: '1.5' }, // R3 I7
-                  { left: '5%',  top: '24%', width: '13%', aspect: '1.5' }, // R2 I1
-                  { left: '80%', top: '22%', width: '15%', aspect: '2.5' }, // R2 I6
-                  { left: '6%',  top: '64%', width: '14%', aspect: '2.2' }, // R4 I1
-                  { left: '85%', top: '62%', width: '11%', aspect: '1.2' }, // R4 I6
-                  { left: '12%', top: '4%',  width: '14%', aspect: '2.2' }, // R1 I1
-                  { left: '75%', top: '4%',  width: '14%', aspect: '2.2' }, // R1 I5
-                  { left: '14%', top: '84%', width: '13%', aspect: '1.8' }, // R5 I1
-                  { left: '77%', top: '85%', width: '13%', aspect: '1.8' }  // R5 I5
+                  { left: '2.0%',  top: '42.5%', width: '11.8%', aspect: '1.95' }, // R3 I1
+                  { left: '84.2%', top: '42.5%', width: '11.8%', aspect: '1.95' }, // R3 I7
+                  { left: '8.5%',  top: '23.0%', width: '11.8%', aspect: '1.95' }, // R2 I1
+                  { left: '80.0%', top: '23.0%', width: '11.8%', aspect: '1.95' }, // R2 I6
+                  { left: '8.5%',  top: '62.0%', width: '11.8%', aspect: '1.95' }, // R4 I1
+                  { left: '80.0%', top: '62.0%', width: '11.8%', aspect: '1.95' }, // R4 I6
+                  { left: '16.0%', top: '3.5%',  width: '11.8%', aspect: '1.95' }, // R1 I1
+                  { left: '72.8%', top: '3.5%',  width: '11.8%', aspect: '1.95' }, // R1 I5
+                  { left: '16.0%', top: '81.5%', width: '11.8%', aspect: '1.95' }, // R5 I1
+                  { left: '72.8%', top: '81.5%', width: '11.8%', aspect: '1.95' }  // R5 I5
                 ];
 
                 if (!customers || customers.length === 0) return null;
@@ -223,7 +242,7 @@ export default function HomeOverview() {
                         top: pos.top,
                         width: pos.width,
                         aspectRatio: pos.aspect,
-                        padding: 'clamp(3px, 1vw, 12px)',
+                        padding: 'clamp(4px, 1.1vw, 13px)',
                         zIndex: 10 + i
                       }}
                     >
@@ -242,62 +261,6 @@ export default function HomeOverview() {
             </div>
           </div>
         </div>
-
-        <section ref={fragmentationRef} className="home-fragmentation home-fragmentation--homepage">
-          <motion.div
-            className="home-fragmentation__copy"
-            initial={reduceMotion ? false : { opacity: 0, x: -32 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.35 }}
-          >
-            <h2>Running a workforce across <span>borders</span> shouldn&apos;t feel this complicated.</h2>
-            <p>Growth crosses borders easily. Your systems don&apos;t. Most HR platforms weren&apos;t built to hold local compliance and global scale in the same hand.</p>
-          </motion.div>
-
-          <motion.div
-            className="home-fragmentation__network"
-            initial={reduceMotion ? false : { opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, amount: 0.25 }}
-            aria-label="Disconnected workforce systems"
-          >
-            <svg viewBox="0 0 760 470" preserveAspectRatio="none" aria-hidden="true">
-              <defs>
-                <radialGradient id="dot-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-                  <stop offset="0%" className="dot-gradient-center" />
-                  <stop offset="100%" className="dot-gradient-edge" />
-                </radialGradient>
-              </defs>
-              <path d="M88 360 L420 194" />
-              <path d="M8 277 L684 382" />
-              <path d="M548 62 L682 298" />
-              <path d="M506 300 L735 111" />
-              <ellipse className="home-network-dot" cx="88" cy="360" rx="2.6" ry="6" fill="url(#dot-gradient)" />
-              <ellipse className="home-network-dot" cx="420" cy="194" rx="2.6" ry="6" fill="url(#dot-gradient)" />
-              <ellipse className="home-network-dot" cx="8" cy="277" rx="2.6" ry="6" fill="url(#dot-gradient)" />
-              <ellipse className="home-network-dot" cx="684" cy="382" rx="2.6" ry="6" fill="url(#dot-gradient)" />
-              <ellipse className="home-network-dot" cx="548" cy="62" rx="2.6" ry="6" fill="url(#dot-gradient)" />
-              <ellipse className="home-network-dot" cx="682" cy="298" rx="2.6" ry="6" fill="url(#dot-gradient)" />
-              <ellipse className="home-network-dot" cx="506" cy="300" rx="2.6" ry="6" fill="url(#dot-gradient)" />
-              <ellipse className="home-network-dot" cx="735" cy="111" rx="2.6" ry="6" fill="url(#dot-gradient)" />
-            </svg>
-            <span className="home-network-label home-network-label--payroll">Payroll that takes days</span>
-            <span className="home-network-label home-network-label--employee">Employee data<br />scattered across five<br />disconnected tools</span>
-            <span className="home-network-label home-network-label--compliance">Compliance rules that<br />change faster than<br />you can track</span>
-            <span className="home-network-label home-network-label--systems">Systems that don&apos;t<br />talk to each other</span>
-          </motion.div>
-
-          <a
-            href="#smart-hris-hero"
-            className="home-fragmentation__link home-fragmentation__link--centered"
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById("smart-hris-hero")?.scrollIntoView({ behavior: "smooth" });
-            }}
-          >
-            THIS IS WHERE FRAGMENTATION ENDS.
-          </a>
-        </section>
 
       </div>
     </motion.section>

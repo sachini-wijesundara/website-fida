@@ -13,10 +13,10 @@ export async function GET(request: Request) {
           SELECT
             id, name, position, bio, linkedin_url, twitter_url,
             accent, order_index, status,
-            CASE WHEN image_url LIKE 'data:%' THEN NULL ELSE image_url END AS image_url
+            image_url
           FROM team_members
           WHERE status <> 'Deleted' OR status IS NULL
-          ORDER BY order_index ASC
+          ORDER BY order_index ASC, id ASC
         `);
         return result.recordset;
       });
@@ -41,16 +41,16 @@ export async function POST(request: Request) {
     const pool = await getDbConnection();
 
     await pool.request()
-      .input('id', sql.Int, id || null)
-      .input('name', sql.NVarChar(255), name)
-      .input('position', sql.NVarChar(255), position)
-      .input('bio', sql.NVarChar(sql.MAX), bio)
-      .input('image_url', sql.NVarChar(sql.MAX), imageUrl)
-      .input('linkedin_url', sql.NVarChar(sql.MAX), linkedinUrl)
-      .input('twitter_url', sql.NVarChar(sql.MAX), twitterUrl)
-      .input('accent', sql.NVarChar(50), accent || "#38a3f5")
-      .input('order_index', sql.Int, orderIndex || 0)
-      .input('status', sql.NVarChar(50), status || 'Active')
+      .input('id', id ? parseInt(String(id), 10) : null)
+      .input('name', name || '')
+      .input('position', position || '')
+      .input('bio', bio || '')
+      .input('image_url', imageUrl || '')
+      .input('linkedin_url', linkedinUrl || '')
+      .input('twitter_url', twitterUrl || '')
+      .input('accent', accent || '#38a3f5')
+      .input('order_index', parseInt(String(orderIndex || 0), 10))
+      .input('status', status || 'Active')
       .execute('sp_UpsertTeamMember');
 
     invalidateRequestCache("team-members");
@@ -73,7 +73,7 @@ export async function DELETE(request: Request) {
 
     const pool = await getDbConnection();
     await pool.request()
-      .input('id', sql.Int, id)
+      .input('id', parseInt(String(id), 10))
       .query(`UPDATE team_members SET status = 'Deleted' WHERE id = @id`);
 
     invalidateRequestCache("team-members");

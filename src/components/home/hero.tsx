@@ -147,14 +147,12 @@ export default function Hero() {
             Explore solutions
             <ArrowUpRight size={17} />
           </Link>
-          <a
-            href="/FIDA%20Global%20Company%20Profile.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/contact"
             className="hero-button hero-button--secondary"
           >
-            Company profile
-          </a>
+            Contact us
+          </Link>
         </div>
         </motion.div>
 

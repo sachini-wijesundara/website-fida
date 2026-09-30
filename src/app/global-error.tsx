@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { AlertCircle, RotateCcw } from "lucide-react";
 
 export default function GlobalError({
@@ -10,6 +10,15 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    if (
+      error?.name === "ChunkLoadError" ||
+      error?.message?.includes("Loading chunk") ||
+      error?.message?.includes("failed to fetch dynamically imported module")
+    ) {
+      window.location.reload();
+    }
+  }, [error]);
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col items-center justify-center bg-[#f7fcfd] text-[#052c65] font-sans px-6 text-center gap-6">

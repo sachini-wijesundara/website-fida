@@ -12,6 +12,7 @@ export default function TeamManagement() {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     fetchTeam();
@@ -27,13 +28,42 @@ export default function TeamManagement() {
 
   const fetchTeam = async () => {
     try {
+      setLoading(true);
       const res = await fetch("/api/teams?summary=true");
-      const data = await res.json();
-      setTeam(data);
+      if (res.ok) {
+        const data = await res.json();
+        setTeam(Array.isArray(data) ? data : []);
+      }
     } catch (err) {
       console.error("Failed to fetch team members:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.url) {
+        setImagePreview(data.url);
+      } else {
+        alert("Failed to upload image: " + (data.error || "Unknown error"));
+      }
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      alert("Error uploading image: " + err.message);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -42,16 +72,19 @@ export default function TeamManagement() {
     try {
       const res = await fetch(`/api/teams?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
-        setTeam(team.filter(p => p.id !== id));
+        setTeam((prev) => prev.filter(p => p.id !== id));
+      } else {
+        const data = await res.json();
+        alert("Failed to delete: " + (data.message || "Unknown error"));
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      alert("Error deleting member: " + err.message);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Team Submit Clicked");
     const formData = new FormData(e.currentTarget);
     const payload = {
       id: editingItem?.id || null,
@@ -62,7 +95,7 @@ export default function TeamManagement() {
       linkedinUrl: formData.get("linkedinUrl"),
       twitterUrl: formData.get("twitterUrl"),
       accent: formData.get("accent") || "#38a3f5",
-      orderIndex: parseInt(formData.get("orderIndex") as string) || 0,
+      orderIndex: parseInt(formData.get("orderIndex") as string, 10) || 0,
       status: "Active"
     };
 
@@ -75,8 +108,8 @@ export default function TeamManagement() {
       });
       if (res.ok) {
         setIsModalOpen(false);
-        fetchTeam();
-        alert("Saved successfully!");
+        setEditingItem(null);
+        await fetchTeam();
       } else {
         const errorData = await res.json();
         alert("Failed to save: " + errorData.message);
@@ -90,8 +123,8 @@ export default function TeamManagement() {
   };
 
   const filtered = team.filter(t =>
-    t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.position.toLowerCase().includes(searchTerm.toLowerCase())
+    (t.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (t.position?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
@@ -148,8 +181,18 @@ export default function TeamManagement() {
                 <tr key={t.id} className="group hover:bg-[var(--bg-elevated)]/30 transition-smooth">
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0 overflow-hidden border border-white/5">
-                        {t.image_url ? <img src={t.image_url} className="w-full h-full object-cover" /> : <User size={24} />}
+                      <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0 overflow-hidden border border-white/5 relative">
+                        {t.image_url ? (
+                          <img
+                            src={t.image_url}
+                            alt={t.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        ) : null}
+                        <User size={22} className="absolute inset-auto pointer-events-none -z-0 opacity-40" />
                       </div>
                       <div>
                         <p className="font-bold text-sm">{t.name}</p>
@@ -198,55 +241,60 @@ export default function TeamManagement() {
                 <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/5 rounded-full"><X size={20}/></button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form key={editingItem?.id || "new"} onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                    <div className="space-y-2">
                       <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Name</label>
-                      <input name="name" defaultValue={editingItem?.name} required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none" placeholder="e.g. James Wilson" />
+                      <input name="name" defaultValue={editingItem?.name || ""} required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none" placeholder="e.g. James Wilson" />
                    </div>
                    <div className="space-y-2">
                       <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Position</label>
-                      <input name="position" defaultValue={editingItem?.position} required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none" placeholder="e.g. CTO" />
+                      <input name="position" defaultValue={editingItem?.position || ""} required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none" placeholder="e.g. CTO" />
                    </div>
                 </div>
 
                 <div className="space-y-2">
                    <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Bio</label>
-                   <textarea name="bio" defaultValue={editingItem?.bio} rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none resize-none" placeholder="Brief biography..." />
+                   <textarea name="bio" defaultValue={editingItem?.bio || ""} rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none resize-none" placeholder="Brief biography..." />
                 </div>
 
                 <div className="space-y-4">
                    <div className="space-y-2">
                       <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Image Upload</label>
-                      <input 
-                        type="file" 
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                             const reader = new FileReader();
-                             reader.onloadend = () => {
-                                setImagePreview(reader.result as string);
-                             };
-                             reader.readAsDataURL(file);
-                          }
-                        }}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20"
-                      />
+                      <div className="flex items-center gap-3">
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          onChange={handleFileUpload}
+                          disabled={isUploading}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20 disabled:opacity-50"
+                        />
+                        {isUploading && <Loader2 className="animate-spin text-blue-500 shrink-0" size={20} />}
+                      </div>
+                      {isUploading && <p className="text-xs text-blue-400">Uploading image to server...</p>}
                    </div>
                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Image (Live Preview)</label>
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Image URL / Path</label>
                       <input 
                         name="imageUrl" 
                         value={imagePreview} 
                         onChange={(e) => setImagePreview(e.target.value)}
                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none" 
-                        placeholder="Paste URL or upload image..." 
+                        placeholder="/api/images/... or upload image above" 
                       />
                    </div>
                    {imagePreview && (
-                     <div className="w-20 h-20 rounded-xl overflow-hidden border border-white/10">
-                        <img src={imagePreview} className="w-full h-full object-cover" />
+                     <div className="flex items-center gap-4">
+                       <div className="w-20 h-20 rounded-xl overflow-hidden border border-white/10 bg-black/20 shrink-0">
+                          <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLElement).style.display = 'none'; }} />
+                       </div>
+                       <button
+                         type="button"
+                         onClick={() => setImagePreview("")}
+                         className="text-xs text-red-400 hover:underline"
+                       >
+                         Remove Image
+                       </button>
                      </div>
                    )}
                 </div>
@@ -254,7 +302,7 @@ export default function TeamManagement() {
                 <div className="grid grid-cols-2 gap-4">
                    <div className="space-y-2">
                       <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Linkedin URL</label>
-                      <input name="linkedinUrl" defaultValue={editingItem?.linkedin_url} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none" placeholder="#" />
+                      <input name="linkedinUrl" defaultValue={editingItem?.linkedin_url || ""} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none" placeholder="#" />
                    </div>
                    <div className="space-y-2">
                       <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Accent Color (Hex)</label>
@@ -265,16 +313,16 @@ export default function TeamManagement() {
                 <div className="grid grid-cols-2 gap-4">
                    <div className="space-y-2">
                       <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Display Order</label>
-                      <input name="orderIndex" type="number" defaultValue={editingItem?.order_index || 0} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none" />
+                      <input name="orderIndex" type="number" defaultValue={editingItem?.order_index ?? 0} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none" />
                    </div>
                 </div>
 
                 <button 
                   type="submit" 
-                  disabled={isSaving}
+                  disabled={isSaving || isUploading}
                   className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSaving ? "Saving..." : (editingItem ? "Update Member" : "Save Member")}
+                  {isSaving ? "Saving..." : isUploading ? "Uploading image..." : (editingItem ? "Update Member" : "Save Member")}
                 </button>
               </form>
             </motion.div>

@@ -2,7 +2,9 @@ import React from "react";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import PageTransition from "@/components/animations/page-transition";
-import ChatBot from "@/components/chatbot/chat-bot";
+import dynamic from "next/dynamic";
+
+const ChatBot = dynamic(() => import("@/components/chatbot/chat-bot"), { ssr: false });
 
 export default function PublicLayout({
   children,

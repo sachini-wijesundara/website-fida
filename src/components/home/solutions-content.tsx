@@ -91,16 +91,9 @@ const CLIENTS = [
 export default function SolutionsContent() {
   const rm = useReducedMotion();
   const router = useRouter();
-  const [expandedSlug, setExpandedSlug] = useState("");
+  const [expandedSlug, setExpandedSlug] = useState("smart-hris");
   const [solutionImages, setSolutionImages] = useState<Record<string, SolutionImageRecord>>({});
   const [smartHrisLogo, setSmartHrisLogo] = useState<string | null>(null);
-  const activeIndexRef = useRef(0);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    // Set default expanded item only on the client after mount
-    setExpandedSlug("smart-hris");
-  }, []);
 
   useEffect(() => {
     fetch('/api/solutions/smart-hris')
@@ -125,24 +118,8 @@ export default function SolutionsContent() {
       .catch(() => setSolutionImages({}));
   }, []);
 
-
-
-
-
-  const expandSolution = (slug: string, index: number) => {
-    activeIndexRef.current = index;
-    setExpandedSlug(slug);
-  };
-
-  const handleMouseEnter = (slug: string, index: number) => {
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    hoverTimeoutRef.current = setTimeout(() => {
-      expandSolution(slug, index);
-    }, 150);
-  };
-
-  const handleMouseLeave = () => {
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+  const expandSolution = (slug: string) => {
+    setExpandedSlug(prev => prev === slug ? "" : slug);
   };
 
   return (
@@ -215,16 +192,11 @@ export default function SolutionsContent() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.65, delay: i * 0.06, ease: EASE }}
-              onClick={() => {
-                if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-                expandSolution(sol.slug, i);
-              }}
-              onMouseEnter={() => handleMouseEnter(sol.slug, i)}
-              onMouseLeave={handleMouseLeave}
+              onClick={() => expandSolution(sol.slug)}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
                   event.preventDefault();
-                  expandSolution(sol.slug, i);
+                  expandSolution(sol.slug);
                 }
               }}
               role="button"

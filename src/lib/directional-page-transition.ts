@@ -99,7 +99,7 @@ export function runDirectionalPageTransition({
     // Scroll the destination to the right position immediately while hidden
     const doScroll = () => {
       if (direction === "backward") {
-        const el = document.querySelector<HTMLElement>(".home-fragmentation");
+        const el = document.querySelector<HTMLElement>(".home-fragmentation") || document.querySelector<HTMLElement>("#smart-hris-hero");
         if (el) el.scrollIntoView({ block: "start", behavior: "instant" });
       } else {
         window.scrollTo({ top: 0, behavior: "instant" });

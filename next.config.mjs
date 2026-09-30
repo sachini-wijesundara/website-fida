@@ -4,9 +4,21 @@ const nextConfig = {
   // Keep development assets isolated from `next build`.
   distDir: process.env.NODE_ENV === 'development' ? '.next-dev' : '.next',
 
-  // ── Performance ──────────────────────────────────────
+  // ── Performance & Stability ─────────────────────────
   compress: true,
   poweredByHeader: false,
+  onDemandEntries: {
+    maxInactiveAge: 60 * 60 * 1000, // 1 hour
+    pagesBufferLength: 50,
+  },
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.cache = {
+        type: "memory",
+      };
+    }
+    return config;
+  },
 
   // ── Image optimisation ───────────────────────────────
   images: {
