@@ -3,7 +3,23 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Globe, Mail, Share2, Phone, MapPin, Network, ArrowUpRight } from "lucide-react";
+import { Mail, Share2, Phone, MapPin, ArrowUpRight } from "lucide-react";
+
+function FacebookIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+    </svg>
+  );
+}
+
+function LinkedinIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+    </svg>
+  );
+}
 
 const solutionsLinks = [
   { name: "Smart HRIS", href: "/solutions/01" },
@@ -25,6 +41,32 @@ const companyLinks: { name: string; href: string; isExternal?: boolean; download
 export default function Footer() {
   const [subscribeEmail, setSubscribeEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = typeof window !== "undefined" ? window.location.origin : "https://www.fidaglobal.com";
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: "FIDA Global",
+          text: "FIDA Global — Business Partner For Success And Beyond",
+          url,
+        });
+        return;
+      } catch {
+        // user cancelled or share failed, fallback to copy
+      }
+    }
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2200);
+      } catch {
+        // ignore
+      }
+    }
+  };
 
   return (
     <footer className="relative bg-[#f4f9fd] text-[#052c65] site-footer mt-16 lg:mt-24">
@@ -101,15 +143,42 @@ export default function Footer() {
             </p>
             {/* Social Icons (Plain, no border/background cards) */}
             <div className="flex items-center justify-center lg:justify-start gap-5 pt-2">
-              <a href="#" aria-label="Share" className="text-[#536b8a] hover:text-blue-600 transition-colors">
-                <Share2 className="w-6 h-6 lg:w-5 lg:h-5" />
+              <a
+                href="https://www.facebook.com/FIDAGlobal"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="FIDA Global on Facebook"
+                title="Facebook"
+                className="text-[#536b8a] hover:text-blue-600 transition-colors"
+              >
+                <FacebookIcon className="w-6 h-6 lg:w-5 lg:h-5" />
               </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="Website" className="text-[#536b8a] hover:text-blue-600 transition-colors">
-                <Globe className="w-6 h-6 lg:w-5 lg:h-5" />
+              <a
+                href="https://www.linkedin.com/company/fida-global"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="FIDA Global on LinkedIn"
+                title="LinkedIn"
+                className="text-[#536b8a] hover:text-blue-600 transition-colors"
+              >
+                <LinkedinIcon className="w-6 h-6 lg:w-5 lg:h-5" />
               </a>
-              <a href="#" aria-label="Network" className="text-[#536b8a] hover:text-blue-600 transition-colors">
-                <Network className="w-6 h-6 lg:w-5 lg:h-5" />
-              </a>
+              <div className="relative flex items-center">
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  aria-label="Share FIDA Global website"
+                  title="Share"
+                  className="text-[#536b8a] hover:text-blue-600 transition-colors p-0 cursor-pointer bg-transparent border-0 inline-flex items-center justify-center"
+                >
+                  <Share2 className="w-6 h-6 lg:w-5 lg:h-5" />
+                </button>
+                {copied && (
+                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-[#052c65] text-white text-[11px] font-semibold rounded shadow-md whitespace-nowrap pointer-events-none">
+                    Link copied!
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -205,6 +274,17 @@ export default function Footer() {
           <p className="text-[12px] text-[#64748b] font-semibold flex flex-wrap items-center justify-center gap-6 sm:gap-10">
             <span>© FIDA Global. All rights reserved.</span>
             <Link href="/privacy" className="hover:text-blue-600 transition-colors">Privacy Policy</Link>
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("open-cookie-banner"));
+                }
+              }}
+              className="hover:text-blue-600 transition-colors cursor-pointer"
+            >
+              Cookie Settings
+            </button>
             <Link href="/terms" className="hover:text-blue-600 transition-colors">Terms of Service</Link>
           </p>
         </div>

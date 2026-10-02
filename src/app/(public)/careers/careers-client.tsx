@@ -206,7 +206,7 @@ export default function CareersClient() {
               className="w-full h-full object-cover"
               style={{ objectPosition: 'center 36%' }}
               onError={(e) => {
-                e.currentTarget.src = "/ images.png";
+                e.currentTarget.src = "/images/careers/office.png";
               }}
             />
           </div>

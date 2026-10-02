@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Calendar, User, Clock, ChevronLeft, Share2, Loader2, Sparkles, BookOpen } from "lucide-react";
+import { ChevronLeft, Share2, Loader2, Sparkles, BookOpen } from "lucide-react";
 import Link from "next/link";
 
 function formatDate(dateStr?: string) {
@@ -102,30 +102,6 @@ export default function BlogDetailPage() {
             >
               {blog.title}
             </motion.h1>
-
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="flex flex-wrap items-center gap-6 text-[#536b8a] border-b border-slate-200/80 pb-6 text-xs sm:text-sm font-medium"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-blue-50 text-[#0047e1] flex items-center justify-center font-bold text-xs">
-                  <User size={14} />
-                </div>
-                <span className="font-bold text-[#052c65]">{blog.author || "FIDA Team"}</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-slate-400">
-                <Calendar size={15} />
-                <span suppressHydrationWarning>
-                  {formatDate(blog.date)}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 text-slate-400">
-                <Clock size={15} />
-                <span>5 min read</span>
-              </div>
-            </motion.div>
           </header>
 
           {/* Featured Image */}

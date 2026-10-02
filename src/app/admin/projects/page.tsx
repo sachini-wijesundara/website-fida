@@ -95,7 +95,6 @@ export default function ProjectManagement() {
               <tr>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Project</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Category</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Client</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Status</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] text-right">Actions</th>
               </tr>
@@ -135,9 +134,6 @@ export default function ProjectManagement() {
                       <span className="text-xs font-semibold px-3 py-1 bg-[var(--bg-elevated)] rounded-full text-[var(--text-secondary)]">
                         {p.category_name}
                       </span>
-                    </td>
-                    <td className="px-6 py-5">
-                      <p className="text-xs text-[var(--text-muted)] font-medium">{p.client_name || "N/A"}</p>
                     </td>
                     <td className="px-6 py-5">
                       <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md ${p.status === 'Published' ? 'bg-[var(--blue-glow)] text-[var(--blue)]' : 'bg-orange-500/10 text-orange-400'}`}>

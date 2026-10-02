@@ -46,10 +46,10 @@ export default function AdminDashboard() {
     <div className="space-y-10">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-white">Console Overview</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-[var(--text-primary)]">Console Overview</h2>
           <p className="text-[var(--text-secondary)] mt-1">Real-time stats and content performance tracking.</p>
         </div>
-        <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--grey-dark)] animate-pulse">
+        <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--grey-dark)]">
            <div className="w-2 h-2 rounded-full bg-[var(--green)] shadow-[0_0_8px_var(--green)]" />
            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--green)]">System Online</span>
         </div>
@@ -75,7 +75,7 @@ export default function AdminDashboard() {
               <TrendingUp size={16} className="text-[var(--green)] opacity-50" />
             </div>
             <div>
-              <p className="text-3xl font-black text-white group-hover:scale-110 origin-left transition-smooth">
+              <p className="text-3xl font-black text-[var(--text-primary)] group-hover:scale-110 origin-left transition-smooth">
                 {stat.value.toString().padStart(2, '0')}
               </p>
               <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mt-1">{stat.label}</p>
@@ -90,9 +90,9 @@ export default function AdminDashboard() {
           <div className="p-8 border-b border-[var(--grey-dark)] flex items-center justify-between bg-[var(--bg-elevated)]/30">
              <div className="flex items-center gap-3">
                <Clock size={20} className="text-[var(--green)]" />
-               <h3 className="font-bold">Latest Knowledge Base Updates</h3>
+               <h3 className="font-bold text-[var(--text-primary)]">Latest Knowledge Base Updates</h3>
              </div>
-             <button className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-white transition-smooth">View All</button>
+             <button className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-smooth">View All</button>
           </div>
           <div className="divide-y divide-[var(--grey-dark)]">
             {data?.recentBlogs?.map((blog: any, i: number) => (
@@ -102,14 +102,14 @@ export default function AdminDashboard() {
                       <FileText size={18} />
                    </div>
                    <div>
-                      <p className="text-sm font-bold text-white group-hover:text-[var(--green)] transition-smooth">{blog.title}</p>
+                      <p className="text-sm font-bold text-[var(--text-primary)] group-hover:text-[var(--green)] transition-smooth">{blog.title}</p>
                       <p className="text-[10px] text-[var(--text-muted)] font-medium mt-0.5 uppercase tracking-widest">
                         Updated {new Date(blog.created_at).toLocaleDateString()}
                       </p>
                    </div>
                 </div>
                 <div className="flex items-center gap-3">
-                   <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${blog.status === 'Published' ? 'bg-[var(--green-glow)] text-[var(--green)]' : 'bg-white/5 text-[var(--text-muted)]'}`}>
+                   <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${blog.status === 'Published' ? 'bg-[var(--green-glow)] text-[var(--green)]' : 'bg-[var(--bg-elevated)] text-[var(--text-muted)]'}`}>
                       {blog.status}
                    </span>
                    <ChevronRight size={16} className="text-[var(--text-muted)] opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-smooth" />
@@ -122,7 +122,7 @@ export default function AdminDashboard() {
         {/* Quick Actions */}
         <div className="space-y-6">
            <div className="glass rounded-[2rem] p-8 border border-[var(--grey-dark)] bg-gradient-to-br from-[var(--green)]/5 to-transparent">
-              <h3 className="font-bold mb-4 flex items-center gap-2">
+              <h3 className="font-bold mb-4 flex items-center gap-2 text-[var(--text-primary)]">
                  <CheckCircle2 size={18} className="text-[var(--green)]" />
                  Global Status
               </h3>
@@ -143,7 +143,7 @@ export default function AdminDashboard() {
 
            <div className="p-8 rounded-[2rem] bg-[var(--bg-elevated)] border border-[var(--grey-dark)]">
               <BarChart3 className="text-[var(--text-muted)] mb-4" size={32} />
-              <h4 className="font-bold text-sm mb-2 text-white">Platform Health</h4>
+              <h4 className="font-bold text-sm mb-2 text-[var(--text-primary)]">Platform Health</h4>
               <p className="text-xs text-[var(--text-muted)] leading-relaxed">
                 Your console is currently connected to <b>FIDAGLOBAL_COMPANYWEB</b> on server <b>34.63.59.161</b>. All syncs are operational.
               </p>

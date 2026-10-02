@@ -123,12 +123,12 @@ export default function SolutionsContent() {
   };
 
   return (
-    <main className="solutions-page smart-hris-page min-h-screen">
+    <div className="solutions-page smart-hris-page">
 
       {/* ── Smart HRIS Hero: scroll-reveal animation ── */}
       <motion.section
         id="smart-hris-hero"
-        className="sol-target-hero !rounded-none !shadow-none !pt-20"
+        className="sol-target-hero"
         initial={false}
       >
         <div className="sol-target-hero__content">
@@ -143,9 +143,9 @@ export default function SolutionsContent() {
               <span className="text-[#5BA3C7] font-semibold text-[28px] lg:text-[32px]">One ecosystem.</span>
               <img src={smartHrisLogo || "/api/images/FIDA%20Global%20logos.png"} alt="Smart HRIS Logo" className="h-[40px] lg:h-[52px] ml-3 object-contain" style={{ transform: 'translateY(-8%)' }} loading="lazy" />
             </div>
-            <h1 className="leading-[1.15] max-w-[850px] mb-6 text-[#1a2b4d] font-black text-[36px] md:text-[48px] lg:text-[60px] tracking-tight">
+            <h2 className="leading-[1.15] max-w-[850px] mb-6 text-[#1a2b4d] font-black text-[36px] md:text-[48px] lg:text-[60px] tracking-tight">
               Every layer of your workforce, covered.
-            </h1>
+            </h2>
             <p className="text-[#637892] text-[17px] lg:text-[19px] leading-[1.7] max-w-[700px]">
               FIDA Global orchestrates your entire enterprise ecosystem. From strategic consultancy
               to ground-truth operational management, we provide a unified intelligence layer.
@@ -254,7 +254,7 @@ export default function SolutionsContent() {
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 0.85, delay: 0.15, ease: EASE }}
           >
-            <img src="/api/images/solutions_images/homeLAST.png" alt="Business leaders reviewing enterprise analytics" loading="lazy" decoding="async" />
+            <img src="/api/images/solutions_images/homeLAST.png?v=4" alt="HR Analytics Meeting in a Modern Office" loading="lazy" decoding="async" />
           </motion.div>
         </div>
 
@@ -292,6 +292,6 @@ export default function SolutionsContent() {
 
 
 
-    </main>
+    </div>
   );
 }

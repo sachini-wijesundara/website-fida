@@ -121,7 +121,17 @@ export default function HomeOverview() {
 
         <div className="home-bento__right">
           <div className="home-bento__media home-bento__photo--desk">
-            <img src="/api/images/homepageimages/image3.png" alt="FIDA Global consultant" loading="lazy" />
+            <img
+              src="/api/images/homepageimages/upendra_portrait.jpg?v=1"
+              alt="Upendra Wickramatunga - Managing Director"
+              loading="lazy"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.src.includes('/ourteam/upendra.png')) {
+                  target.src = '/api/images/ourteam/upendra.png';
+                }
+              }}
+            />
           </div>
           <div className="home-bento__stat home-bento__stat--red" style={{ position: 'relative', overflow: 'hidden' }}>
             <img src="/api/images/homepageimages/years.png" alt="15+ Years Experience" className="absolute inset-0 w-full h-full object-cover z-0" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
@@ -176,8 +186,8 @@ export default function HomeOverview() {
             >
               Trusted by market leaders worldwide.
             </motion.h2>
-            <div className="w-full pb-4 px-2 sm:px-4">
-              <div className="home-logo-cloud mx-auto" style={{ aspectRatio: '2.3/1', height: 'auto', maxWidth: '1000px', width: '100%', marginTop: '1.5rem', paddingTop: '1rem' }}>
+            <div className="w-full pb-10 sm:pb-14 px-2 sm:px-4">
+              <div className="home-logo-cloud mx-auto" style={{ aspectRatio: '2.3/1', height: 'auto', maxWidth: '1000px', width: '100%', marginTop: '1.5rem', paddingTop: '1rem', paddingBottom: '2.5rem' }}>
                 {(() => {
                 // Precision 29-item non-overlapping OVAL grid.
                 // Ordered from CENTER-OUTWARDS so fewer customers always form a dense core.

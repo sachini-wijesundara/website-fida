@@ -69,7 +69,6 @@ function setCached(key: string, buffer: Buffer, mimeType: string, writeToDisk = 
   }
 }
 // ──────────────────────────────────────────────────────────────────────────
-
 function parseDataUri(dataUri: string): { mimeType: string; buffer: Buffer } | null {
   const commaIdx = dataUri.indexOf(",");
   if (commaIdx === -1) return null;

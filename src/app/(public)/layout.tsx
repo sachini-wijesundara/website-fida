@@ -2,6 +2,7 @@ import React from "react";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import PageTransition from "@/components/animations/page-transition";
+import CookieBanner from "@/components/common/cookie-banner";
 import dynamic from "next/dynamic";
 
 const ChatBot = dynamic(() => import("@/components/chatbot/chat-bot"), { ssr: false });
@@ -24,6 +25,9 @@ export default function PublicLayout({
 
       {/* Floating chat widget */}
       <ChatBot />
+
+      {/* Cookie consent banner */}
+      <CookieBanner />
     </div>
   );
 }

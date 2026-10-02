@@ -1,5 +1,4 @@
-import dynamicImport from "next/dynamic";
-const ProjectsClient = dynamicImport(() => import("./projects-client"), { ssr: false });
+import ProjectsClient from "./projects-client";
 import { getDbConnection } from "@/lib/db";
 import { cachedRequest } from "@/lib/request-cache";
 
@@ -20,7 +19,6 @@ export default async function ProjectsPage() {
         SELECT
           p.id,
           p.title,
-          p.client_name,
           p.category_id,
           c.name AS category_name,
           p.description,
@@ -44,8 +42,7 @@ export default async function ProjectsPage() {
       title: p.title || p.Title,
       description: p.description || p.Description,
       image_url: p.image_url || p.ImageUrl,
-      category_name: p.category_name || p.CategoryName,
-      client_name: p.client_name || p.ClientName
+      category_name: p.category_name || p.CategoryName
     }));
     
     // Ensure serializability for Client Components

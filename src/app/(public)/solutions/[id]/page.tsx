@@ -394,27 +394,130 @@ export default function SolutionDetailPage() {
           </div>
         )}
 
-        {/* CTA Banners */}
-        <div className="space-y-6 mb-32">
-           {data.slug === "smart-hris" && (
-             <Link href="https://smarthris.com" target="_blank" rel="noopener noreferrer" className="block w-full bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-3xl p-6 lg:p-8 flex items-center justify-center gap-4 transition-colors shadow-xl group">
-               <span className="text-sm lg:text-base font-bold uppercase tracking-widest">Further Details of <span className="text-[#38bdf8]">Smart HRIS</span></span>
-               <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform text-[#38bdf8]" />
-             </Link>
-           )}
+        {/* Further Details Button for Smart HRIS */}
+        {(data.slug === "smart-hris" || id === "smart-hris") && (
+          <div className="mb-12 lg:mb-16">
+            <Link href="https://smarthris.com" target="_blank" rel="noopener noreferrer" className="block w-full bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-2xl md:rounded-3xl p-5 md:p-6 lg:p-8 flex items-center justify-center gap-4 transition-all shadow-xl hover:shadow-2xl group">
+              <span className="text-xs sm:text-sm lg:text-base font-bold uppercase tracking-widest text-center">
+                Further Details of <span className="text-[#38bdf8]">Smart HRIS</span>
+              </span>
+              <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform text-[#38bdf8] shrink-0" />
+            </Link>
+          </div>
+        )}
+      </section>
 
-           <div className="w-full bg-[#2563eb] rounded-3xl p-8 lg:p-12 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 shadow-2xl overflow-hidden relative">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/2 pointer-events-none" />
-              
-              <div className="relative z-10 text-center md:text-left">
-                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-white mb-2">See it in action.</h2>
-                 <p className="text-white/90 text-sm lg:text-lg">Get a personalized walkthrough for your team.</p>
+      {/* Smart HRIS Extended Showcase (Bleeding hands to corners of the page) */}
+      {(data.slug === "smart-hris" || id === "smart-hris") && (
+        <section className="w-full relative z-10 overflow-hidden space-y-16 md:space-y-24 lg:space-y-32 mb-16 lg:mb-24">
+          {/* 1. Centerpiece Laptop Mockup */}
+          <div className="container mx-auto px-6 max-w-6xl flex justify-center items-center">
+            <div className="relative w-full max-w-4xl px-2">
+              <img
+                src="/HRIS%20lap.png"
+                alt="Smart HRIS Dashboard on Laptop"
+                className="w-full h-auto object-contain mx-auto drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)] transition-transform duration-700 hover:scale-[1.01]"
+                loading="lazy"
+              />
+            </div>
+          </div>
+
+          {/* 2. Tablet Feature Row - Always 2 items horizontal on both mobile & desktop */}
+          <div className="w-full flex flex-row items-center justify-between gap-2 sm:gap-6 lg:gap-12">
+            {/* Tablet image flush against the left viewport edge */}
+            <div className="w-[46%] sm:w-1/2 flex justify-start items-center pl-0 shrink-0">
+              <img
+                src="/new%20HRIS%20tab.png"
+                alt="Smart HRIS on Tablet"
+                className="w-full max-w-[220px] xs:max-w-[270px] sm:max-w-[480px] md:max-w-[620px] lg:max-w-[760px] xl:max-w-[840px] h-auto object-contain object-left drop-shadow-[0_10px_25px_rgba(0,0,0,0.08)] transition-transform duration-500 hover:scale-[1.01]"
+                loading="lazy"
+              />
+            </div>
+
+            {/* One dashboard Card */}
+            <div className="w-[54%] sm:w-1/2 pr-2 sm:pr-8 lg:pr-16 xl:pr-28 pl-1 sm:pl-0 flex justify-center lg:justify-start">
+              <div className="w-full max-w-xl bg-white/95 rounded-2xl sm:rounded-[28px] md:rounded-[32px] p-2.5 xs:p-3 sm:p-6 md:p-10 lg:p-12 shadow-[0_4px_20px_rgba(5,44,101,0.06)] border border-slate-100 relative overflow-hidden">
+                <h3 className="text-[10px] xs:text-xs sm:text-xl md:text-2xl lg:text-3xl font-black text-[#0f172a] mb-1 sm:mb-3 md:mb-5 tracking-tight leading-snug">
+                  One dashboard. Every HR metric that matters.
+                </h3>
+                <div className="space-y-1 sm:space-y-2.5 md:space-y-4 text-slate-600 text-[7.5px] xs:text-[9px] sm:text-xs md:text-sm lg:text-[15px] leading-tight sm:leading-relaxed">
+                  <p>
+                    Smart HRIS brings all your workforce data into a single, real-time dashboard — accessible seamlessly across laptop and tablet.
+                  </p>
+                  <p>
+                    Headcount, diversity, turnover, attendance, and job category breakdowns are visible the moment you log in, on whichever screen you&apos;re using.
+                  </p>
+                  <p>
+                    No more pulling reports from five systems — just instant, accurate insight into how your organisation is performing, wherever you&apos;re working from.
+                  </p>
+                </div>
               </div>
+            </div>
+          </div>
 
-              <Link href="/contact" className="relative z-10 shrink-0 inline-flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-4 rounded-xl bg-white text-[#2563eb] font-bold text-[13px] md:text-sm hover:bg-blue-50 transition-colors shadow-lg w-full md:w-auto">
-                 Book a Demo <ArrowRight size={16} />
-              </Link>
+          {/* 3. Mobile Feature Row - Always 2 items horizontal on both mobile & desktop */}
+          <div className="w-full flex flex-row items-center justify-between gap-2 sm:gap-6 lg:gap-12">
+            {/* Pocket Card */}
+            <div className="w-[54%] sm:w-1/2 pl-2 sm:pl-8 lg:pl-16 xl:pl-28 pr-1 sm:pr-0 flex justify-center lg:justify-end">
+              <div className="w-full max-w-xl bg-white/95 rounded-2xl sm:rounded-[28px] md:rounded-[32px] p-2.5 xs:p-3 sm:p-6 md:p-10 lg:p-12 shadow-[0_4px_20px_rgba(5,44,101,0.06)] border border-slate-100 relative overflow-hidden">
+                <h3 className="text-[10px] xs:text-xs sm:text-xl md:text-2xl lg:text-3xl font-black text-[#0f172a] mb-1 sm:mb-3 md:mb-5 tracking-tight leading-snug">
+                  HR that fits in your employees&apos; pocket.
+                </h3>
+                <div className="space-y-1 sm:space-y-2.5 md:space-y-4 text-slate-600 text-[7.5px] xs:text-[9px] sm:text-xs md:text-sm lg:text-[15px] leading-tight sm:leading-relaxed">
+                  <p>
+                    The Self Service Portal gives every employee their own personal dashboard — accessible right from their phone.
+                  </p>
+                  <p>
+                    From there, they can check their leave balance, submit requests, view payslips, update personal information, and track their own attendance, without ever needing to email HR or wait for a reply. It&apos;s designed to reduce the constant back-and-forth that eats up HR&apos;s time on routine requests, while giving employees the independence and transparency they expect from a modern workplace.
+                  </p>
+                  <p>
+                    Simple, accessible, and available whenever they are.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Phone flush against the right viewport edge */}
+            <div className="w-[46%] sm:w-1/2 flex justify-end items-center pr-0 shrink-0">
+              <img
+                src="/new%20HRIS%20mobile.png"
+                alt="Smart HRIS Mobile App"
+                className="w-full max-w-[190px] xs:max-w-[230px] sm:max-w-[400px] md:max-w-[520px] lg:max-w-[640px] xl:max-w-[700px] h-auto object-contain object-right drop-shadow-[0_10px_25px_rgba(0,0,0,0.08)] transition-transform duration-500 hover:scale-[1.01]"
+                loading="lazy"
+              />
+            </div>
+          </div>
+
+          {/* 4. Video Showcase */}
+          <div className="container mx-auto px-6 max-w-6xl">
+            <div className="relative w-full rounded-[24px] md:rounded-[36px] overflow-hidden shadow-[0_16px_50px_rgba(5,44,101,0.08)] border border-slate-200/90 bg-white">
+              <video
+                src="/Introducing.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                controls
+                className="w-full h-auto block rounded-[24px] md:rounded-[36px]"
+              />
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Bottom CTA & More Solutions Section */}
+      <section className="container mx-auto px-6 max-w-6xl relative z-10">
+        <div className="w-full bg-[#2563eb] rounded-3xl p-8 lg:p-12 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 shadow-2xl overflow-hidden relative mb-28 lg:mb-36">
+           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/2 pointer-events-none" />
+           
+           <div className="relative z-10 text-center md:text-left">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-white mb-2">See it in action.</h2>
+              <p className="text-white/90 text-sm lg:text-lg">Get a personalized walkthrough for your team.</p>
            </div>
+
+           <Link href="/contact" className="relative z-10 shrink-0 inline-flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-4 rounded-xl bg-white text-[#2563eb] font-bold text-[13px] md:text-sm hover:bg-blue-50 transition-colors shadow-lg w-full md:w-auto">
+              Book a Demo <ArrowRight size={16} />
+           </Link>
         </div>
 
         {/* More Solutions */}

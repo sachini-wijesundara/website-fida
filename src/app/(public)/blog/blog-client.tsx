@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, User } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 
 function formatDate(dateStr?: string) {
@@ -139,6 +139,8 @@ export default function BlogClient() {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   onError={(e) => {
                     // Fallback to stylized server room tech banner if image fails
+
+                    
                     e.currentTarget.style.display = "none";
                   }}
                 />
@@ -180,22 +182,8 @@ export default function BlogClient() {
                 </p>
               </div>
 
-              {/* Author & Read Link */}
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 text-[#0047e1] flex items-center justify-center font-bold text-sm border border-slate-200 shadow-sm">
-                    <User className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-[#0f172a] leading-tight">
-                      {featuredPost.author || "Dr. Marcus Thorne"}
-                    </h4>
-                    <p className="text-xs text-slate-500 font-medium">
-                      {featuredPost.role || "Chief Systems Architect"}
-                    </p>
-                  </div>
-                </div>
-
+              {/* Read Link */}
+              <div className="flex items-center justify-end pt-4 border-t border-slate-100">
                 <Link
                   href={`/blog/${featuredPost.id}`}
                   className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0047e1] hover:text-[#0037b0] transition-colors group"

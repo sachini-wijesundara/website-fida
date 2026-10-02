@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Image as ImageIcon, Loader2, AlertCircle, Upload } from "lucide-react";
+import { ArrowLeft, Save, Image as ImageIcon, Loader2, AlertCircle, Upload, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function CreateProject() {
@@ -12,9 +12,11 @@ export default function CreateProject() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [categories, setCategories] = useState<any[]>([]);
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [creatingCategory, setCreatingCategory] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
-    clientName: "",
     categoryId: "",
     descriptionMain: "",
     descriptionChallenge: "",
@@ -39,6 +41,35 @@ export default function CreateProject() {
     }
     fetchCats();
   }, []);
+
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) return;
+    setCreatingCategory(true);
+    try {
+      const res = await fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newCategoryName.trim() }),
+      });
+      if (res.ok) {
+        const newCat = await res.json();
+        setCategories(prev => {
+          if (prev.some(c => c.id === newCat.id)) return prev;
+          return [...prev, newCat].sort((a, b) => a.name.localeCompare(b.name));
+        });
+        setFormData(prev => ({ ...prev, categoryId: newCat.id.toString() }));
+        setNewCategoryName("");
+        setIsAddingCategory(false);
+      } else {
+        const err = await res.json();
+        setError(err.message || "Failed to add category");
+      }
+    } catch {
+      setError("Error connecting to server to add category");
+    } finally {
+      setCreatingCategory(false);
+    }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -139,7 +170,7 @@ export default function CreateProject() {
             <ArrowLeft size={20} />
           </Link>
           <div>
-            <h2 className="text-3xl font-bold tracking-tight text-white">Add New Project</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-[var(--text-primary)]">Add New Project</h2>
             <p className="text-[var(--text-secondary)] mt-1">Showcase a new success story in your portfolio.</p>
           </div>
         </div>
@@ -180,27 +211,64 @@ export default function CreateProject() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <div className="space-y-2">
-                  <label className="text-sm font-bold text-[var(--text-muted)] ml-1">Client Name</label>
-                  <input 
-                    type="text" 
-                    placeholder="Ex: Ministry of Interior..." 
-                    className="w-full bg-[var(--bg-elevated)] border border-[var(--grey-dark)] rounded-2xl py-4 px-6 focus:outline-none focus:border-[var(--blue)] transition-smooth text-sm"
-                    value={formData.clientName}
-                    onChange={(e) => setFormData({...formData, clientName: e.target.value})}
-                  />
-               </div>
-               <div className="space-y-2">
-                  <label className="text-sm font-bold text-[var(--text-muted)] ml-1">Category</label>
-                  <select 
-                    className="w-full bg-[var(--bg-elevated)] border border-[var(--grey-dark)] rounded-2xl py-4 px-6 focus:outline-none focus:border-[var(--blue)] transition-smooth text-sm appearance-none cursor-pointer"
-                    value={formData.categoryId}
-                    onChange={(e) => setFormData({...formData, categoryId: e.target.value})}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between ml-1">
+                <label className="text-sm font-bold text-[var(--text-muted)]">Category</label>
+                {!isAddingCategory && (
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingCategory(true)}
+                    className="text-xs font-bold text-[var(--blue)] hover:underline flex items-center gap-1"
                   >
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-               </div>
+                    <Plus size={14} /> Add Category
+                  </button>
+                )}
+              </div>
+
+              {isAddingCategory ? (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enter new category name..."
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    className="flex-1 bg-[var(--bg-elevated)] border border-[var(--grey-dark)] rounded-2xl py-3 px-5 focus:outline-none focus:border-[var(--blue)] transition-smooth text-sm font-medium"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleCreateCategory();
+                      }
+                    }}
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    disabled={creatingCategory || !newCategoryName.trim()}
+                    onClick={handleCreateCategory}
+                    className="px-5 py-3 rounded-2xl bg-[var(--blue)] text-white text-xs font-bold transition-smooth hover:opacity-90 disabled:opacity-50"
+                  >
+                    {creatingCategory ? "Adding..." : "Add"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAddingCategory(false);
+                      setNewCategoryName("");
+                    }}
+                    className="px-4 py-3 rounded-2xl border border-[var(--grey-dark)] text-xs text-[var(--text-muted)] hover:text-white transition-smooth"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <select 
+                  className="w-full bg-[var(--bg-elevated)] border border-[var(--grey-dark)] rounded-2xl py-4 px-6 focus:outline-none focus:border-[var(--blue)] transition-smooth text-sm appearance-none cursor-pointer"
+                  value={formData.categoryId}
+                  onChange={(e) => setFormData({...formData, categoryId: e.target.value})}
+                >
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              )}
             </div>
 
             <div className="space-y-6">

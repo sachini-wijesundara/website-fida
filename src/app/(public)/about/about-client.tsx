@@ -19,12 +19,12 @@ const defaultTeam = [
   // Row 1
   { name: "Upendra Wickramatunga", role: "MANAGING DIRECTOR", image: "/api/images/ourteam/upendra.png", linkedin: "#", twitter: "#" },
   { name: "Toshani Munasinghe", role: "DIRECTOR HCM", image: "/api/images/ourteam/toshani.png", linkedin: "#", twitter: "#" },
-  { name: "Charmi Pallawela", role: "MANAGER BUSINESS DEVELOPMENT & OPERATION", image: "/api/images/ourteam/charmi.png", linkedin: "#", twitter: "#" },
+  { name: "Charmi Dilini", role: "MANAGER PROJECTS AND SERVICE DELIVERY", image: "/api/images/ourteam/charmi.png", linkedin: "#", twitter: "#" },
   { name: "Rukshan Peiris", role: "SENIOR SOFTWARE ENGINEER", image: "/api/images/ourteam/rukshan.png", linkedin: "#", twitter: "#" },
   // Row 2
-  { name: "Yuwanthi Perera", role: "SENIOR SOFTWARE ENGINEER", image: "/api/images/ourteam/yuwanthi.png", linkedin: "#", twitter: "#" },
+  { name: "Yuwanthi Nimnathara", role: "SENIOR SOFTWARE ENGINEER", image: "/api/images/ourteam/yuwanthi.png", linkedin: "#", twitter: "#" },
   { name: "Gihan Nayanajith", role: "SOFTWARE ENGINEER", image: "/api/images/ourteam/gihan.png", linkedin: "#", twitter: "#" },
-  { name: "Isuru Munasinghe", role: "MANAGER AUTOMATION AND DIGITAL TRASFORMATION", image: "/api/images/ourteam/isuru.png", linkedin: "#", twitter: "#" },
+  { name: "Isuru Munasinghe", role: "MANAGER AUTOMATION AND DIGITAL TRANSFORMATION", image: "/api/images/ourteam/isuru.png", linkedin: "#", twitter: "#" },
 ];
 
 const SMOOTH: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -298,6 +298,7 @@ export default function AboutClient() {
                     alt={member.name}
                     loading="lazy"
                     className="w-full h-full object-cover"
+                    style={{ objectPosition: 'center 15%' }}
                     onError={(e) => {
                       (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name || 'Team')}&background=052c65&color=fff`;
                     }}
@@ -341,6 +342,7 @@ export default function AboutClient() {
                       alt={member.name}
                       loading="lazy"
                       className="w-full h-full object-cover"
+                    style={{ objectPosition: 'center 15%' }}
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name || 'Team')}&background=052c65&color=fff`;
                       }}

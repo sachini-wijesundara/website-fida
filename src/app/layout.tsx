@@ -48,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${ptSans.variable} dark h-full antialiased`} suppressHydrationWarning>
+    <html lang="en" className={`${ptSans.variable} h-full antialiased`} suppressHydrationWarning>
       {/* Resource hints for faster loading */}
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -123,7 +123,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col font-sans grain" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
