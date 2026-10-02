@@ -106,10 +106,6 @@ export default function ProjectDetailPage() {
           <div>
             <div className="flex items-center gap-3 mb-6">
               <span className="px-4 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-[#e0f2fe] text-[#0284c7]">
-                {data.category || "Project"}
-              </span>
-              <span className="w-1 h-1 rounded-full bg-[#94a3b8]" />
-              <span className="text-[10px] font-bold text-[#64748b] uppercase tracking-widest">
                 Case Study
               </span>
             </div>
@@ -199,9 +195,6 @@ export default function ProjectDetailPage() {
                       )}
                     </div>
                     <div className="p-6 flex flex-col flex-1">
-                      <div className="text-[10px] font-bold text-[#3b82f6] uppercase tracking-widest mb-2">
-                        {study.category_name || "Project"}
-                      </div>
                       <h3 className="text-base font-extrabold text-[#0f172a] mb-3">
                         {study.title}
                       </h3>
