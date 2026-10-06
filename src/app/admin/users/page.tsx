@@ -11,7 +11,9 @@ import {
   Trash2, 
   Edit2,
   Loader2,
-  X
+  X,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -23,11 +25,13 @@ export default function UsersAdmin() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   // Edit states
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
+  const [showEditPassword, setShowEditPassword] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Delete state
@@ -101,6 +105,7 @@ export default function UsersAdmin() {
 
   const openEditModal = (user: any) => {
     setEditingUser({ ...user, password: "" });
+    setShowEditPassword(false);
     setIsEditModalOpen(true);
   };
 
@@ -322,14 +327,25 @@ export default function UsersAdmin() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Password</label>
-                  <input 
-                    type="password" 
-                    value={newPassword}
-                    onChange={e => setNewPassword(e.target.value)}
-                    className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors" 
-                    placeholder="••••••••"
-                    required
-                  />
+                  <div className="relative flex items-center">
+                    <input 
+                      type={showCreatePassword ? "text" : "password"} 
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      className="w-full rounded-xl pl-4 pr-11 py-3 text-sm outline-none transition-colors" 
+                      placeholder="••••••••"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCreatePassword(!showCreatePassword)}
+                      className="absolute right-3 p-1.5 text-slate-400 hover:text-[#052c65] transition-colors focus:outline-none"
+                      title={showCreatePassword ? "Hide password" : "Show password"}
+                      aria-label={showCreatePassword ? "Hide password" : "Show password"}
+                    >
+                      {showCreatePassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="pt-4 flex gap-3">
@@ -400,13 +416,24 @@ export default function UsersAdmin() {
 
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">New Password (Optional)</label>
-                  <input 
-                    type="password" 
-                    value={editingUser.password}
-                    onChange={e => setEditingUser({ ...editingUser, password: e.target.value })}
-                    className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors" 
-                    placeholder="Leave blank to keep current"
-                  />
+                  <div className="relative flex items-center">
+                    <input 
+                      type={showEditPassword ? "text" : "password"} 
+                      value={editingUser.password}
+                      onChange={e => setEditingUser({ ...editingUser, password: e.target.value })}
+                      className="w-full rounded-xl pl-4 pr-11 py-3 text-sm outline-none transition-colors" 
+                      placeholder="Leave blank to keep current"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowEditPassword(!showEditPassword)}
+                      className="absolute right-3 p-1.5 text-slate-400 hover:text-[#052c65] transition-colors focus:outline-none"
+                      title={showEditPassword ? "Hide password" : "Show password"}
+                      aria-label={showEditPassword ? "Hide password" : "Show password"}
+                    >
+                      {showEditPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="pt-4 flex gap-3">
