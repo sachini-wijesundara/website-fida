@@ -20,10 +20,15 @@ export async function POST(request: Request) {
 
     const result = await pool.request()
       .input("username", trimmedUsername)
-      .query("SELECT id, username, password FROM users WHERE username = @username OR email = @username");
+      .query("SELECT id, username, password, COALESCE(status, 'Active') as status FROM users WHERE username = @username OR email = @username");
 
     if (result.recordset.length > 0) {
       const user = result.recordset[0];
+
+      if (user.status && user.status.toLowerCase() === "inactive") {
+        return NextResponse.json({ message: "Your account is deactivated. Please contact an administrator." }, { status: 403 });
+      }
+
       const isPasswordValid = await verifyPassword(password, user.password);
 
       if (isPasswordValid) {

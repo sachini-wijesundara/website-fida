@@ -13,7 +13,8 @@ import {
   Loader2,
   X,
   Eye,
-  EyeOff
+  EyeOff,
+  UserX
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -120,6 +121,7 @@ export default function UsersAdmin() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: editingUser.username.trim(),
+          status: editingUser.status || "Active",
           ...(editingUser.password ? { password: editingUser.password } : {})
         })
       });
@@ -140,8 +142,27 @@ export default function UsersAdmin() {
     }
   };
 
+  const handleToggleStatus = async (id: number, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/admin/users/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        setUsers(prev => prev.map(u => u.id === id ? { ...u, status: newStatus } : u));
+      } else {
+        const data = await res.json().catch(() => null);
+        alert(data?.message || "Failed to update user status");
+      }
+    } catch (err: any) {
+      alert(err?.message || "An error occurred while updating user status.");
+    }
+  };
+
   const safeUsers = Array.isArray(users) ? users : [];
-  const activeCount = safeUsers.filter(u => u?.status === 'Active').length;
+  const activeCount = safeUsers.filter(u => (u?.status || 'Active').toLowerCase() === 'active').length;
+  const inactiveCount = safeUsers.filter(u => u?.status?.toLowerCase() === 'inactive').length;
 
   return (
     <div className="space-y-8">
@@ -165,7 +186,7 @@ export default function UsersAdmin() {
         {[
           { label: "Total Users", value: users.length.toString(), icon: Users, color: "var(--blue)" },
           { label: "Active Now", value: activeCount.toString(), icon: ShieldCheck, color: "var(--green)" },
-          { label: "Pending Invites", value: "0", icon: Mail, color: "var(--text-muted)" },
+          { label: "Inactive Users", value: inactiveCount.toString(), icon: UserX, color: "#ef4444" },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
@@ -246,11 +267,18 @@ export default function UsersAdmin() {
                       </div>
                     </td>
                     <td className="px-8 py-6">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                        user.status === 'Active' ? 'bg-[var(--green)]/10 text-[var(--green)] border border-[var(--green)]/20' : 'bg-white/5 text-[var(--text-muted)]'
-                      }`}>
-                        {user.status}
-                      </span>
+                      <select
+                        value={user.status || 'Active'}
+                        onChange={(e) => handleToggleStatus(user.id, e.target.value)}
+                        className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border outline-none cursor-pointer transition-all ${
+                          (user.status || 'Active') === 'Active'
+                            ? 'bg-[var(--green)]/10 text-[var(--green)] border-[var(--green)]/20 hover:bg-[var(--green)]/20'
+                            : 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20'
+                        }`}
+                      >
+                        <option value="Active" className="bg-white text-slate-900">Active</option>
+                        <option value="Inactive" className="bg-white text-slate-900">Inactive</option>
+                      </select>
                     </td>
                     <td className="px-8 py-6">
                       <span className="text-xs text-[var(--text-muted)] font-medium">
@@ -432,6 +460,36 @@ export default function UsersAdmin() {
                       aria-label={showEditPassword ? "Hide password" : "Show password"}
                     >
                       {showEditPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Account Status</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setEditingUser({ ...editingUser, status: "Active" })}
+                      className={`py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 border ${
+                        (editingUser.status || "Active") === "Active"
+                          ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/30 shadow-sm"
+                          : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200/70"
+                      }`}
+                    >
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      Active
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingUser({ ...editingUser, status: "Inactive" })}
+                      className={`py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 border ${
+                        editingUser.status === "Inactive"
+                          ? "bg-red-500/15 text-red-600 border-red-500/30 shadow-sm"
+                          : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200/70"
+                      }`}
+                    >
+                      <span className="w-2 h-2 rounded-full bg-red-500" />
+                      Inactive
                     </button>
                   </div>
                 </div>

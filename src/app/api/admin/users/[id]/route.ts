@@ -24,7 +24,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
-    const { username, password } = await request.json();
+    const { username, password, status } = await request.json();
     const pool = await getDbConnection();
 
     // Base query setup
@@ -43,6 +43,11 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       const hashedPassword = await hashPassword(password);
       setClauses.push("password = @password");
       requestPool.input("password", hashedPassword);
+    }
+
+    if (status !== undefined) {
+      setClauses.push("status = @status");
+      requestPool.input("status", status);
     }
 
     // Only update if there are fields to update
