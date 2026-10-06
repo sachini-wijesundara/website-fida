@@ -10,9 +10,10 @@ import {
   Mail, 
   Trash2, 
   Edit2,
-  Loader2
+  Loader2,
+  X
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function UsersAdmin() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -277,118 +278,158 @@ export default function UsersAdmin() {
           )}
         </div>
     </div>      {/* Create User Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[#052c65]/70 backdrop-blur-md" onClick={() => setIsModalOpen(false)} />
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="relative w-full max-w-md bg-[#0f172a] text-white border border-slate-700 shadow-[0_25px_70px_rgba(0,0,0,0.5)] rounded-[2rem] p-8 overflow-hidden z-10"
-          >
-            <h3 className="text-2xl font-bold text-white mb-2">Create New User</h3>
-            <p className="text-sm text-slate-400 mb-6">Add a new administrator to the system.</p>
-            
-            <form onSubmit={handleCreateUser} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Username</label>
-                <input 
-                  type="text" 
-                  value={newUsername}
-                  onChange={e => setNewUsername(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-blue-500 outline-none transition-colors" 
-                  placeholder="e.g. jdoe_admin"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Password</label>
-                <input 
-                  type="password" 
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-blue-500 outline-none transition-colors" 
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-              
-              <div className="pt-4 flex gap-3">
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="admin-modal-overlay absolute inset-0 bg-[#052c65]/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="admin-modal relative w-full max-w-md border rounded-[2.5rem] p-8 sm:p-10 shadow-2xl overflow-hidden z-10"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-2xl font-bold tracking-tight text-[#052c65]">Create New User</h3>
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">Add a new administrator to the system.</p>
+                </div>
                 <button 
-                  type="button" 
+                  type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl transition-colors text-sm"
+                  className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-[#052c65] flex items-center justify-center transition-colors shrink-0"
                 >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  disabled={isCreating}
-                  className="flex-1 py-3 bg-[#0047e1] hover:bg-[#0037b0] text-white font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center text-sm shadow-md"
-                >
-                  {isCreating ? <Loader2 className="animate-spin" size={18} /> : "Create User"}
+                  <X size={18} />
                 </button>
               </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+
+              <form onSubmit={handleCreateUser} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Username</label>
+                  <input 
+                    type="text" 
+                    value={newUsername}
+                    onChange={e => setNewUsername(e.target.value)}
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors" 
+                    placeholder="e.g. jdoe_admin"
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Password</label>
+                  <input 
+                    type="password" 
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors" 
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+                
+                <div className="pt-4 flex gap-3">
+                  <button 
+                    type="button" 
+                    onClick={() => setIsModalOpen(false)}
+                    className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-[#052c65] font-bold rounded-xl transition-colors text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    disabled={isCreating}
+                    className="flex-1 py-3 font-bold rounded-xl transition-all disabled:opacity-50 flex items-center justify-center text-sm shadow-md"
+                  >
+                    {isCreating ? <Loader2 className="animate-spin" size={18} /> : "Create User"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Edit User Modal */}
-      {isEditModalOpen && editingUser && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[#052c65]/70 backdrop-blur-md" onClick={() => setIsEditModalOpen(false)} />
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="relative w-full max-w-md bg-[#0f172a] text-white border border-slate-700 shadow-[0_25px_70px_rgba(0,0,0,0.5)] rounded-[2rem] p-8 overflow-hidden z-10"
-          >
-            <h3 className="text-2xl font-bold text-white mb-2">Edit User</h3>
-            <p className="text-sm text-slate-400 mb-6">Modify details for <span className="text-blue-400 font-semibold">{editingUser.username}</span>.</p>
-            
-            <form onSubmit={handleUpdateUser} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Username</label>
-                <input 
-                  type="text" 
-                  value={editingUser.username || ""}
-                  onChange={e => setEditingUser({ ...editingUser, username: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-blue-500 outline-none transition-colors" 
-                  placeholder="e.g. jdoe_admin"
-                  required
-                />
+      <AnimatePresence>
+        {isEditModalOpen && editingUser && (
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setIsEditModalOpen(false)}
+              className="admin-modal-overlay absolute inset-0 bg-[#052c65]/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="admin-modal relative w-full max-w-md border rounded-[2.5rem] p-8 sm:p-10 shadow-2xl overflow-hidden z-10"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-2xl font-bold tracking-tight text-[#052c65]">Edit User</h3>
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">Modify details for <span className="text-[#0047e1] font-bold">{editingUser.username}</span></p>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-[#052c65] flex items-center justify-center transition-colors shrink-0"
+                >
+                  <X size={18} />
+                </button>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">New Password (Optional)</label>
-                <input 
-                  type="password" 
-                  value={editingUser.password}
-                  onChange={e => setEditingUser({ ...editingUser, password: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-blue-500 outline-none transition-colors" 
-                  placeholder="Leave blank to keep current"
-                />
-              </div>
-              
-              <div className="pt-4 flex gap-3">
-                <button 
-                  type="button" 
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl transition-colors text-sm"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  disabled={isUpdating}
-                  className="flex-1 py-3 bg-[#0047e1] hover:bg-[#0037b0] text-white font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center text-sm shadow-md"
-                >
-                  {isUpdating ? <Loader2 className="animate-spin" size={18} /> : "Save Changes"}
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+              <form onSubmit={handleUpdateUser} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Username</label>
+                  <input 
+                    type="text" 
+                    value={editingUser.username || ""}
+                    onChange={e => setEditingUser({ ...editingUser, username: e.target.value })}
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors" 
+                    placeholder="e.g. jdoe_admin"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">New Password (Optional)</label>
+                  <input 
+                    type="password" 
+                    value={editingUser.password}
+                    onChange={e => setEditingUser({ ...editingUser, password: e.target.value })}
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors" 
+                    placeholder="Leave blank to keep current"
+                  />
+                </div>
+                
+                <div className="pt-4 flex gap-3">
+                  <button 
+                    type="button" 
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-[#052c65] font-bold rounded-xl transition-colors text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    disabled={isUpdating}
+                    className="flex-1 py-3 font-bold rounded-xl transition-all disabled:opacity-50 flex items-center justify-center text-sm shadow-md"
+                  >
+                    {isUpdating ? <Loader2 className="animate-spin" size={18} /> : "Save Changes"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
