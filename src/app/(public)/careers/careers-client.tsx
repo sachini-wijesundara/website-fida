@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
@@ -21,6 +21,9 @@ import {
   Phone,
   Send,
   Loader2,
+  Upload,
+  Paperclip,
+  Link2,
 } from "lucide-react";
 
 const perks = [
@@ -75,12 +78,25 @@ export default function CareersClient() {
     ResumeUrl: "",
     Message: "",
   });
+  const [cvFile, setCvFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchJobs();
   }, []);
+
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isModalOpen]);
 
   const fetchJobs = async () => {
     try {
@@ -103,20 +119,58 @@ export default function CareersClient() {
     setSelectedPosition(position);
     setIsModalOpen(true);
     setSubmitSuccess(false);
+    setCvFile(null);
   };
 
   const handleApply = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     try {
+      let finalResumeUrl = formData.ResumeUrl.trim();
+
+      // If user selected a CV file, upload it
+      if (cvFile) {
+        const uploadForm = new FormData();
+        uploadForm.append("file", cvFile);
+
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: uploadForm,
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error("Failed to upload CV file. Please try again or provide a link.");
+        }
+
+        const uploadData = await uploadRes.json();
+        if (!uploadData.success || !uploadData.url) {
+          throw new Error(uploadData.error || "Failed to upload CV file.");
+        }
+
+        finalResumeUrl = uploadData.url;
+      }
+
+      if (!finalResumeUrl) {
+        alert("Please upload your CV (PDF/DOC) or provide a resume/portfolio link.");
+        setSubmitting(false);
+        return;
+      }
+
       const res = await fetch("/api/careers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, Position: selectedPosition }),
+        body: JSON.stringify({
+          ...formData,
+          ResumeUrl: finalResumeUrl,
+          Position: selectedPosition,
+        }),
       });
+
       if (res.ok) {
         setSubmitSuccess(true);
         setFormData({ FullName: "", Email: "", Phone: "", ResumeUrl: "", Message: "" });
+        setCvFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
         setTimeout(() => {
           setIsModalOpen(false);
           setSubmitSuccess(false);
@@ -125,9 +179,9 @@ export default function CareersClient() {
         const errorData = await res.json().catch(() => null);
         alert(errorData?.message || "Something went wrong. Please try again.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Apply error", err);
-      alert("Failed to submit application.");
+      alert(err.message || "Failed to submit application.");
     } finally {
       setSubmitting(false);
     }
@@ -395,13 +449,15 @@ export default function CareersClient() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#052c65]/60 backdrop-blur-sm"
+            onClick={() => setIsModalOpen(false)}
+            className="fixed inset-0 z-[10000] flex items-center justify-center p-3 sm:p-6 bg-[#052c65]/70 backdrop-blur-md overflow-y-auto"
           >
             <motion.div
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
-              className="bg-white border border-slate-100 shadow-[0_25px_70px_rgba(5,44,101,0.25)] rounded-2xl sm:rounded-3xl w-full max-w-2xl max-h-[90dvh] flex flex-col overflow-hidden relative text-[#052c65]"
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white border border-slate-100 shadow-[0_25px_70px_rgba(5,44,101,0.35)] rounded-2xl sm:rounded-3xl w-full max-w-2xl max-h-[92dvh] flex flex-col overflow-hidden relative text-[#052c65] my-auto"
             >
               {/* Modal Header */}
               <div className="p-5 sm:p-8 pb-4 sm:pb-5 border-b border-slate-100 flex items-center justify-between shrink-0">
@@ -420,7 +476,6 @@ export default function CareersClient() {
                   <X className="w-5 h-5" />
                 </button>
               </div>
-
               {/* Modal Body */}
               <div className="p-5 sm:p-8 overflow-y-auto flex-1">
                 {submitSuccess ? (
@@ -484,8 +539,9 @@ export default function CareersClient() {
 
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold text-[#052c65] uppercase tracking-wider flex items-center gap-1.5">
-                          <FileText className="w-3.5 h-3.5 text-[#0047e1]" />
-                          <span>Resume / Portfolio Link</span>
+                          <Link2 className="w-3.5 h-3.5 text-[#0047e1]" />
+                          <span>LinkedIn / Portfolio Link</span>
+                          <span className="text-[10px] text-slate-400 font-normal lowercase">(optional)</span>
                         </label>
                         <input
                           type="url"
@@ -495,6 +551,87 @@ export default function CareersClient() {
                           placeholder="https://linkedin.com/in/... or drive link"
                         />
                       </div>
+                    </div>
+
+                    {/* CV / Resume File Upload */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-[#052c65] uppercase tracking-wider flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <FileText className="w-3.5 h-3.5 text-[#0047e1]" />
+                          <span>Attach CV / Resume</span>
+                          {!formData.ResumeUrl && <span className="text-red-500">*</span>}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-normal">PDF, DOC, DOCX up to 10MB</span>
+                      </label>
+
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            if (file.size > 10 * 1024 * 1024) {
+                              alert("File size exceeds 10MB limit.");
+                              return;
+                            }
+                            setCvFile(file);
+                          }
+                        }}
+                      />
+
+                      {!cvFile ? (
+                        <div
+                          onClick={() => fileInputRef.current?.click()}
+                          onDragOver={(e) => e.preventDefault()}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            const file = e.dataTransfer.files?.[0];
+                            if (file) {
+                              if (file.size > 10 * 1024 * 1024) {
+                                alert("File size exceeds 10MB limit.");
+                                return;
+                              }
+                              setCvFile(file);
+                            }
+                          }}
+                          className="w-full border-2 border-dashed border-slate-200 hover:border-[#0047e1] bg-slate-50 hover:bg-blue-50/40 rounded-xl p-4 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all group"
+                        >
+                          <Upload className="w-5 h-5 text-slate-400 group-hover:text-[#0047e1] transition-colors" />
+                          <p className="text-xs font-semibold text-[#052c65]">
+                            Click to upload your CV or drag & drop here
+                          </p>
+                          <p className="text-[11px] text-slate-400">PDF, DOC or DOCX (Max 10MB)</p>
+                        </div>
+                      ) : (
+                        <div className="w-full bg-blue-50/70 border border-blue-200 rounded-xl p-3 flex items-center justify-between">
+                          <div className="flex items-center gap-3 overflow-hidden">
+                            <div className="w-9 h-9 rounded-lg bg-[#0047e1] text-white flex items-center justify-center shrink-0 shadow-sm">
+                              <FileText className="w-4 h-4" />
+                            </div>
+                            <div className="overflow-hidden">
+                              <p className="text-xs font-bold text-[#052c65] truncate max-w-[260px] sm:max-w-[400px]">
+                                {cvFile.name}
+                              </p>
+                              <p className="text-[10px] text-slate-500 font-mono">
+                                {(cvFile.size / (1024 * 1024)).toFixed(2)} MB · Ready to submit
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCvFile(null);
+                              if (fileInputRef.current) fileInputRef.current.value = "";
+                            }}
+                            className="text-slate-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-white transition-colors"
+                            title="Remove file"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">
@@ -525,8 +662,8 @@ export default function CareersClient() {
                       </button>
                       <p className="text-[11px] text-slate-500 mt-2.5 text-center leading-relaxed">
                         By submitting your application, you acknowledge that your candidate data will be processed in accordance with our{" "}
-                        <Link href="/privacy" className="text-[#0047e1] underline hover:text-[#0037b0]">
-                          Privacy Policy
+                        <Link href="/terms" className="text-[#0047e1] underline hover:text-[#0037b0]">
+                          Terms & Conditions
                         </Link>.
                       </p>
                     </div>

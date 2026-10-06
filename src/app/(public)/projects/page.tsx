@@ -9,9 +9,10 @@ export const metadata = {
 };
 
 export const dynamic = "force-dynamic";
-
 export default async function ProjectsPage() {
   let initialProjects: any[] = [];
+  let initialSettings: Record<string, string> = {};
+
   try {
     const result = await cachedRequest("public-projects-list", async () => {
       const pool = await getDbConnection();
@@ -51,6 +52,19 @@ export default async function ProjectsPage() {
     console.error("Failed to fetch initial projects:", error);
   }
 
+  try {
+    const pool = await getDbConnection();
+    const settingsRes = await pool.request().execute("sp_GetAllSiteSettings");
+    (settingsRes.recordset || []).forEach((row: any) => {
+      initialSettings[row.setting_key] = row.setting_value;
+    });
+    initialSettings = JSON.parse(JSON.stringify(initialSettings));
+  } catch (error) {
+    console.error("Failed to fetch initial site settings for projects:", error);
+  }
+
+  const countriesCount = initialSettings.countries_count || "4";
+
   return (
     <main className="public-pastel-page min-h-screen pt-32 pb-20">
       <div className="container mx-auto px-6 text-center max-w-4xl mb-16">
@@ -58,10 +72,10 @@ export default async function ProjectsPage() {
           Precision Projects for <span className="text-[#38bdf8]">Global</span> Clients
         </h1>
         <p className="text-[#64748b] text-lg max-w-2xl mx-auto leading-relaxed">
-          Exploring our history of bespoke deployment, consulting, and enterprise implementations across 4 countries.
+          Exploring our history of bespoke deployment, consulting, and enterprise implementations across {countriesCount} countries.
         </p>
       </div>
-      <ProjectsClient initialProjects={initialProjects} />
+      <ProjectsClient initialProjects={initialProjects} initialSettings={initialSettings} />
     </main>
   );
 }

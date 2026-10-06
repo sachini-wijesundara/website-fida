@@ -49,7 +49,7 @@ export function validateContact(data: any): { error?: string; value?: ContactInp
 
   // 6. Consent check
   if (data.consent !== true && data.consent !== "true" && data.consent !== 1) {
-    return { error: "You must consent to the privacy policy." };
+    return { error: "You must consent to the terms and conditions." };
   }
 
   // Sanitize content: escape HTML entities to prevent XSS

@@ -31,12 +31,12 @@ export async function POST(request: Request) {
     const pool = await getDbConnection();
 
     const result = await pool.request()
-      .input('FullName', sql.NVarChar(255), fullName)
-      .input('Email', sql.NVarChar(255), email)
-      .input('Phone', sql.NVarChar(50), phone || null)
-      .input('Position', sql.NVarChar(255), position)
-      .input('ResumeUrl', sql.NVarChar(sql.MAX), resumeUrl || null)
-      .input('Message', sql.NVarChar(sql.MAX), message || null)
+      .input('FullName', fullName)
+      .input('Email', email)
+      .input('Phone', phone || null)
+      .input('Position', position)
+      .input('ResumeUrl', resumeUrl || null)
+      .input('Message', message || null)
       .execute('sp_CreateJobApplication');
 
     // Send confirmation email
@@ -63,10 +63,17 @@ export async function PUT(request: Request) {
     }
 
     const pool = await getDbConnection();
-    await pool.request()
-      .input('ApplicationId', sql.Int, id)
-      .input('Status', sql.NVarChar(50), status)
-      .execute('sp_UpdateJobApplicationStatus');
+    try {
+      await pool.request()
+        .input('ApplicationId', parseInt(id, 10))
+        .input('Status', String(status))
+        .execute('sp_UpdateJobApplicationStatus');
+    } catch (spErr) {
+      await pool.request()
+        .input('ApplicationId', parseInt(id, 10))
+        .input('Status', String(status))
+        .query('UPDATE JobApplications SET Status = @Status WHERE ApplicationId = @ApplicationId');
+    }
 
     return NextResponse.json({ message: "Status updated successfully" });
   } catch (error: any) {
@@ -84,9 +91,15 @@ export async function DELETE(request: Request) {
     }
 
     const pool = await getDbConnection();
-    await pool.request()
-      .input('ApplicationId', sql.Int, id)
-      .execute('sp_DeleteJobApplication');
+    try {
+      await pool.request()
+        .input('ApplicationId', parseInt(id, 10))
+        .execute('sp_DeleteJobApplication');
+    } catch (spErr) {
+      await pool.request()
+        .input('ApplicationId', parseInt(id, 10))
+        .query('DELETE FROM JobApplications WHERE ApplicationId = @ApplicationId');
+    }
 
     return NextResponse.json({ message: "Application deleted successfully" });
   } catch (error: any) {

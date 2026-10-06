@@ -54,7 +54,7 @@ export default function InquiriesAdmin() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-white tracking-tight">Client Inquiries</h2>
+          <h2 className="text-3xl font-bold text-white tracking-tight">Customer Leads</h2>
           <p className="text-[var(--text-muted)] mt-1">Manage incoming messages and prospective leads.</p>
         </div>
         <div className="flex items-center gap-4">
@@ -148,8 +148,7 @@ export default function InquiriesAdmin() {
                       <Trash2 size={20} />
                    </button>
                 </div>
-
-                {/* Product Specific Info */}
+{/* Product Specific Info */}
                 {selected.service === "Smart HRIS" && (
                   <div className="grid grid-cols-3 gap-6 mb-8 p-6 bg-[var(--green)]/5 rounded-3xl border border-[var(--green)]/10">
                     <div>

@@ -86,6 +86,7 @@ const nextConfig = {
       { source: '/ev_charge.html', destination: '/solutions', permanent: true },
       { source: '/energy_meter.html', destination: '/solutions', permanent: true },
       { source: '/surge_pro.html', destination: '/solutions', permanent: true },
+      { source: '/privacy', destination: '/terms', permanent: true },
     ];
   },
 };

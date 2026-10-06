@@ -15,6 +15,36 @@ interface CookieConsent {
 
 const STORAGE_KEY = "fida_cookie_consent";
 
+function getStoredConsent(): CookieConsent | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch {}
+
+  try {
+    const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${STORAGE_KEY}=([^;]+)`));
+    if (match && match[1]) {
+      return JSON.parse(decodeURIComponent(match[1]));
+    }
+  } catch {}
+
+  return null;
+}
+
+function persistConsent(consent: CookieConsent) {
+  if (typeof window === "undefined") return;
+  const json = JSON.stringify(consent);
+  try {
+    localStorage.setItem(STORAGE_KEY, json);
+  } catch {}
+
+  try {
+    // Save as real browser cookie (1 year = 31536000 seconds)
+    document.cookie = `${STORAGE_KEY}=${encodeURIComponent(json)}; path=/; max-age=31536000; SameSite=Lax`;
+  } catch {}
+}
+
 export default function CookieBanner() {
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -27,33 +57,25 @@ export default function CookieBanner() {
 
   useEffect(() => {
     setMounted(true);
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) {
-        // Show banner after brief delay for smooth appearance
-        const timer = setTimeout(() => setIsVisible(true), 600);
-        return () => clearTimeout(timer);
-      } else {
-        const parsed: CookieConsent = JSON.parse(stored);
-        setPreferences(Boolean(parsed.preferences));
-        setStatistics(Boolean(parsed.statistics));
-        setMarketing(Boolean(parsed.marketing));
-      }
-    } catch {
-      setIsVisible(true);
+    const stored = getStoredConsent();
+    if (!stored) {
+      // Show banner after brief delay for smooth appearance
+      const timer = setTimeout(() => setIsVisible(true), 600);
+      return () => clearTimeout(timer);
+    } else {
+      setPreferences(Boolean(stored.preferences));
+      setStatistics(Boolean(stored.statistics));
+      setMarketing(Boolean(stored.marketing));
     }
 
     // Allow reopening cookie banner from footer or anywhere
     const handleReopen = () => {
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          const parsed: CookieConsent = JSON.parse(stored);
-          setPreferences(Boolean(parsed.preferences));
-          setStatistics(Boolean(parsed.statistics));
-          setMarketing(Boolean(parsed.marketing));
-        }
-      } catch {}
+      const current = getStoredConsent();
+      if (current) {
+        setPreferences(Boolean(current.preferences));
+        setStatistics(Boolean(current.statistics));
+        setMarketing(Boolean(current.marketing));
+      }
       setIsVisible(true);
     };
 
@@ -62,16 +84,14 @@ export default function CookieBanner() {
   }, []);
 
   const saveConsent = (prefs: { preferences: boolean; statistics: boolean; marketing: boolean }) => {
-    try {
-      const consentData: CookieConsent = {
-        necessary: true,
-        preferences: prefs.preferences,
-        statistics: prefs.statistics,
-        marketing: prefs.marketing,
-        timestamp: Date.now(),
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(consentData));
-    } catch {}
+    const consentData: CookieConsent = {
+      necessary: true,
+      preferences: prefs.preferences,
+      statistics: prefs.statistics,
+      marketing: prefs.marketing,
+      timestamp: Date.now(),
+    };
+    persistConsent(consentData);
     setIsVisible(false);
   };
 
@@ -132,10 +152,10 @@ export default function CookieBanner() {
                   <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
                     We use cookies to improve your browsing experience, analyze site traffic, and deliver personalized content. By continuing to use this website, you agree to our use of cookies in accordance with our{" "}
                     <Link
-                      href="/privacy"
+                      href="/terms"
                       className="text-[#0047e1] font-bold underline underline-offset-2 hover:text-[#0037b0] transition-colors"
                     >
-                      Privacy Policy
+                      Terms & Conditions
                     </Link>
                     .
                   </p>

@@ -43,18 +43,14 @@ export function validateCareerApplication(data: any): { error?: string; value?: 
   }
   const position = data.Position.trim();
 
-  // 5. Resume URL (Optional but must be valid and secure if present)
+  // 5. Resume URL or Uploaded CV file
   let resumeUrl = undefined;
   if (data.ResumeUrl && typeof data.ResumeUrl === "string" && data.ResumeUrl.trim() !== "") {
     resumeUrl = data.ResumeUrl.trim();
-    if (!resumeUrl.startsWith("http://") && !resumeUrl.startsWith("https://")) {
-      return { error: "Resume URL must start with http:// or https://" };
-    }
-    const lowerUrl = resumeUrl.toLowerCase();
-    const allowedExtensions = [".pdf", ".doc", ".docx"];
-    const hasValidExtension = allowedExtensions.some(ext => lowerUrl.includes(ext));
-    if (!hasValidExtension) {
-      return { error: "Invalid resume format. Only PDF, DOC, and DOCX are allowed." };
+    const isInternal = resumeUrl.startsWith("/");
+    const isHttp = resumeUrl.startsWith("http://") || resumeUrl.startsWith("https://");
+    if (!isInternal && !isHttp) {
+      return { error: "Resume must be an uploaded file or a valid link starting with http:// or https://" };
     }
   }
 
@@ -66,7 +62,6 @@ export function validateCareerApplication(data: any): { error?: string; value?: 
 
   // Sanitize inputs to prevent XSS
   const sanitize = (str: string) => str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
   return {
     value: {
       fullName: sanitize(fullName),

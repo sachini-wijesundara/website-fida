@@ -43,18 +43,13 @@
   --font-sans: var(--font-pt-sans), "PT Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
-html {
-  color-scheme: light;
-  overflow-x: hidden;
-  max-width: 100%;
-}
+html { color-scheme: light; }
 
 body {
   background: var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-sans);
   overflow-x: hidden;
-  max-width: 100%;
   cursor: auto;
 }
 body:has(.admin-theme) {
@@ -599,8 +594,10 @@ a, button, [data-cursor] { cursor: pointer; }
   position: relative;
   width: 100%;
   margin-top: -115svh;
-  background: transparent;
-  transform: translateZ(0);
+  border-radius: clamp(2.5rem, 5vw, 5rem) clamp(2.5rem, 5vw, 5rem) 0 0;
+  overflow: hidden;
+  box-shadow: 0 -28px 70px rgba(5,44,101,.09);
+  background: #ffffff;
   will-change: transform;
 }
 
@@ -736,13 +733,13 @@ a, button, [data-cursor] { cursor: pointer; }
 .home-hero {
   position: sticky;
   top: 0;
+  min-height: 850px;
   height: 100svh;
   display: grid;
   place-items: center;
   isolation: isolate;
   overflow: hidden;
   color: var(--home-navy);
-  transform: translateZ(0);
   background:
     radial-gradient(circle at 4% 28%, rgba(213,244,250,.94) 0, rgba(213,244,250,0) 38%),
     radial-gradient(circle at 88% 88%, rgba(86,207,224,.74) 0, rgba(86,207,224,0) 43%),
@@ -767,9 +764,6 @@ a, button, [data-cursor] { cursor: pointer; }
   z-index: 0;
   transform-origin: center 60%;
   will-change: transform;
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
 }
 
 .home-hero::after {
@@ -832,6 +826,7 @@ a, button, [data-cursor] { cursor: pointer; }
   border-radius: 50%;
   overflow: hidden;
   background: radial-gradient(circle at 45% 37%, rgba(255,255,255,.8), rgba(255,255,255,.32) 58%, rgba(181,220,227,.2) 75%);
+  contain: paint;
 }
 
 .hero-globe__dots { position: absolute; inset: 10% 15%; opacity: .28; }
@@ -986,12 +981,12 @@ a, button, [data-cursor] { cursor: pointer; }
 .home-overview {
   position: relative;
   z-index: 10;
-  padding: clamp(3.5rem, 6vw, 5.5rem) 0 0;
+  padding: clamp(5.5rem, 9vw, 7.5rem) 0 0;
   overflow: hidden;
   color: var(--home-navy);
   transform-origin: center top;
   will-change: transform, opacity;
-  background: transparent;
+  background: #ffffff;
 }
 
 .home-bento {
@@ -2154,8 +2149,7 @@ a, button, [data-cursor] { cursor: pointer; }
   background:
     radial-gradient(circle at 8% 12%, rgba(186, 230, 253, .55), transparent 28rem),
     radial-gradient(circle at 92% 8%, rgba(165, 243, 252, .42), transparent 26rem),
-    radial-gradient(circle at 50% 100%, rgba(219, 234, 254, .35), transparent 32rem),
-    #ffffff;
+    #f7fcfd;
   color: var(--contact-ink);
   font-family: var(--font-outfit), "Helvetica Neue", Arial, sans-serif;
 }

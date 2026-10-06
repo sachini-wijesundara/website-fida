@@ -43,12 +43,12 @@ export async function POST(request: Request) {
     const pool = await getDbConnection();
 
     const result = await pool.request()
-      .input("FullName", sql.NVarChar(255), fullName)
-      .input("Email", sql.NVarChar(255), email)
-      .input("Phone", sql.NVarChar(50), phone || null)
-      .input("Position", sql.NVarChar(255), position)
-      .input("ResumeUrl", sql.NVarChar(sql.MAX), resumeUrl || null)
-      .input("Message", sql.NVarChar(sql.MAX), message || null)
+      .input("FullName", fullName)
+      .input("Email", email)
+      .input("Phone", phone || null)
+      .input("Position", position)
+      .input("ResumeUrl", resumeUrl || null)
+      .input("Message", message || null)
       .execute("sp_CreateJobApplication");
 
     // Send confirmation email asynchronously

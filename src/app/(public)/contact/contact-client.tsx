@@ -312,8 +312,8 @@ export default function ContactClient() {
                     </button>
                     <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
                       By submitting this form, you acknowledge that your data will be processed in accordance with our{" "}
-                      <Link href="/privacy" className="text-[#0047e1] underline hover:text-[#0037b0]">
-                        Privacy Policy
+                      <Link href="/terms" className="text-[#0047e1] underline hover:text-[#0037b0]">
+                        Terms & Conditions
                       </Link>.
                     </p>
                     {error && (
@@ -429,7 +429,7 @@ export default function ContactClient() {
       </section>
 
       {/* ── FAQ ── */}
-      <section className="contact-faq pb-12 md:pb-16">
+      <section className="contact-faq pb-32 md:pb-40 lg:pb-48">
         <div className="container mx-auto px-6 max-w-3xl">
           <motion.h2
             className="contact-faq__title"

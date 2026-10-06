@@ -15,8 +15,37 @@ function getDescription(description: string | undefined) {
   }
 }
 
-export default function ProjectsClient({ initialProjects = [] }: { initialProjects?: any[] }) {
+function formatPlus(val: string | undefined, fallback: string) {
+  if (!val || val.trim() === "") return fallback;
+  const trimmed = val.trim();
+  return trimmed.endsWith("+") ? trimmed : `${trimmed}+`;
+}
+
+export default function ProjectsClient({
+  initialProjects = [],
+  initialSettings = {},
+}: {
+  initialProjects?: any[];
+  initialSettings?: Record<string, string>;
+}) {
   const [projects] = useState<any[]>(initialProjects);
+  const [settings, setSettings] = useState<Record<string, string>>(initialSettings);
+
+  React.useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && typeof data === "object") {
+          setSettings(data);
+        }
+      })
+      .catch((err) => console.error("Error fetching site settings:", err));
+  }, []);
+
+  const clientsDisplay = formatPlus(settings.clients_count, "370+");
+  const countriesDisplay = (settings.countries_count || "4").trim();
+  const experienceDisplay = formatPlus(settings.experience_years, "14+");
+  const payrollDisplay = settings.payroll_employees || "50K+";
 
   return (
     <section className="container mx-auto px-6 pb-48 md:pb-56">
@@ -74,19 +103,19 @@ export default function ProjectsClient({ initialProjects = [] }: { initialProjec
           ===================================================================== */}
       <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-[#052c65] rounded-3xl sm:rounded-[2rem] p-4 sm:p-8 text-center flex flex-col justify-center items-center h-36 sm:h-48">
-          <div className="text-3xl sm:text-5xl font-black text-white mb-1 sm:mb-2">370+</div>
+          <div className="text-3xl sm:text-5xl font-black text-white mb-1 sm:mb-2">{clientsDisplay}</div>
           <div className="text-[9px] sm:text-[10px] font-bold text-white/70 uppercase tracking-widest">CLIENTS GLOBALLY</div>
         </div>
         <div className="bg-[#56c6d9] rounded-3xl sm:rounded-[2rem] p-4 sm:p-8 text-center flex flex-col justify-center items-center h-36 sm:h-48">
-          <div className="text-3xl sm:text-5xl font-black text-[#052c65] mb-1 sm:mb-2">4</div>
+          <div className="text-3xl sm:text-5xl font-black text-[#052c65] mb-1 sm:mb-2">{countriesDisplay}</div>
           <div className="text-[9px] sm:text-[10px] font-bold text-[#052c65]/70 uppercase tracking-widest">COUNTRIES</div>
         </div>
         <div className="bg-[#052c65] rounded-3xl sm:rounded-[2rem] p-4 sm:p-8 text-center flex flex-col justify-center items-center h-36 sm:h-48">
-          <div className="text-3xl sm:text-5xl font-black text-white mb-1 sm:mb-2">14+</div>
+          <div className="text-3xl sm:text-5xl font-black text-white mb-1 sm:mb-2">{experienceDisplay}</div>
           <div className="text-[9px] sm:text-[10px] font-bold text-white/70 uppercase tracking-widest">YEARS EXP.</div>
         </div>
         <div className="bg-[#f1f5f9] rounded-3xl sm:rounded-[2rem] p-4 sm:p-8 text-center flex flex-col justify-center items-center h-36 sm:h-48">
-          <div className="text-3xl sm:text-5xl font-black text-[#052c65] mb-1 sm:mb-2">50K+</div>
+          <div className="text-3xl sm:text-5xl font-black text-[#052c65] mb-1 sm:mb-2">{payrollDisplay}</div>
           <div className="text-[9px] sm:text-[10px] font-bold text-[#052c65]/70 uppercase tracking-widest">PAYROLL EMPLOYEES</div>
         </div>
       </div>

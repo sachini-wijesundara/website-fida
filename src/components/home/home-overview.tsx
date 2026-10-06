@@ -68,10 +68,10 @@ export default function HomeOverview() {
     <motion.section
       id="home-content"
       className="home-overview"
-      initial={reduceMotion ? false : { opacity: 0.88 }}
-      whileInView={{ opacity: 1 }}
+      initial={reduceMotion ? false : { opacity: 0.82, y: 110, scale: 0.988 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, amount: 0.06 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
     >
       <motion.div
         className="home-bento"
@@ -161,7 +161,7 @@ export default function HomeOverview() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              The Cloud HRIS Backbone for a Borderless Workforce.
+              The Digital Backbone for Borderless Workforce
             </motion.h2>
 
             <motion.div

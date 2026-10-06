@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, Trash2, Mail, ExternalLink, Loader2, Download, Briefcase, Phone } from "lucide-react";
+import { Search, Trash2, Mail, ExternalLink, Loader2, Download, Briefcase, Phone, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function JobApplicationsAdmin() {
@@ -27,19 +27,25 @@ export default function JobApplicationsAdmin() {
     }
   }
 
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this application?")) return;
     
+    setDeletingId(id);
     try {
       const res = await fetch(`/api/job-applications?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
         setApplications(prev => (Array.isArray(prev) ? prev.filter(app => app.ApplicationId !== id) : []));
       } else {
-        alert("Failed to delete application");
+        const data = await res.json().catch(() => null);
+        alert(data?.message || data?.error || "Failed to delete application");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Delete error:", err);
-      alert("An error occurred while deleting");
+      alert(err?.message || "An error occurred while deleting");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -175,24 +181,33 @@ export default function JobApplicationsAdmin() {
                         </select>
                     </td>
                     <td className="px-6 py-5 text-right align-top mt-1">
-                      <div className="flex items-start justify-end gap-2 pt-2">
-                        {app.ResumeUrl && app.ResumeUrl.trim() !== '' && (
+                      <div className="flex items-center justify-end gap-2 pt-1">
+                        {app.ResumeUrl && app.ResumeUrl.trim() !== '' ? (
                           <a 
                             href={app.ResumeUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            title="View Resume"
-                            className="p-2 rounded-lg bg-[var(--blue)]/10 text-[var(--blue)] hover:bg-[var(--blue)] hover:text-white transition-smooth border border-[var(--blue)]/20"
+                            title="Open CV / Resume"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500/10 text-blue-400 hover:bg-blue-600 hover:text-white transition-smooth border border-blue-500/20 text-xs font-semibold"
                           >
-                            <ExternalLink size={16} />
+                            <FileText size={14} />
+                            <span>View CV</span>
+                            <ExternalLink size={12} className="opacity-60" />
                           </a>
+                        ) : (
+                          <span className="text-[11px] text-[var(--text-muted)] italic px-2">No CV</span>
                         )}
                         <button 
+                          disabled={deletingId === app.ApplicationId}
                           onClick={() => handleDelete(app.ApplicationId)}
                           title="Delete Application"
-                          className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-smooth border border-red-500/20"
+                          className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-smooth border border-red-500/20 disabled:opacity-50"
                         >
-                          <Trash2 size={16} />
+                          {deletingId === app.ApplicationId ? (
+                            <Loader2 size={15} className="animate-spin" />
+                          ) : (
+                            <Trash2 size={15} />
+                          )}
                         </button>
                       </div>
                     </td>

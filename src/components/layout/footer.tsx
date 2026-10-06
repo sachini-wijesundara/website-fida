@@ -42,6 +42,8 @@ const companyLinks: { name: string; href: string; isExternal?: boolean; download
 export default function Footer() {
   const [subscribeEmail, setSubscribeEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [subscribeError, setSubscribeError] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
@@ -70,7 +72,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative bg-[#f4f9fd] text-[#052c65] site-footer mt-16 lg:mt-24">
+    <footer className="relative bg-[#f7fcfd] text-[#052c65] site-footer mt-16 lg:mt-24">
       {/* ── CTA banner halfly overlapped over the footer part ── */}
       <div className="container mx-auto px-3 sm:px-6 max-w-4xl relative z-20 -translate-y-7 lg:-translate-y-1/2 mb-[-28px] lg:mb-[-120px]">
         <motion.div
@@ -97,34 +99,57 @@ export default function Footer() {
           <form
             className="contact-subscribe"
             noValidate
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              if (!subscribeEmail.trim()) return;
-              setSubscribed(true);
-              setSubscribeEmail("");
+              const email = subscribeEmail.trim();
+              if (!email) return;
+              setSubscribeError("");
+              setSubscribing(true);
+              try {
+                const res = await fetch("/api/newsletter", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ email }),
+                });
+                const data = await res.json();
+                if (res.ok || res.status === 200) {
+                  setSubscribed(true);
+                  setSubscribeEmail("");
+                } else {
+                  setSubscribeError(data.message || "Something went wrong.");
+                }
+              } catch {
+                setSubscribeError("Network error. Please try again.");
+              } finally {
+                setSubscribing(false);
+              }
             }}
           >
             {subscribed ? (
-              <p className="contact-subscribe__done">Thanks — you&apos;re on the list.</p>
+              <p className="contact-subscribe__done">Thanks — you&apos;re on the list!</p>
             ) : (
               <>
                 <input
                   type="email"
                   placeholder="your@email.com"
                   value={subscribeEmail}
-                  onChange={(e) => setSubscribeEmail(e.target.value)}
+                  onChange={(e) => { setSubscribeEmail(e.target.value); setSubscribeError(""); }}
                   aria-label="Email for newsletter"
+                  disabled={subscribing}
                 />
-                <button type="submit">
-                  SUBSCRIBE <ArrowUpRight className="w-4 h-4" />
+                <button type="submit" disabled={subscribing}>
+                  {subscribing ? "..." : <>{"SUBSCRIBE"} <ArrowUpRight className="w-4 h-4" /></>}
                 </button>
               </>
+            )}
+            {subscribeError && (
+              <p className="text-[11px] text-red-500 mt-1.5 text-center w-full">{subscribeError}</p>
             )}
           </form>
           <p className="text-[11px] text-slate-500 mt-2.5 text-center leading-relaxed">
             By subscribing, you agree to our{" "}
-            <Link href="/privacy" className="text-[#0047e1] font-semibold underline hover:text-[#0037b0] transition-colors">
-              Privacy Policy
+            <Link href="/terms" className="text-[#0047e1] font-semibold underline hover:text-[#0037b0] transition-colors">
+              Terms & Conditions
             </Link>.
           </p>
         </motion.div>
@@ -288,7 +313,6 @@ export default function Footer() {
         <div className="container mx-auto px-6 text-center">
           <p className="text-[12px] text-[#64748b] font-semibold flex flex-wrap items-center justify-center gap-6 sm:gap-10">
             <span>© FIDA Global. All rights reserved.</span>
-            <Link href="/privacy" className="hover:text-blue-600 transition-colors">Privacy Policy</Link>
             <button
               type="button"
               onClick={() => {

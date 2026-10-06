@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import { Scale } from "lucide-react";
 import { getDbConnection, sql } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -39,7 +38,7 @@ const fallbackSections = [
   {
     id: 6,
     title: "6. Privacy & Data Protection",
-    content: "<p>Your privacy is of utmost importance to us. Our data handling procedures, cookie practices, and GDPR compliance policies are detailed in our <a href=\"/privacy\" class=\"text-[#0047e1] underline font-medium hover:text-[#0037b0]\">Privacy & Cookie Policy</a>, which forms an integral part of these Terms of Service.</p>"
+    content: "<p>Your privacy is of utmost importance to us. Our data handling procedures, cookie practices, and GDPR compliance policies form an integral part of these Terms of Service.</p>"
   },
   {
     id: 7,
@@ -69,22 +68,45 @@ async function getPublishedTerms() {
   return fallbackSections;
 }
 
+function formatLastUpdated(sections: any[]) {
+  let latestDate: Date | null = null;
+  for (const s of sections) {
+    const raw = s.updated_at || s.created_at;
+    if (raw) {
+      const d = new Date(raw);
+      if (!isNaN(d.getTime())) {
+        if (!latestDate || d.getTime() > latestDate.getTime()) {
+          latestDate = d;
+        }
+      }
+    }
+  }
+
+  if (!latestDate) {
+    return "October 2026";
+  }
+
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ];
+  return `${months[latestDate.getUTCMonth()]} ${latestDate.getUTCDate()}, ${latestDate.getUTCFullYear()}`;
+}
+
 export default async function TermsOfServicePage() {
   const sections = await getPublishedTerms();
+  const lastUpdated = formatLastUpdated(sections);
 
   return (
     <main className="public-pastel-page min-h-screen pt-36 pb-28">
       <div className="container mx-auto px-6 max-w-4xl">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-[#0047e1] text-xs font-bold uppercase tracking-wider mb-5">
-            <Scale size={14} /> Legal Terms & Agreements
-          </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#052c65] tracking-tight leading-tight mb-4">
             Terms & Conditions
           </h1>
           <p className="text-sm sm:text-base text-slate-500">
-            Last updated: October 2026 · Governing all enterprise services, software platforms, and website access.
+            Last updated: {lastUpdated}
           </p>
         </div>
 

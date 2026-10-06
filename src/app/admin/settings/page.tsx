@@ -147,7 +147,17 @@ export default function SettingsPage() {
                 value={settings.countries_count || ""} 
                 onChange={(e) => setSettings({ ...settings, countries_count: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-green-500 transition-colors"
-                placeholder="e.g. 12"
+                placeholder="e.g. 4"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white mb-1">Payroll Employees</label>
+              <input 
+                type="text" 
+                value={settings.payroll_employees || ""} 
+                onChange={(e) => setSettings({ ...settings, payroll_employees: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-green-500 transition-colors"
+                placeholder="e.g. 50K+"
               />
             </div>
             <button
@@ -155,9 +165,10 @@ export default function SettingsPage() {
                 setSaving(true);
                 try {
                   await Promise.all([
-                    fetch("/api/settings", { method: "POST", body: JSON.stringify({ key: "clients_count", value: settings.clients_count || "500" }), headers: { "Content-Type": "application/json" } }),
-                    fetch("/api/settings", { method: "POST", body: JSON.stringify({ key: "experience_years", value: settings.experience_years || "14" }), headers: { "Content-Type": "application/json" } }),
-                    fetch("/api/settings", { method: "POST", body: JSON.stringify({ key: "countries_count", value: settings.countries_count || "12" }), headers: { "Content-Type": "application/json" } })
+                    fetch("/api/settings", { method: "POST", body: JSON.stringify({ key: "clients_count", value: settings.clients_count || "370" }), headers: { "Content-Type": "application/json" } }),
+                    fetch("/api/settings", { method: "POST", body: JSON.stringify({ key: "experience_years", value: settings.experience_years || "14+" }), headers: { "Content-Type": "application/json" } }),
+                    fetch("/api/settings", { method: "POST", body: JSON.stringify({ key: "countries_count", value: settings.countries_count || "4" }), headers: { "Content-Type": "application/json" } }),
+                    fetch("/api/settings", { method: "POST", body: JSON.stringify({ key: "payroll_employees", value: settings.payroll_employees || "50K+" }), headers: { "Content-Type": "application/json" } }),
                   ]);
                   alert("Statistics updated successfully!");
                 } catch (err) {

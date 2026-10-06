@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, FileText, Settings, LogOut, Users, BarChart3, Briefcase, Award, Lightbulb, MessageSquare, Layout, Bot, Calendar, Menu, X, Scale } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, LogOut, Users, BarChart3, Briefcase, Award, Lightbulb, MessageSquare, Layout, Bot, Calendar, Menu, X, Scale, Mail } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -76,7 +76,8 @@ export default function AdminLayout({
           <SidebarLink href="/admin/services" icon={<Layout size={20} />} label="Manage Services" active={pathname.startsWith("/admin/services")} />
           <SidebarLink href="/admin/features" icon={<Lightbulb size={20} />} label="Manage Features" active={pathname.startsWith("/admin/features")} />
           <SidebarLink href="/admin/testimonials" icon={<MessageSquare size={20} />} label="Testimonials" active={pathname.startsWith("/admin/testimonials")} />
-          <SidebarLink href="/admin/inquiries" icon={<MessageSquare size={20} />} label="Inquiries" active={pathname.startsWith("/admin/inquiries")} />
+          <SidebarLink href="/admin/inquiries" icon={<MessageSquare size={20} />} label="Customer Leads" active={pathname.startsWith("/admin/inquiries")} />
+          <SidebarLink href="/admin/newsletter" icon={<Mail size={20} />} label="Newsletter Subscribers" active={pathname.startsWith("/admin/newsletter")} />
           <SidebarLink href="/admin/teams" icon={<Users size={20} />} label="Team Showcase" active={pathname.startsWith("/admin/teams")} />
           <SidebarLink href="/admin/solutions" icon={<Briefcase size={20} />} label="System Solutions" active={pathname.startsWith("/admin/solutions")} />
           <SidebarLink href="/admin/customers" icon={<Users size={20} />} label="Manage Customers" active={pathname.startsWith("/admin/customers")} />
