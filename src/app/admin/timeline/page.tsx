@@ -22,9 +22,16 @@ export default function TimelineAdminPanel() {
       setLoading(true);
       const res = await fetch("/api/admin/timeline");
       const data = await res.json();
-      if (data.success) setEntries(data.data);
+      if (data?.success && Array.isArray(data.data)) {
+        setEntries(data.data);
+      } else if (Array.isArray(data)) {
+        setEntries(data);
+      } else {
+        setEntries([]);
+      }
     } catch (err) {
       console.error(err);
+      setEntries([]);
     } finally {
       setLoading(false);
     }

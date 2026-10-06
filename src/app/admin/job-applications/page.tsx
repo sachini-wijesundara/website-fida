@@ -16,11 +16,12 @@ export default function JobApplicationsAdmin() {
   async function fetchApplications() {
     try {
       setLoading(true);
-      const res = await fetch("/api/careers");
+      const res = await fetch("/api/job-applications");
       const data = await res.json();
-      setApplications(data);
+      setApplications(Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []));
     } catch (err) {
       console.error("Failed to fetch job applications:", err);
+      setApplications([]);
     } finally {
       setLoading(false);
     }
@@ -30,9 +31,9 @@ export default function JobApplicationsAdmin() {
     if (!confirm("Are you sure you want to delete this application?")) return;
     
     try {
-      const res = await fetch(`/api/careers?id=${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/job-applications?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
-        setApplications(prev => prev.filter(app => app.ApplicationId !== id));
+        setApplications(prev => (Array.isArray(prev) ? prev.filter(app => app.ApplicationId !== id) : []));
       } else {
         alert("Failed to delete application");
       }
@@ -44,7 +45,7 @@ export default function JobApplicationsAdmin() {
 
   const handleUpdateStatus = async (id: number, newStatus: string) => {
     try {
-      const res = await fetch(`/api/careers`, {
+      const res = await fetch(`/api/job-applications`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -52,7 +53,7 @@ export default function JobApplicationsAdmin() {
         body: JSON.stringify({ id, status: newStatus })
       });
       if (res.ok) {
-        setApplications(prev => prev.map(app => app.ApplicationId === id ? { ...app, Status: newStatus } : app));
+        setApplications(prev => (Array.isArray(prev) ? prev.map(app => app.ApplicationId === id ? { ...app, Status: newStatus } : app) : []));
       } else {
         alert("Failed to update status");
       }
@@ -62,7 +63,8 @@ export default function JobApplicationsAdmin() {
     }
   };
 
-  const filteredApplications = applications.filter(app => 
+  const safeApplications = Array.isArray(applications) ? applications : [];
+  const filteredApplications = safeApplications.filter(app => 
     app.FullName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
     app.Position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     app.Email?.toLowerCase().includes(searchTerm.toLowerCase())

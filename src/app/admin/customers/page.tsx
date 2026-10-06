@@ -19,9 +19,10 @@ export default function CustomerManagement() {
       setLoading(true);
       const res = await fetch("/api/customers");
       const data = await res.json();
-      setCustomers(data);
+      setCustomers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch customers:", err);
+      setCustomers([]);
     } finally {
       setLoading(false);
     }
@@ -33,7 +34,7 @@ export default function CustomerManagement() {
     try {
       const res = await fetch(`/api/customers?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
-        setCustomers(prev => prev.filter(c => c.id !== id));
+        setCustomers(prev => (Array.isArray(prev) ? prev.filter(c => c.id !== id) : []));
       } else {
         alert("Failed to delete customer");
       }
@@ -43,8 +44,9 @@ export default function CustomerManagement() {
     }
   };
 
-  const filteredCustomers = customers.filter(c => 
-    c.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const safeCustomers = Array.isArray(customers) ? customers : [];
+  const filteredCustomers = safeCustomers.filter(c => 
+    c?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {

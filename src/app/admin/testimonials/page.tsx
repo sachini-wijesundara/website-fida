@@ -28,9 +28,10 @@ export default function TestimonialManagement() {
     try {
       const res = await fetch("/api/testimonials");
       const data = await res.json();
-      setTestimonials(data);
+      setTestimonials(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch testimonials:", err);
+      setTestimonials([]);
     } finally {
       setLoading(false);
     }
@@ -81,9 +82,10 @@ export default function TestimonialManagement() {
     }
   };
 
-  const filtered = testimonials.filter(t =>
-    t.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.client_company.toLowerCase().includes(searchTerm.toLowerCase())
+  const safeTestimonials = Array.isArray(testimonials) ? testimonials : [];
+  const filtered = safeTestimonials.filter(t =>
+    (t.client_name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (t.client_company?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
 
   if (loading) {

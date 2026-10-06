@@ -31,9 +31,16 @@ export default function AiKnowledgePanel() {
       setYtLoading(true);
       const res = await fetch("/api/admin/youtube-links");
       const data = await res.json();
-      if (data.success) setYtEntries(data.data);
+      if (data?.success && Array.isArray(data.data)) {
+        setYtEntries(data.data);
+      } else if (Array.isArray(data)) {
+        setYtEntries(data);
+      } else {
+        setYtEntries([]);
+      }
     } catch (err) {
       console.error(err);
+      setYtEntries([]);
     } finally {
       setYtLoading(false);
     }
@@ -44,9 +51,16 @@ export default function AiKnowledgePanel() {
       setLoading(true);
       const res = await fetch("/api/admin/ai-knowledge");
       const data = await res.json();
-      if (data.success) setEntries(data.data);
+      if (data?.success && Array.isArray(data.data)) {
+        setEntries(data.data);
+      } else if (Array.isArray(data)) {
+        setEntries(data);
+      } else {
+        setEntries([]);
+      }
     } catch (err) {
       console.error(err);
+      setEntries([]);
     } finally {
       setLoading(false);
     }
@@ -292,7 +306,7 @@ export default function AiKnowledgePanel() {
               <div className="flex items-center justify-center h-[400px]">
                 <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
               </div>
-            ) : entries.length === 0 ? (
+            ) : (!Array.isArray(entries) || entries.length === 0) ? (
               <div className="flex flex-col items-center justify-center p-20 text-center">
                 <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 border border-white/10">
                   <BookOpen size={32} className="text-white/20" />
@@ -313,7 +327,7 @@ export default function AiKnowledgePanel() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {entries.map((entry) => (
+                  {(Array.isArray(entries) ? entries : []).map((entry) => (
                     <motion.tr
                       key={entry.id}
                       initial={{ opacity: 0 }}
@@ -362,7 +376,7 @@ export default function AiKnowledgePanel() {
               <div className="flex items-center justify-center h-[400px]">
                 <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
               </div>
-            ) : ytEntries.length === 0 ? (
+            ) : (!Array.isArray(ytEntries) || ytEntries.length === 0) ? (
               <div className="flex flex-col items-center justify-center p-20 text-center">
                 <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 border border-white/10">
                   <Video size={32} className="text-white/20" />
@@ -382,7 +396,7 @@ export default function AiKnowledgePanel() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {ytEntries.map((entry) => (
+                  {(Array.isArray(ytEntries) ? ytEntries : []).map((entry) => (
                     <motion.tr
                       key={entry.LinkID}
                       initial={{ opacity: 0 }}

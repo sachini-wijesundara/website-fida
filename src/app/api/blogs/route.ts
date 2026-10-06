@@ -10,35 +10,54 @@ export async function GET(request: Request) {
 
     const pool = await getDbConnection();
 
-    let result;
-    if (isAdmin) {
-      result = await pool.request().execute('sp_GetAllBlogs');
+    let queryText = `
+      SELECT 
+        b.id, b.title, b.excerpt, b.status, b.created_at as date,
+        b.order_index as orderIndex,
+        CASE 
+          WHEN b.image_url IS NOT NULL AND LEN(b.image_url) > 0 THEN CONCAT('/api/blogs/', b.id, '/image')
+          ELSE ''
+        END as imageUrl,
+        c.name as cat, u.username as author
+      FROM blogs b
+      LEFT JOIN categories c ON b.category_id = c.id
+      LEFT JOIN users u ON b.author_id = u.id
+    `;
+
+    if (!isAdmin) {
+      queryText += ` WHERE b.status = 'Published'`;
+      if (category && category !== 'All') {
+        queryText += ` AND c.name = @CategoryName`;
+      }
     } else if (category && category !== 'All') {
-      result = await pool.request()
-        .input('CategoryName', sql.NVarChar(50), category)
-        .execute('sp_GetBlogsByCategory');
-    } else {
-      result = await pool.request().query(`
-        SELECT 
-          b.id, b.title, b.excerpt, b.image_url as imageUrl, b.status, b.created_at as date,
-          c.name as cat, u.username as author
-        FROM blogs b
-        JOIN categories c ON b.category_id = c.id
-        JOIN users u ON b.author_id = u.id
-        WHERE b.status = 'Published'
-        ORDER BY b.created_at DESC
-      `);
+      queryText += ` WHERE c.name = @CategoryName`;
     }
 
+    queryText += ` ORDER BY COALESCE(b.order_index, 999999) ASC, b.id DESC`;
+
+    const req = pool.request();
+    if (category && category !== 'All') {
+      req.input('CategoryName', sql.NVarChar(50), category);
+    }
+    const result = await req.query(queryText);
 
     // Map database fields to frontend fields for consistency
-    const blogs = result.recordset.map((b: any) => ({
-      ...b,
-      imageUrl: b.image_url || b.imageUrl || "",
-      date: b.created_at || b.date,
-      cat: b.category_name || b.cat || category || "General",
-      author: b.author_name || b.author || "Admin"
-    }));
+    const blogs = (result.recordset || []).map((b: any) => {
+      let imageUrl = b.image_url || b.imageUrl || "";
+      if (imageUrl && (imageUrl.startsWith("data:image/") || imageUrl.length > 500)) {
+        imageUrl = `/api/blogs/${b.id}/image`;
+      }
+      delete b.image_url;
+      return {
+        ...b,
+        imageUrl,
+        image_url: imageUrl,
+        orderIndex: b.orderIndex ?? b.order_index ?? 999,
+        date: b.created_at || b.date,
+        cat: b.category_name || b.cat || category || "General",
+        author: b.author_name || b.author || "Admin"
+      };
+    });
 
     return NextResponse.json(blogs);
   } catch (error: any) {
@@ -64,13 +83,43 @@ export async function POST(request: Request) {
       .input('Status', sql.NVarChar(20), status || 'Draft')
       .execute('sp_CreateBlogPost');
 
+    const blogId = result.recordset[0].BlogId;
+
+    // Shift all existing posts down and place newly added blog at position 1 (top of order)
+    await pool.request()
+      .input('NewBlogId', sql.Int, blogId)
+      .query(`
+        UPDATE blogs SET order_index = COALESCE(order_index, 0) + 1 WHERE id <> @NewBlogId;
+        UPDATE blogs SET order_index = 1 WHERE id = @NewBlogId;
+      `);
+
     return NextResponse.json({
       message: "Blog post created successfully",
-      blogId: result.recordset[0].BlogId
+      blogId
     });
   } catch (error: any) {
     console.error("Create Blog Error:", error);
     return NextResponse.json({ message: "Failed to create blog", error: error.message }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const { orderedIds } = await request.json();
+    if (Array.isArray(orderedIds)) {
+      const pool = await getDbConnection();
+      for (let i = 0; i < orderedIds.length; i++) {
+        await pool.request()
+          .input('Id', parseInt(orderedIds[i]))
+          .input('OrderIndex', i + 1)
+          .query('UPDATE blogs SET order_index = @OrderIndex WHERE id = @Id');
+      }
+      return NextResponse.json({ message: "Order updated successfully" });
+    }
+    return NextResponse.json({ message: "Invalid payload" }, { status: 400 });
+  } catch (error: any) {
+    console.error("Reorder Error:", error);
+    return NextResponse.json({ message: "Failed to reorder", error: error.message }, { status: 500 });
   }
 }
 

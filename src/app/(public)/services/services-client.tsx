@@ -64,7 +64,7 @@ export default function ServicesClient() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.07, duration: 0.6, ease: "easeOut" }}
-              className="glass rounded-3xl p-10 group hover:-translate-y-1 transition-smooth card-hover-blue relative overflow-hidden h-full flex flex-col"
+              className="glass rounded-2xl sm:rounded-3xl p-6 sm:p-10 group hover:-translate-y-1 transition-smooth card-hover-blue relative overflow-hidden h-full flex flex-col"
             >
               {/* Accent bg */}
               <div className="absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] opacity-0 group-hover:opacity-10 transition-opacity" style={{ background: color }} />

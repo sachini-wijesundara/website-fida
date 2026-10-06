@@ -58,7 +58,7 @@ export default function CreateBlogPost() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.categoryId || !formData.content) {
+    if (!formData.title || !formData.content) {
       setError("Please fill in all required fields.");
       return;
     }
@@ -73,7 +73,7 @@ export default function CreateBlogPost() {
         body: JSON.stringify({
           ...formData,
           authorId: 1, // Defaulting to admin user ID 1
-          categoryId: parseInt(formData.categoryId),
+          categoryId: parseInt(formData.categoryId) || 1,
         }),
       });
 
@@ -208,17 +208,6 @@ export default function CreateBlogPost() {
                   </button>
                 ))}
               </div>
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">Category</label>
-              <select 
-                className="w-full bg-[var(--bg-elevated)] border border-[var(--grey-dark)] rounded-xl py-3 px-4 focus:outline-none focus:border-[var(--green)] transition-smooth text-sm appearance-none cursor-pointer"
-                value={formData.categoryId}
-                onChange={(e) => setFormData({...formData, categoryId: e.target.value})}
-              >
-                {categories.map(c => <option key={c.id} value={c.id} className="bg-[var(--bg-elevated)]">{c.name}</option>)}
-              </select>
             </div>
           </div>
 

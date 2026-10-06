@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Plus, Edit2, Trash2, ExternalLink, Filter, Loader2 } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, ExternalLink, Filter, Loader2, ChevronUp, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function BlogManagement() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [reordering, setReordering] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -15,9 +16,10 @@ export default function BlogManagement() {
       try {
         const res = await fetch("/api/blogs?admin=true");
         const data = await res.json();
-        setPosts(data);
+        setPosts(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to fetch posts:", err);
+        setPosts([]);
       } finally {
         setLoading(false);
       }
@@ -25,9 +27,35 @@ export default function BlogManagement() {
     fetchPosts();
   }, []);
 
-  const filteredPosts = posts.filter(post =>
-    post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (post.cat && post.cat.toLowerCase().includes(searchTerm.toLowerCase()))
+  const movePost = async (index: number, direction: number) => {
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= posts.length) return;
+
+    const newPosts = [...posts];
+    const [moved] = newPosts.splice(index, 1);
+    newPosts.splice(targetIndex, 0, moved);
+
+    // Optimistically update UI
+    setPosts(newPosts);
+    setReordering(true);
+
+    try {
+      await fetch("/api/blogs", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderedIds: newPosts.map((p) => p.id) }),
+      });
+    } catch (err) {
+      console.error("Failed to save reordered posts:", err);
+    } finally {
+      setReordering(false);
+    }
+  };
+
+  const safePosts = Array.isArray(posts) ? posts : [];
+  const filteredPosts = safePosts.filter(post =>
+    (post?.title?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (post?.cat && post.cat.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const deletePost = async (id: number) => {
@@ -95,8 +123,8 @@ export default function BlogManagement() {
           <table className="w-full text-left border-collapse">
             <thead className="bg-[var(--bg-elevated)]/50 border-b border-[var(--grey-dark)]">
               <tr>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Order</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Post Title</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Category</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Date</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Status</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] text-right">Actions</th>
@@ -104,7 +132,7 @@ export default function BlogManagement() {
             </thead>
             <tbody className="divide-y divide-[var(--grey-dark)]">
               <AnimatePresence mode="popLayout">
-                {filteredPosts.map((post) => (
+                {filteredPosts.map((post, idx) => (
                   <motion.tr
                     key={post.id}
                     layout
@@ -114,15 +142,46 @@ export default function BlogManagement() {
                     className="group hover:bg-[var(--bg-elevated)]/30 transition-smooth"
                   >
                     <td className="px-6 py-5">
-                      <div className="max-w-md">
-                        <p className="font-bold text-sm group-hover:text-[var(--green)] transition-smooth truncate">{post.title}</p>
-                        <p className="text-[10px] text-[var(--text-muted)] mt-0.5">Author: {post.author}</p>
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex items-center gap-1.5 text-xs font-black px-2.5 py-1 rounded-xl border ${
+                          idx === 0 
+                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-sm shadow-emerald-500/10" 
+                            : "bg-white/5 text-[var(--text-secondary)] border-white/10"
+                        }`}>
+                          #{idx + 1}
+                          {idx === 0 && (
+                            <span className="text-[10px] font-bold text-amber-300 bg-amber-400/10 border border-amber-400/20 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+                              ★ Featured
+                            </span>
+                          )}
+                        </span>
+                        
+                        <div className="flex items-center gap-0.5">
+                          <button
+                            type="button"
+                            onClick={() => movePost(idx, -1)}
+                            disabled={idx === 0 || reordering}
+                            title="Move Up (Higher Priority / Featured)"
+                            className="p-1 rounded-md border border-white/10 bg-white/5 hover:bg-white/15 text-[var(--text-muted)] hover:text-white transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
+                          >
+                            <ChevronUp size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => movePost(idx, 1)}
+                            disabled={idx === posts.length - 1 || reordering}
+                            title="Move Down"
+                            className="p-1 rounded-md border border-white/10 bg-white/5 hover:bg-white/15 text-[var(--text-muted)] hover:text-white transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
+                          >
+                            <ChevronDown size={14} />
+                          </button>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <span className="text-xs font-semibold px-3 py-1 bg-[var(--bg-elevated)] rounded-full text-[var(--text-secondary)]">
-                        {post.cat}
-                      </span>
+                      <div className="max-w-md">
+                        <p className="font-bold text-sm group-hover:text-[var(--green)] transition-smooth truncate">{post.title}</p>
+                      </div>
                     </td>
                     <td className="px-6 py-5">
                       <p className="text-xs text-[var(--text-muted)]">{new Date(post.date).toLocaleDateString()}</p>

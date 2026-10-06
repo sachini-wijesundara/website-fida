@@ -67,7 +67,7 @@ function InstancedDots() {
     <group ref={groupRef} rotation={[0, -Math.PI / 2, 0]}>
       {/* 7,160 perfectly uniform, perfectly colored tiny 3D spheres */}
       <instancedMesh ref={meshRef} args={[undefined, undefined, globeData.length]} material={customMaterial}>
-        <sphereGeometry args={[0.008, 6, 6]} /> {/* Reduced from 0.015 to 0.008 */}
+        <sphereGeometry args={[0.008, 4, 4]} />
       </instancedMesh>
     </group>
   );
@@ -76,7 +76,12 @@ function InstancedDots() {
 function DottedGlobe() {
   return (
     <div className="hero-globe">
-      <Canvas camera={{ position: [0, 0, 5], fov: 45 }} style={{ background: 'transparent' }}>
+      <Canvas 
+        camera={{ position: [0, 0, 5], fov: 45 }} 
+        style={{ background: 'transparent' }}
+        dpr={[1, 1.5]}
+        gl={{ powerPreference: "high-performance", antialias: false, alpha: true }}
+      >
         <InstancedDots />
       </Canvas>
       <div className="hero-globe__shine" />
@@ -92,17 +97,17 @@ export default function Hero() {
     offset: ["start start", "end end"],
   });
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 72,
-    damping: 24,
-    mass: 0.38,
-    restDelta: 0.001,
+    stiffness: 140,
+    damping: 28,
+    mass: 0.1,
+    restDelta: 0.0005,
   });
-  const copyY = useTransform(smoothProgress, [0, 0.42], [0, -190]);
-  const copyOpacity = useTransform(smoothProgress, [0, 0.32], [1, 0]);
-  const sceneScale = useTransform(smoothProgress, [0, 0.58], [1, 1.07]);
-  const sceneY = useTransform(smoothProgress, [0.06, 0.58], [0, -640]);
-  const cueOpacity = useTransform(smoothProgress, [0, 0.18], [1, 0]);
-  const colorOpacity = useTransform(smoothProgress, [0.08, 0.62], [0, 1]);
+  const copyY = useTransform(smoothProgress, [0, 0.35], [0, -140]);
+  const copyOpacity = useTransform(smoothProgress, [0, 0.26], [1, 0]);
+  const sceneScale = useTransform(smoothProgress, [0, 0.72], [1, 1.06]);
+  const sceneY = useTransform(smoothProgress, [0.04, 0.72], [0, -460]);
+  const cueOpacity = useTransform(smoothProgress, [0, 0.14], [1, 0]);
+  const colorOpacity = useTransform(smoothProgress, [0.06, 0.68], [0, 1]);
 
   return (
     <section ref={stageRef} className="home-hero-stage">
@@ -138,20 +143,19 @@ export default function Hero() {
         </h1>
 
         <p className="home-hero__intro">
-          Empowering organizations with intelligent technology, global expertise,
-          and sustainable solutions built for optimum performance.
+          Empowering organizations worldwide with intelligent HRIS technology from Sri Lanka, global expertise, and sustainable solutions built for optimum performance.
         </p>
 
-        <div className="home-hero__actions">
-          <Link href="/solutions" className="hero-button hero-button--primary">
-            Explore solutions
-            <ArrowUpRight size={17} />
+        <div className="home-hero__actions flex flex-row flex-nowrap items-center justify-center gap-2.5 sm:gap-3.5 w-full max-w-sm sm:max-w-md mx-auto">
+          <Link href="/solutions" className="hero-button hero-button--primary flex-1 min-w-0 whitespace-nowrap text-center justify-center">
+            <span>Explore solutions</span>
+            <ArrowUpRight size={16} className="shrink-0" />
           </Link>
           <Link
             href="/contact"
-            className="hero-button hero-button--secondary"
+            className="hero-button hero-button--secondary flex-1 min-w-0 whitespace-nowrap text-center justify-center"
           >
-            Contact us
+            <span>Contact us</span>
           </Link>
         </div>
         </motion.div>

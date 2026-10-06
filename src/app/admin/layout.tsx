@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, FileText, Settings, LogOut, Users, BarChart3, Briefcase, Award, Lightbulb, MessageSquare, Layout, Bot, Calendar, Menu, X } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, LogOut, Users, BarChart3, Briefcase, Award, Lightbulb, MessageSquare, Layout, Bot, Calendar, Menu, X, Scale } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -82,6 +82,7 @@ export default function AdminLayout({
           <SidebarLink href="/admin/customers" icon={<Users size={20} />} label="Manage Customers" active={pathname.startsWith("/admin/customers")} />
           <SidebarLink href="/admin/careers" icon={<Briefcase size={20} />} label="Manage Careers" active={pathname.startsWith("/admin/careers")} />
           <SidebarLink href="/admin/job-applications" icon={<Users size={20} />} label="Job Applications" active={pathname.startsWith("/admin/job-applications")} />
+          <SidebarLink href="/admin/terms" icon={<Scale size={20} />} label="Terms & Conditions" active={pathname.startsWith("/admin/terms")} />
           
           <div className="mt-8 mb-2 px-4">
             <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-widest font-semibold">System</p>
@@ -121,7 +122,6 @@ function SidebarLink({ href, icon, label, active }: { href: string; icon: React.
   return (
     <Link
       href={href}
-      prefetch={false}
       className={`admin-nav-link flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-smooth group ${active ? 'is-active bg-[var(--bg-elevated)] text-[var(--green)]' : 'hover:bg-[var(--bg-elevated)]'}`}
     >
       <span className={`${active ? 'text-[var(--green)]' : 'text-[var(--text-muted)] group-hover:text-[var(--green)]'} transition-smooth`}>

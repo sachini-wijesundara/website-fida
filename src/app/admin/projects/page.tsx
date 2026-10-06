@@ -15,9 +15,10 @@ export default function ProjectManagement() {
       try {
         const res = await fetch("/api/projects?summary=true");
         const data = await res.json();
-        setProjects(data);
+        setProjects(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to fetch projects:", err);
+        setProjects([]);
       } finally {
         setLoading(false);
       }
@@ -31,7 +32,7 @@ export default function ProjectManagement() {
     try {
       const res = await fetch(`/api/projects?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
-        setProjects(projects.filter(p => p.id !== id));
+        setProjects(prev => (Array.isArray(prev) ? prev.filter(p => p.id !== id) : []));
       } else {
         alert("Failed to delete project");
       }
@@ -41,9 +42,10 @@ export default function ProjectManagement() {
     }
   };
 
-  const filteredProjects = projects.filter(p =>
-    p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (p.category_name && p.category_name.toLowerCase().includes(searchTerm.toLowerCase()))
+  const safeProjects = Array.isArray(projects) ? projects : [];
+  const filteredProjects = safeProjects.filter(p =>
+    (p?.title?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (p?.category_name && p.category_name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (loading) {

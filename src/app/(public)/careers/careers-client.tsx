@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import {
   MapPin,
   Clock,
@@ -400,28 +401,28 @@ export default function CareersClient() {
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
-              className="bg-white border border-slate-100 shadow-[0_25px_70px_rgba(5,44,101,0.25)] rounded-3xl w-full max-w-2xl overflow-hidden relative text-[#052c65]"
+              className="bg-white border border-slate-100 shadow-[0_25px_70px_rgba(5,44,101,0.25)] rounded-2xl sm:rounded-3xl w-full max-w-2xl max-h-[90dvh] flex flex-col overflow-hidden relative text-[#052c65]"
             >
               {/* Modal Header */}
-              <div className="p-7 sm:p-8 pb-5 border-b border-slate-100 flex items-center justify-between">
+              <div className="p-5 sm:p-8 pb-4 sm:pb-5 border-b border-slate-100 flex items-center justify-between shrink-0">
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0047e1]">
                     Application Form
                   </span>
-                  <h3 className="text-xl sm:text-2xl font-black text-[#052c65] mt-1">
+                  <h3 className="text-lg sm:text-2xl font-black text-[#052c65] mt-0.5 sm:mt-1">
                     Apply for <span className="text-[#0047e1]">{selectedPosition}</span>
                   </h3>
                 </div>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-[#052c65] flex items-center justify-center transition-colors"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-[#052c65] flex items-center justify-center transition-colors shrink-0"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Modal Body */}
-              <div className="p-7 sm:p-8">
+              <div className="p-5 sm:p-8 overflow-y-auto flex-1">
                 {submitSuccess ? (
                   <div className="text-center py-10 space-y-4">
                     <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-sm">
@@ -522,6 +523,12 @@ export default function CareersClient() {
                         )}
                         <span>{submitting ? "Submitting..." : "Submit Application"}</span>
                       </button>
+                      <p className="text-[11px] text-slate-500 mt-2.5 text-center leading-relaxed">
+                        By submitting your application, you acknowledge that your candidate data will be processed in accordance with our{" "}
+                        <Link href="/privacy" className="text-[#0047e1] underline hover:text-[#0037b0]">
+                          Privacy Policy
+                        </Link>.
+                      </p>
                     </div>
                   </form>
                 )}

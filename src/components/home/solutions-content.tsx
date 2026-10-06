@@ -63,9 +63,11 @@ const SOLUTIONS = [
 ];
 
 interface SolutionImageRecord {
+  id?: number;
   slug?: string;
+  thumbnail_image?: string;
   detail_image_1?: string;
-  detail_image_2?: string;
+  hero_image?: string;
 }
 
 const HIGHLIGHTS = [
@@ -110,10 +112,17 @@ export default function SolutionsContent() {
   }, []);
 
   useEffect(() => {
-    fetch("/api/solutions")
+    fetch(`/api/solutions?t=${Date.now()}`)
       .then((response) => response.ok ? response.json() : [])
       .then((rows: SolutionImageRecord[]) => {
-        setSolutionImages(Object.fromEntries(rows.filter((row) => row.slug).map((row) => [row.slug!, row])));
+        const map: Record<string, SolutionImageRecord> = {};
+        if (Array.isArray(rows)) {
+          rows.forEach((row) => {
+            if (row.slug) map[row.slug] = row;
+            if (row.id) map[String(row.id)] = row;
+          });
+        }
+        setSolutionImages(map);
       })
       .catch(() => setSolutionImages({}));
   }, []);
@@ -147,8 +156,9 @@ export default function SolutionsContent() {
               Every layer of your workforce, covered.
             </h2>
             <p className="text-[#637892] text-[17px] lg:text-[19px] leading-[1.7] max-w-[700px]">
-              FIDA Global orchestrates your entire enterprise ecosystem. From strategic consultancy
-              to ground-truth operational management, we provide a unified intelligence layer.
+              FIDA Global unifies your entire enterprise ecosystem, powered by intelligent HR
+              software. From strategic consultancy to ground-truth operational management, we
+              provide a unified intelligence layer.
             </p>
           </motion.div>
           <div className="sol-target-stage">
@@ -180,9 +190,13 @@ export default function SolutionsContent() {
           {SOLUTIONS.map((sol, i) => {
             const expanded = expandedSlug === sol.slug;
             const databaseImages = solutionImages[sol.dbSlug || sol.slug];
-            const detailImage = sol.slug === "smart-hris"
-              ? "/api/images/homepageimages/smartrhris_dashboard.png"
-              : databaseImages?.detail_image_1 || sol.image;
+            const detailImage = 
+              (databaseImages?.thumbnail_image || '') ||
+              (databaseImages?.detail_image_1 || '') ||
+              (databaseImages?.hero_image || '') ||
+              (sol.slug === "smart-hris"
+                ? "/api/images/homepageimages/smartrhris_dashboard.png"
+                : sol.image);
 
             return (
             <motion.article

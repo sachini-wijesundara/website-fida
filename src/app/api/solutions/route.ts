@@ -7,7 +7,17 @@ export async function GET() {
   try {
     const pool = await getDbConnection();
     const result = await pool.request().query(`
-      SELECT id, title, badge, description, thumbnail_image, slug, status, order_index 
+      SELECT 
+        id, title, badge, description, slug, status, order_index,
+        CASE 
+          WHEN thumbnail_image IS NOT NULL AND LEN(thumbnail_image) > 0 THEN CONCAT('/api/solutions/', id, '/images/thumb')
+          ELSE ''
+        END as thumbnail_image,
+        CASE 
+          WHEN detail_image_1 IS NOT NULL AND LEN(detail_image_1) > 0 THEN CONCAT('/api/solutions/', id, '/images/detail1')
+          ELSE ''
+        END as detail_image_1,
+        JSON_VALUE(template_data, '$.hero.image') as hero_image
       FROM Solutions 
       ORDER BY CASE WHEN title = 'FIDA AI' THEN -1 ELSE order_index END ASC
     `);

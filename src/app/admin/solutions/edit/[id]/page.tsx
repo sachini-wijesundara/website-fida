@@ -210,6 +210,15 @@ export default function EditSolution() {
                 ))}
             </div>
           </div>
+          <button
+            type="submit"
+            disabled={saving}
+            style={{ backgroundColor: '#004dfc', color: '#ffffff' }}
+            className="w-full py-4 rounded-2xl !bg-[#004dfc] hover:!bg-[#003bd9] !text-white font-bold transition-all shadow-lg shadow-blue-500/30 hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+            Save Solution
+          </button>
         </div>
       </form>
     </div>

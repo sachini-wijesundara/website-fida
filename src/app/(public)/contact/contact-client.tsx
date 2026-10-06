@@ -310,6 +310,12 @@ export default function ContactClient() {
                         </>
                       )}
                     </button>
+                    <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
+                      By submitting this form, you acknowledge that your data will be processed in accordance with our{" "}
+                      <Link href="/privacy" className="text-[#0047e1] underline hover:text-[#0037b0]">
+                        Privacy Policy
+                      </Link>.
+                    </p>
                     {error && (
                       <p className="text-red-500 text-sm font-medium text-center sm:text-left">{error}</p>
                     )}

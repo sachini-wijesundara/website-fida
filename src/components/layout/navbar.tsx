@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Menu, ArrowRight, Mail, Phone } from "lucide-react";
+import { X, Menu, ArrowRight, Mail, Phone, FileText } from "lucide-react";
 
 const links: { name: string; href: string; isExternal?: boolean; download?: boolean }[] = [
   { name: "Home", href: "/" },
@@ -167,13 +167,26 @@ export default function Navbar() {
                     </a>
                   </div>
 
-                  <Link
-                    href="/contact"
-                    onClick={() => setMenuOpen(false)}
-                    className="w-full bg-[#0047e1] text-white py-3.5 rounded-full text-xs font-black uppercase tracking-widest text-center transition-all duration-300 hover:bg-[#0037b0] hover:scale-[1.02] shadow-[0_12px_24px_-6px_rgba(0,71,225,0.3)]"
-                  >
-                    Book a Consultation
-                  </Link>
+                  <div className="flex flex-col gap-2.5">
+                    <Link
+                      href="/contact"
+                      onClick={() => setMenuOpen(false)}
+                      className="w-full bg-[#0047e1] text-white py-3.5 rounded-full text-xs font-black uppercase tracking-widest text-center transition-all duration-300 hover:bg-[#0037b0] hover:scale-[1.02] shadow-[0_12px_24px_-6px_rgba(0,71,225,0.3)]"
+                    >
+                      Book a Consultation
+                    </Link>
+
+                    <a
+                      href="/FIDA%20Global%20Company%20Profile.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setMenuOpen(false)}
+                      className="w-full bg-white text-[#052c65] border border-slate-200 hover:border-[#0047e1] hover:text-[#0047e1] py-3 rounded-full text-xs font-black uppercase tracking-widest text-center transition-all duration-300 hover:scale-[1.02] shadow-sm flex items-center justify-center gap-2"
+                    >
+                      <FileText className="w-4 h-4 text-[#0047e1]" />
+                      <span>Company Profile</span>
+                    </a>
+                  </div>
                 </div>
               </motion.div>
             )}

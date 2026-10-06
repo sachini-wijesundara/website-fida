@@ -15,9 +15,10 @@ export default function SettingsPage() {
         // Add timestamp to bypass any stuck client-side cache in dev mode
         const res = await fetch(`/api/settings?t=${Date.now()}`, { cache: "no-store" });
         const data = await res.json();
-        setSettings(data);
+        setSettings(data && typeof data === "object" ? data : {});
       } catch (err) {
         console.error("Failed to fetch settings:", err);
+        setSettings({});
       } finally {
         setLoading(false);
       }

@@ -72,22 +72,22 @@ export default function ProjectsClient({ initialProjects = [] }: { initialProjec
       {/* =====================================================================
           GLOBAL STATISTICS SECTION
           ===================================================================== */}
-      <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[#052c65] rounded-[2rem] p-8 text-center flex flex-col justify-center items-center h-48">
-          <div className="text-5xl font-black text-white mb-2">370+</div>
-          <div className="text-[10px] font-bold text-white/70 uppercase tracking-widest">CLIENTS GLOBALLY</div>
+      <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-[#052c65] rounded-3xl sm:rounded-[2rem] p-4 sm:p-8 text-center flex flex-col justify-center items-center h-36 sm:h-48">
+          <div className="text-3xl sm:text-5xl font-black text-white mb-1 sm:mb-2">370+</div>
+          <div className="text-[9px] sm:text-[10px] font-bold text-white/70 uppercase tracking-widest">CLIENTS GLOBALLY</div>
         </div>
-        <div className="bg-[#56c6d9] rounded-[2rem] p-8 text-center flex flex-col justify-center items-center h-48">
-          <div className="text-5xl font-black text-[#052c65] mb-2">4</div>
-          <div className="text-[10px] font-bold text-[#052c65]/70 uppercase tracking-widest">COUNTRIES</div>
+        <div className="bg-[#56c6d9] rounded-3xl sm:rounded-[2rem] p-4 sm:p-8 text-center flex flex-col justify-center items-center h-36 sm:h-48">
+          <div className="text-3xl sm:text-5xl font-black text-[#052c65] mb-1 sm:mb-2">4</div>
+          <div className="text-[9px] sm:text-[10px] font-bold text-[#052c65]/70 uppercase tracking-widest">COUNTRIES</div>
         </div>
-        <div className="bg-[#052c65] rounded-[2rem] p-8 text-center flex flex-col justify-center items-center h-48">
-          <div className="text-5xl font-black text-white mb-2">14+</div>
-          <div className="text-[10px] font-bold text-white/70 uppercase tracking-widest">YEARS EXP.</div>
+        <div className="bg-[#052c65] rounded-3xl sm:rounded-[2rem] p-4 sm:p-8 text-center flex flex-col justify-center items-center h-36 sm:h-48">
+          <div className="text-3xl sm:text-5xl font-black text-white mb-1 sm:mb-2">14+</div>
+          <div className="text-[9px] sm:text-[10px] font-bold text-white/70 uppercase tracking-widest">YEARS EXP.</div>
         </div>
-        <div className="bg-[#f1f5f9] rounded-[2rem] p-8 text-center flex flex-col justify-center items-center h-48">
-          <div className="text-5xl font-black text-[#052c65] mb-2">50K+</div>
-          <div className="text-[10px] font-bold text-[#052c65]/70 uppercase tracking-widest">PAYROLL EMPLOYEES</div>
+        <div className="bg-[#f1f5f9] rounded-3xl sm:rounded-[2rem] p-4 sm:p-8 text-center flex flex-col justify-center items-center h-36 sm:h-48">
+          <div className="text-3xl sm:text-5xl font-black text-[#052c65] mb-1 sm:mb-2">50K+</div>
+          <div className="text-[9px] sm:text-[10px] font-bold text-[#052c65]/70 uppercase tracking-widest">PAYROLL EMPLOYEES</div>
         </div>
       </div>
     </section>

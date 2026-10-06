@@ -30,19 +30,23 @@ export default function InquiriesAdmin() {
       const res = await fetch("/api/admin/inquiries");
       if (res.ok) {
         const data = await res.json();
-        setInquiries(data);
+        setInquiries(Array.isArray(data) ? data : []);
+      } else {
+        setInquiries([]);
       }
     } catch (err) {
       console.error("Fetch error:", err);
+      setInquiries([]);
     } finally {
       setLoading(false);
     }
   }
 
-  const filtered = inquiries.filter(i => 
-    i.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    i.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    i.message.toLowerCase().includes(searchTerm.toLowerCase())
+  const safeInquiries = Array.isArray(inquiries) ? inquiries : [];
+  const filtered = safeInquiries.filter(i => 
+    (i?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) || 
+    (i?.email?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (i?.message?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
 
   return (

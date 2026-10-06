@@ -22,9 +22,16 @@ export default function CareersAdminPanel() {
       setLoading(true);
       const res = await fetch("/api/admin/careers");
       const data = await res.json();
-      if (data.success) setJobs(data.data);
+      if (data?.success && Array.isArray(data.data)) {
+        setJobs(data.data);
+      } else if (Array.isArray(data)) {
+        setJobs(data);
+      } else {
+        setJobs([]);
+      }
     } catch (err) {
       console.error(err);
+      setJobs([]);
     } finally {
       setLoading(false);
     }
@@ -197,7 +204,7 @@ export default function CareersAdminPanel() {
             <div className="flex items-center justify-center h-[400px]">
               <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
             </div>
-          ) : jobs.length === 0 ? (
+          ) : (!Array.isArray(jobs) || jobs.length === 0) ? (
             <div className="flex flex-col items-center justify-center p-20 text-center">
               <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 border border-white/10">
                 <Briefcase size={32} className="text-white/20" />
@@ -217,7 +224,7 @@ export default function CareersAdminPanel() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {jobs.map((job) => (
+                {(Array.isArray(jobs) ? jobs : []).map((job) => (
                   <motion.tr
                     key={job.id}
                     initial={{ opacity: 0 }}

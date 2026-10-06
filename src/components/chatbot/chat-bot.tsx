@@ -2,42 +2,17 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useAnimationFrame, useMotionValue } from "framer-motion";
-import { X, Send, Loader2, RotateCcw, ChevronDown, Sparkles, Bot } from "lucide-react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, RoundedBox, Sphere, Cylinder } from "@react-three/drei";
-import * as THREE from "three";
+import { X, Send, Sparkles } from "lucide-react";
 import { usePathname } from "next/navigation";
 
-// Error boundary to prevent 3D canvas from crashing React on low-end devices
-class RobotErrorBoundary extends React.Component<{ children: React.ReactNode; fallback: React.ReactNode }, { hasError: boolean }> {
-  constructor(props: { children: React.ReactNode; fallback: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-  componentDidCatch(err: any) {
-    console.warn("Robot 3D fallback active:", err);
-  }
-  render() {
-    if (this.state.hasError) return this.props.fallback;
-    return this.props.children;
-  }
-}
-
-function FallbackRobotIcon({ hover }: { hover?: boolean }) {
+function BotAvatar({ className = "w-full h-full" }: { className?: string }) {
   return (
-    <div className={`w-full h-full rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white shadow-md transition-transform duration-300 ${hover ? "scale-105" : ""}`}>
-      <Bot className="w-8 h-8 text-white drop-shadow-sm" />
-    </div>
-  );
-}
-
-function BotAvatar() {
-  return (
-    <div className="w-full h-full rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white shadow-sm">
-      <Bot className="w-4 h-4 text-white" />
+    <div className={`rounded-xl bg-white flex items-center justify-center overflow-hidden border border-sky-100 shadow-sm p-0.5 ${className}`}>
+      <img
+        src="/fida-ai-agent.png"
+        alt="FIDA AI Agent"
+        className="w-full h-full object-contain"
+      />
     </div>
   );
 }
@@ -53,128 +28,9 @@ function getTime() {
 const GREETING: Message = {
   id: 0,
   role: "bot",
-  text: "👋 Hello! I'm FIDA AI — your highly intelligent assistant. Tell me about your business needs or ask anything about Smart HRIS!",
+  text: "👋 Hello! I'm FIDA AI — your intelligent enterprise assistant. Tell me about your business needs or ask anything about Smart HRIS!",
   time: "Just now",
 };
-
-/* ─── Real 3D Robot Material & Component ───────────────── */
-function Real3DRobot({ open, hover }: { open: boolean; hover: boolean }) {
-  const eyeColor = open ? "#ef4444" : "#0ea5e9";
-  const headRef = useRef<THREE.Group>(null);
-  const ringRef = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    if (headRef.current) {
-      if (hover && !open) {
-        headRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 4) * 0.3;
-        headRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 2) * 0.1;
-      } else {
-        headRef.current.rotation.y = THREE.MathUtils.lerp(headRef.current.rotation.y, 0, 0.1);
-        headRef.current.rotation.x = THREE.MathUtils.lerp(headRef.current.rotation.x, 0, 0.1);
-      }
-    }
-    if (ringRef.current) {
-      ringRef.current.rotation.z += 0.05;
-      ringRef.current.rotation.x = Math.sin(state.clock.elapsedTime) * 0.2;
-    }
-  });
-
-  return (
-    <group scale={1.8} position={[0, -0.6, 0]}>
-      <Float speed={hover && !open ? 5 : 2} rotationIntensity={0.4} floatIntensity={1.5}>
-        {/* Head assembly */}
-        <group ref={headRef} position={[0, 0.4, 0]}>
-          {/* Main Head */}
-          <RoundedBox args={[1.2, 0.9, 1]} radius={0.15} smoothness={3}>
-            <meshStandardMaterial color="#ffffff" roughness={0.15} metalness={0.4} />
-          </RoundedBox>
-          
-          {/* Visor Area */}
-          <RoundedBox args={[1.0, 0.45, 1.05]} radius={0.1} smoothness={3} position={[0, 0.05, 0.02]}>
-            <meshStandardMaterial color="#111827" roughness={0.2} metalness={0.8} />
-          </RoundedBox>
-          
-          {/* Eyes */}
-          <Sphere args={[0.07, 12, 12]} position={[-0.25, 0.05, 0.55]}>
-            <meshStandardMaterial color={eyeColor} emissive={eyeColor} emissiveIntensity={2} />
-          </Sphere>
-          <Sphere args={[0.07, 12, 12]} position={[0.25, 0.05, 0.55]}>
-            <meshStandardMaterial color={eyeColor} emissive={eyeColor} emissiveIntensity={2} />
-          </Sphere>
-          
-          {/* Antenna stem */}
-          <Cylinder args={[0.02, 0.02, 0.4]} position={[0, 0.6, 0]}>
-            <meshStandardMaterial color="#e5e7eb" />
-          </Cylinder>
-          {/* Antenna Bulb */}
-          <Sphere args={[0.08, 12, 12]} position={[0, 0.8, 0]}>
-            <meshStandardMaterial color="#0ea5e9" emissive="#0ea5e9" emissiveIntensity={2} />
-          </Sphere>
-          
-          {/* Side Ears */}
-          <Cylinder args={[0.15, 0.15, 1.3]} rotation={[0, 0, Math.PI / 2]}>
-            <meshStandardMaterial color="#0ea5e9" emissive="#0284c7" emissiveIntensity={0.5} metalness={0.3} />
-          </Cylinder>
-        </group>
-        
-        {/* Neck */}
-        <Cylinder args={[0.12, 0.12, 0.3]} position={[0, -0.1, 0]}>
-           <meshStandardMaterial color="#9ca3af" metalness={0.8} />
-        </Cylinder>
-        
-        {/* Upper Body */}
-        <RoundedBox args={[1.3, 0.8, 0.9]} radius={0.2} smoothness={3} position={[0, -0.6, 0]}>
-          <meshStandardMaterial color="#ffffff" roughness={0.15} metalness={0.4} />
-        </RoundedBox>
-        
-        {/* Chest Display/Core */}
-        <RoundedBox args={[0.7, 0.35, 0.95]} radius={0.05} smoothness={3} position={[0, -0.55, 0]}>
-          <meshStandardMaterial color="#e0f2fe" emissive="#0ea5e9" emissiveIntensity={0.3} />
-        </RoundedBox>
-
-        {/* Orbiting Ring around body */}
-        <mesh ref={ringRef} position={[0, -0.6, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[1.2, 0.02, 12, 60]} />
-          <meshStandardMaterial color="#0ea5e9" emissive="#0ea5e9" emissiveIntensity={2} />
-        </mesh>
-      </Float>
-    </group>
-  );
-}
-
-function RobotScene({ open, hover }: { open: boolean; hover: boolean }) {
-  const [hasWebGL, setHasWebGL] = useState(true);
-
-  useEffect(() => {
-    try {
-      const canvas = document.createElement("canvas");
-      const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-      if (!gl) setHasWebGL(false);
-    } catch {
-      setHasWebGL(false);
-    }
-  }, []);
-
-  if (!hasWebGL) {
-    return <FallbackRobotIcon hover={hover} />;
-  }
-
-  return (
-    <RobotErrorBoundary fallback={<FallbackRobotIcon hover={hover} />}>
-      <Canvas
-        camera={{ position: [0, 0, 4.5], fov: 45 }}
-        dpr={[1, 1.5]}
-        gl={{ powerPreference: "low-power", antialias: true, alpha: true }}
-        className="w-full h-full pointer-events-none"
-      >
-        <ambientLight intensity={1.8} />
-        <directionalLight position={[5, 10, 5]} intensity={2.2} color="#ffffff" />
-        <pointLight position={[-5, 0, 5]} intensity={1.5} color="#0ea5e9" />
-        <Real3DRobot open={open} hover={hover} />
-      </Canvas>
-    </RobotErrorBoundary>
-  );
-}
 
 /* ─── Main ChatBot Component ───────────────────────────── */
 export default function ChatBot() {
@@ -244,9 +100,8 @@ export default function ChatBot() {
         botText = data?.output || data?.text || data?.message || data?.response
           || (typeof data === "string" ? data : JSON.stringify(data));
           
-        // Prevent default n8n immediate response from showing up as the final answer
         if (botText === "Workflow was started" || botText === "Workflow got started.") {
-            botText = "⏳ Loading the answer...";
+          botText = "⏳ Loading the answer...";
         }
       }
 
@@ -266,6 +121,7 @@ export default function ChatBot() {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); }
   };
 
+  // Only exclude admin backoffice
   if (pathname?.startsWith("/admin")) return null;
 
   return (
@@ -277,68 +133,75 @@ export default function ChatBot() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 40 }}
             transition={{ type: "spring", damping: 20, stiffness: 280 }}
-            className="fida-chatbot fixed bottom-32 right-5 z-[998] w-[400px] max-w-[calc(100vw-1.5rem)] flex flex-col rounded-[2.5rem] overflow-hidden"
+            className="fida-chatbot fixed bottom-[72px] sm:bottom-24 right-3 sm:right-6 z-[998] w-[370px] max-w-[calc(100vw-1.5rem)] flex flex-col rounded-2xl sm:rounded-3xl overflow-hidden"
             style={{
-              height: "560px",
+              height: "min(520px, calc(100dvh - 5.5rem))",
+              maxHeight: "calc(100dvh - 5.5rem)",
               background: "#ffffff",
               border: "1px solid #bae6fd",
-              boxShadow: "0 25px 50px -12px rgba(14, 165, 233, 0.25), 0 0 0 1px rgba(14, 165, 233, 0.1)",
+              boxShadow: "0 20px 45px -10px rgba(14, 165, 233, 0.25), 0 0 0 1px rgba(14, 165, 233, 0.1)",
             }}
           >
             {/* Header */}
-            <div className="flex-shrink-0 flex items-center gap-3 px-5 py-4 border-b border-sky-100 bg-white">
-              <div className="relative w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center overflow-hidden border border-sky-100 flex-shrink-0">
-                <BotAvatar />
+            <div className="flex-shrink-0 flex items-center gap-2.5 sm:gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-sky-100 bg-white">
+              <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-sky-50 flex items-center justify-center overflow-hidden border border-sky-200/80 shadow-sm flex-shrink-0 p-0.5">
+                <img
+                  src="/fida-ai-agent.png"
+                  alt="FIDA AI Agent"
+                  className="w-full h-full object-contain"
+                />
                 <motion.span
-                  className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white"
+                  className="absolute bottom-0.5 right-0.5 w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-emerald-500 border-2 border-white"
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-black text-gray-900 tracking-tight">FIDA AI</p>
-                  <div className="px-2 py-0.5 rounded-full bg-sky-100 border border-sky-200">
-                    <span className="text-[9px] font-black text-sky-700 uppercase tracking-widest">Live</span>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <p className="text-xs sm:text-sm font-black text-[#052c65] tracking-tight truncate">FIDA AI Agent</p>
+                  <div className="px-1.5 sm:px-2 py-0.5 rounded-full bg-sky-100 border border-sky-200 shrink-0">
+                    <span className="text-[8px] sm:text-[9px] font-black text-sky-700 uppercase tracking-widest">Active</span>
                   </div>
                 </div>
-                <p className="text-[10px] text-gray-500 font-medium mt-0.5">Powered by Smart HRIS Intelligence</p>
+                <p className="text-[9px] sm:text-[10px] text-[#536b8a] font-medium mt-0.5 truncate">Your Enterprise Intelligence Assistant</p>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 shrink-0">
                 <button
                   onClick={() => { setMessages([GREETING]); idRef.current = 1; }}
-                  className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-sky-600 hover:bg-sky-50 transition-all"
-                  title="New chat"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl flex items-center justify-center text-gray-400 hover:text-sky-600 hover:bg-sky-50 transition-all text-xs font-bold"
+                  title="Reset conversation"
+                  aria-label="Reset chat"
                 >
-                  <RotateCcw size={14} />
+                  ↺
                 </button>
                 <button
                   onClick={() => setOpen(false)}
-                  className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-gray-800 hover:bg-gray-100 transition-all"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
+                  aria-label="Close chat"
                 >
-                  <ChevronDown size={18} />
+                  <X size={17} />
                 </button>
               </div>
             </div>
 
-            {/* Messages area */}
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5" style={{ scrollbarWidth: "none" }}>
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-3 sm:space-y-4 bg-gradient-to-b from-sky-50/30 to-white overscroll-contain">
               {messages.map((msg) => (
                 <motion.div
                   key={msg.id}
-                  initial={{ opacity: 0, y: 14, scale: 0.95 }}
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                  className={`flex items-end gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
+                  className={`flex items-end gap-2 sm:gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
                 >
                   {msg.role === "bot" && (
-                     <div className="relative w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0">
-                       <BotAvatar />
-                     </div>
+                    <div className="relative w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <BotAvatar />
+                    </div>
                   )}
-                  <div className={`max-w-[78%] flex flex-col gap-1 ${msg.role === "user" ? "items-end" : "items-start"}`}>
+                  <div className={`max-w-[85%] sm:max-w-[78%] flex flex-col gap-1 ${msg.role === "user" ? "items-end" : "items-start"}`}>
                     <div
-                      className="px-4 py-3 text-sm leading-relaxed"
+                      className="px-3.5 py-2.5 sm:px-4 sm:py-3 text-[13px] sm:text-sm leading-relaxed break-words"
                       style={{
                         background: msg.role === "user" ? "linear-gradient(135deg, #0ea5e9, #0284c7)" : "#e0f2fe",
                         borderRadius: msg.role === "user" ? "1.25rem 1.25rem 0.3rem 1.25rem" : "1.25rem 1.25rem 1.25rem 0.3rem",
@@ -349,21 +212,19 @@ export default function ChatBot() {
                     >
                       {msg.text}
                     </div>
-                    <span className="text-[9px] text-gray-400 px-1">{msg.time}</span>
+                    <span className="text-[8px] sm:text-[9px] text-gray-400 px-1">{msg.time}</span>
                   </div>
                 </motion.div>
               ))}
 
               {loading && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-end gap-2.5">
-                  <div className="relative w-8 h-8 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                     <div className="absolute inset-0 scale-[1.5] translate-y-1.5 translate-x-0.5">
-                       <RobotScene open={true} hover={false} />
-                     </div>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-end gap-2 sm:gap-2.5">
+                  <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-white border border-sky-100 flex items-center justify-center flex-shrink-0 overflow-hidden p-0.5 shadow-sm">
+                    <img src="/fida-ai-agent.png" alt="FIDA AI" className="w-full h-full object-contain animate-pulse" />
                   </div>
-                  <div className="px-4 py-3 rounded-[1.25rem] rounded-bl-[0.3rem] bg-sky-50 border border-sky-100 flex items-center gap-1.5">
+                  <div className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-[1.25rem] rounded-bl-[0.3rem] bg-sky-50 border border-sky-100 flex items-center gap-1.5">
                     {[0, 0.2, 0.4].map((d, i) => (
-                      <motion.span key={i} className="w-2 h-2 rounded-full bg-sky-500 block"
+                      <motion.span key={i} className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-sky-500 block"
                         animate={{ y: [-4, 0, -4], opacity: [0.5, 1, 0.5] }}
                         transition={{ duration: 0.7, repeat: Infinity, delay: d }}
                       />
@@ -375,7 +236,7 @@ export default function ChatBot() {
             </div>
 
             {/* Quick chips */}
-            <div className="px-5 pb-3 flex gap-2 flex-wrap flex-shrink-0 border-t border-sky-50 pt-3">
+            <div className="px-3.5 pb-2 sm:px-5 sm:pb-3 flex gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar flex-shrink-0 border-t border-sky-50 pt-2.5 sm:pt-3">
               {["Smart HRIS", "IT Solutions", "Get a Quote"].map((s) => (
                 <motion.button
                   key={s}
@@ -383,18 +244,18 @@ export default function ChatBot() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => sendMessage(s)}
                   disabled={loading}
-                  className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border border-sky-200 text-sky-700 bg-white hover:bg-sky-50 transition-all disabled:opacity-50"
+                  className="flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-sky-200 text-sky-700 bg-white hover:bg-sky-50 transition-all disabled:opacity-50 whitespace-nowrap shrink-0"
                 >
-                  <Sparkles size={10} className="text-sky-500" />
+                  <Sparkles size={9} className="text-sky-500 shrink-0" />
                   {s}
                 </motion.button>
               ))}
             </div>
 
             {/* Input */}
-            <div className="px-5 pb-5 flex-shrink-0">
+            <div className="px-3.5 pb-3.5 sm:px-5 sm:pb-5 flex-shrink-0">
               <div
-                className="flex items-center gap-3 rounded-2xl px-4 py-2 bg-gray-50 border border-gray-200 transition-all focus-within:border-sky-300 focus-within:ring-4 focus-within:ring-sky-200/50"
+                className="flex items-center gap-2 sm:gap-3 rounded-xl sm:rounded-2xl px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-50 border border-gray-200 transition-all focus-within:border-sky-300 focus-within:ring-4 focus-within:ring-sky-200/50"
               >
                 <input
                   ref={inputRef}
@@ -404,29 +265,30 @@ export default function ChatBot() {
                   onKeyDown={handleKey}
                   placeholder="Ask me anything..."
                   disabled={loading}
-                  className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none py-2"
+                  className="flex-1 bg-transparent text-[16px] sm:text-sm text-gray-900 placeholder-gray-400 focus:outline-none py-1.5 sm:py-2"
                 />
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => sendMessage(input)}
                   disabled={!input.trim() || loading}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-50"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-50"
                   style={{
                     background: input.trim() && !loading ? "linear-gradient(135deg, #0ea5e9, #0284c7)" : "#e5e7eb",
                     boxShadow: input.trim() && !loading ? "0 4px 12px rgba(14, 165, 233, 0.4)" : "none",
                   }}
+                  aria-label="Send message"
                 >
-                  <Send size={15} className={input.trim() && !loading ? "text-white" : "text-gray-400"} />
+                  <Send size={14} className={input.trim() && !loading ? "text-white" : "text-gray-400"} />
                 </motion.button>
               </div>
-              <p className="text-center text-[9px] text-gray-400 mt-2 tracking-widest uppercase font-bold">FIDA AI · Powered by n8n</p>
+              <p className="text-center text-[8px] sm:text-[9px] text-gray-400 mt-1.5 sm:mt-2 tracking-widest uppercase font-bold">FIDA AI · Enterprise Assistant</p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Floating Robot Launcher ─────────────────────── */}
+      {/* ── Floating Bot Launcher ─────────────────────── */}
       <div className="fida-chatbot fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[999] flex items-center justify-center">
         {/* Idle Pop-Up Cloud */}
         <AnimatePresence>
@@ -436,74 +298,67 @@ export default function ChatBot() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.5, y: 10 }}
               transition={{ type: "spring", stiffness: 350, damping: 25 }}
-              className="absolute right-[70px] md:right-[85px] bottom-[10px] md:bottom-[15px] pointer-events-none hidden md:block"
+              className="absolute right-[68px] sm:right-[76px] bottom-[8px] sm:bottom-[12px] pointer-events-none hidden sm:block z-30"
             >
               <div
-                className="relative px-5 py-3.5 rounded-3xl rounded-br-sm text-[11px] font-black text-sky-900 bg-white border border-sky-100 shadow-[0_12px_35px_rgba(14,165,233,0.2)] w-[160px] leading-relaxed"
+                className="relative px-3.5 py-2.5 rounded-2xl rounded-br-none text-[11px] font-bold text-sky-950 bg-white border border-sky-100 shadow-[0_10px_30px_rgba(14,165,233,0.22)] w-[148px] leading-snug"
               >
-                I am here! 👋<br/>Do you want to know anything?
+                I am here! 👋<br/>
+                <span className="text-[10px] font-medium text-sky-700">How can I help you today?</span>
                 
                 {/* Speech tail pointing to robot */}
-                <div className="absolute right-[-8px] bottom-[4px] w-0 h-0 border-t-[8px] border-l-[10px] border-b-[4px] border-t-transparent border-b-transparent border-l-white drop-shadow-md" />
+                <div className="absolute right-[-7px] bottom-[8px] w-0 h-0 border-t-[6px] border-l-[8px] border-b-[4px] border-t-transparent border-b-transparent border-l-white drop-shadow-sm" />
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* The floating robot button */}
+        {/* The floating FIDA AI Agent button */}
         <motion.button
           onClick={() => setOpen((v) => !v)}
           onHoverStart={() => setHover(true)}
           onHoverEnd={() => setHover(false)}
           style={{ y: open ? 0 : bobY }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center focus:outline-none"
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.92 }}
+          className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center focus:outline-none group cursor-pointer"
           aria-label="Open FIDA AI chat"
         >
-          {/* Main button bg layer for glow (only visible when open as 'X' button) */}
-          <div
-            className="absolute inset-0 rounded-[2rem] transition-all duration-300"
-            style={{
-              background: open ? "#f1f5f9" : "transparent",
-              border: open ? "1px solid #e2e8f0" : "none",
-              boxShadow: open 
-                ? "0 10px 25px rgba(0,0,0,0.1)" 
-                : "none",
-              backdropFilter: "none",
-            }}
-          />
-
-          {/* 3D Robot / Close Icon Swap */}
-          <div className={`relative w-full h-full flex items-center justify-center ${open ? 'overflow-hidden rounded-[2rem]' : 'overflow-visible'} z-10`}>
+          {/* FIDA AI Agent Avatar / Close Icon Swap */}
+          <div className="relative w-full h-full flex items-center justify-center z-10">
             <AnimatePresence mode="wait">
               {open ? (
                 <motion.div key="x"
                   initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
                   animate={{ rotate: 0, opacity: 1, scale: 1 }}
                   exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
-                  transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
+                  transition={{ duration: 0.25, type: "spring", stiffness: 300 }}
+                  className="w-12 h-12 rounded-full bg-white shadow-lg border border-slate-200 flex items-center justify-center text-gray-600 hover:text-gray-900"
                 >
-                  <X size={26} className="text-gray-500" />
+                  <X size={20} />
                 </motion.div>
               ) : (
-                <motion.div key="robot"
+                <motion.div key="fida-ai-agent"
                   initial={{ rotate: 90, opacity: 0, scale: 0.5 }}
                   animate={{ rotate: 0, opacity: 1, scale: 1 }}
                   exit={{ rotate: -90, opacity: 0, scale: 0.5 }}
                   transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
-                  className="w-[125%] h-[125%]"
+                  className="w-full h-full flex items-center justify-center filter drop-shadow-[0_8px_16px_rgba(14,165,233,0.35)] transition-all"
                 >
-                  <RobotScene open={false} hover={hover} />
+                  <img
+                    src="/fida-ai-agent.png"
+                    alt="FIDA AI Agent"
+                    className="w-full h-full object-contain select-none pointer-events-none group-hover:scale-105 transition-transform"
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
-          {/* Notification badge */}
+          {/* Notification badge with Sparkles */}
           {!open && (
             <motion.div
-              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-sky-500 border-[1.5px] border-white flex items-center justify-center z-20 shadow-[0_0_12px_rgba(14,165,233,0.8)]"
+              className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-sky-500 border-2 border-white flex items-center justify-center z-20 shadow-[0_0_10px_rgba(14,165,233,0.8)]"
               animate={{ scale: [1, 1.15, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
             >

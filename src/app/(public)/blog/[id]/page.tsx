@@ -6,18 +6,6 @@ import { motion } from "framer-motion";
 import { ChevronLeft, Share2, Loader2, Sparkles, BookOpen } from "lucide-react";
 import Link from "next/link";
 
-function formatDate(dateStr?: string) {
-  if (!dateStr) return "Recent";
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return "Recent";
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    return `${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
-  } catch {
-    return "Recent";
-  }
-}
-
 export default function BlogDetailPage() {
   const { id } = useParams();
   const [blog, setBlog] = useState<any>(null);
@@ -84,15 +72,6 @@ export default function BlogDetailPage() {
         <article className="mx-auto">
           {/* Header */}
           <header className="space-y-6 mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2"
-            >
-              <span className="px-3.5 py-1.5 rounded-full bg-blue-50 text-[#0047e1] text-xs font-bold uppercase tracking-wider border border-blue-100">
-                {blog.cat || "Insight"}
-              </span>
-            </motion.div>
 
             <motion.h1
               initial={{ opacity: 0, y: 15 }}

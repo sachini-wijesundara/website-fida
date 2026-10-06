@@ -29,9 +29,10 @@ export default function ServiceManagement() {
     try {
       const res = await fetch("/api/services");
       const data = await res.json();
-      setServices(data);
+      setServices(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch services:", err);
+      setServices([]);
     } finally {
       setLoading(false);
     }
@@ -87,8 +88,9 @@ export default function ServiceManagement() {
     }
   };
 
-  const filtered = services.filter(s =>
-    s.title.toLowerCase().includes(searchTerm.toLowerCase())
+  const safeServices = Array.isArray(services) ? services : [];
+  const filtered = safeServices.filter(s =>
+    s?.title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {

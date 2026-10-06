@@ -45,13 +45,14 @@ export default function AnalyticsAdmin() {
     );
   }
 
-  const { stats, recentBlogs } = data;
+  const stats = data?.stats || { users: 0, blogs: 0, projects: 0, customers: 0, expertise: 0 };
+  const recentBlogs = Array.isArray(data?.recentBlogs) ? data.recentBlogs : [];
 
   const displayStats = [
-    { label: "Site Stakeholders", value: stats.users.toString(), trend: "+100%", positive: true, icon: Users },
-    { label: "Dynamic Insights", value: stats.blogs.toString(), trend: "Active", positive: true, icon: MousePointer2 },
+    { label: "Site Stakeholders", value: (stats.users ?? 0).toString(), trend: "+100%", positive: true, icon: Users },
+    { label: "Dynamic Insights", value: (stats.blogs ?? 0).toString(), trend: "Active", positive: true, icon: MousePointer2 },
     { label: "System Uptime", value: "99.99%", trend: "Stable", positive: true, icon: Zap },
-    { label: "Global Reach", value: stats.projects.toString(), trend: "Projects", positive: true, icon: Globe },
+    { label: "Global Reach", value: (stats.projects ?? 0).toString(), trend: "Projects", positive: true, icon: Globe },
   ];
 
   return (

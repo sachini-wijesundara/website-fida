@@ -14,9 +14,10 @@ export default function ExpertiseManagement() {
       try {
         const res = await fetch("/api/expertise");
         const data = await res.json();
-        setExpertise(data);
+        setExpertise(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to fetch expertise:", err);
+        setExpertise([]);
       } finally {
         setLoading(false);
       }
@@ -67,7 +68,7 @@ export default function ExpertiseManagement() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         <AnimatePresence>
-          {expertise.map((exp, index) => (
+          {(Array.isArray(expertise) ? expertise : []).map((exp, index) => (
             <motion.div
               key={exp.id}
               initial={{ opacity: 0, scale: 0.9 }}

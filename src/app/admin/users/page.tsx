@@ -38,10 +38,13 @@ export default function UsersAdmin() {
         const res = await fetch("/api/admin/users");
         if (res.ok) {
           const data = await res.json();
-          setUsers(data);
+          setUsers(Array.isArray(data) ? data : []);
+        } else {
+          setUsers([]);
         }
       } catch (err) {
         console.error("Error fetching users:", err);
+        setUsers([]);
       } finally {
         setLoading(false);
       }
@@ -131,7 +134,8 @@ export default function UsersAdmin() {
     }
   };
 
-  const activeCount = users.filter(u => u.status === 'Active').length;
+  const safeUsers = Array.isArray(users) ? users : [];
+  const activeCount = safeUsers.filter(u => u?.status === 'Active').length;
 
   return (
     <div className="space-y-8">
@@ -216,7 +220,7 @@ export default function UsersAdmin() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {users.filter(u => u.username.toLowerCase().includes(searchTerm.toLowerCase())).map((user) => (
+                {safeUsers.filter(u => u?.username?.toLowerCase().includes(searchTerm.toLowerCase())).map((user) => (
                   <tr key={user.id} className="group hover:bg-white/[0.02] transition-smooth">
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-4">

@@ -122,7 +122,8 @@ export default function TeamManagement() {
     }
   };
 
-  const filtered = team.filter(t =>
+  const safeTeam = Array.isArray(team) ? team : [];
+  const filtered = safeTeam.filter(t =>
     (t.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
     (t.position?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );

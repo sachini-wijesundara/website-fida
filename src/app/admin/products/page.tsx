@@ -19,9 +19,10 @@ export default function ProductManagement() {
       setLoading(true);
       const res = await fetch("/api/products");
       const data = await res.json();
-      setProducts(data);
+      setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch products:", err);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -33,7 +34,7 @@ export default function ProductManagement() {
     try {
       const res = await fetch(`/api/products?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
-        setProducts(prev => prev.filter(p => p.id !== id));
+        setProducts(prev => (Array.isArray(prev) ? prev.filter(p => p.id !== id) : []));
       } else {
         alert("Failed to delete product");
       }
@@ -43,9 +44,10 @@ export default function ProductManagement() {
     }
   };
 
-  const filteredProducts = products.filter(p => 
-    p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.tag.toLowerCase().includes(searchTerm.toLowerCase())
+  const safeProducts = Array.isArray(products) ? products : [];
+  const filteredProducts = safeProducts.filter(p => 
+    (p?.title?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (p?.tag?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
 
   if (loading) {

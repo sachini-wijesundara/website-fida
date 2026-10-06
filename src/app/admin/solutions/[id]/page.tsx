@@ -402,6 +402,22 @@ export default function EditTemplatePage() {
           />
         </div>
       </section>
+
+      {/* Bottom Save Action Bar */}
+      <div className="flex items-center justify-between p-6 bg-[var(--bg-surface)]/95 backdrop-blur-xl rounded-2xl border border-[var(--grey-dark)] shadow-lg mt-8">
+        <Link href="/admin/solutions" className="text-sm font-semibold text-[var(--text-muted)] hover:text-blue-500 flex items-center gap-2">
+          <ArrowLeft size={16} /> Back to Solutions
+        </Link>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          style={{ backgroundColor: '#004dfc', color: '#ffffff' }}
+          className="flex items-center gap-2 px-8 py-3.5 rounded-xl !bg-[#004dfc] hover:!bg-[#003bd9] !text-white font-bold transition-all shadow-lg shadow-blue-500/30 hover:scale-[1.02] disabled:opacity-50 cursor-pointer text-sm"
+        >
+          {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+          Save Changes
+        </button>
+      </div>
     </div>
   );
 }

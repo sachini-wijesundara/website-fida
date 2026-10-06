@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import colors from "tailwindcss/colors";
 
 const config: Config = {
   content: [
@@ -28,9 +29,15 @@ const config: Config = {
         /* borders */
         border: "var(--grey-dark)",
         /* brand aliases */
-        green: "var(--green)",
+        green: {
+          ...colors.green,
+          DEFAULT: "var(--green)",
+        },
         "green-dark": "var(--green-dark)",
-        blue: "var(--blue)",
+        blue: {
+          ...colors.blue,
+          DEFAULT: "var(--blue)",
+        },
         "blue-dark": "var(--blue-dark)",
         grey: "var(--grey)",
         "grey-light": "var(--grey-light)",

@@ -95,7 +95,7 @@ export default function AdminDashboard() {
              <button className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-smooth">View All</button>
           </div>
           <div className="divide-y divide-[var(--grey-dark)]">
-            {data?.recentBlogs?.map((blog: any, i: number) => (
+            {(Array.isArray(data?.recentBlogs) ? data.recentBlogs : []).map((blog: any, i: number) => (
               <div key={i} className="p-6 flex items-center justify-between group hover:bg-[var(--bg-elevated)]/20 transition-smooth">
                 <div className="flex items-center gap-4">
                    <div className="w-10 h-10 rounded-xl bg-[var(--bg-elevated)] border border-[var(--grey-dark)] flex items-center justify-center text-[var(--green)]">

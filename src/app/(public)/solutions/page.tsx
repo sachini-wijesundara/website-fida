@@ -16,7 +16,12 @@ export default async function SolutionsPage() {
     const result = await cachedRequest("solutions-page-list", async () => {
       const pool = await getDbConnection();
       return pool.request().query(`
-        SELECT id, title, badge, description, thumbnail_image, slug, status, order_index 
+        SELECT 
+          id, title, badge, description, slug, status, order_index,
+          CASE 
+            WHEN thumbnail_image IS NOT NULL AND LEN(thumbnail_image) > 0 THEN CONCAT('/api/solutions/', id, '/images/thumb')
+            ELSE ''
+          END as thumbnail_image
         FROM Solutions 
         WHERE status = 'Active' OR status IS NULL
         ORDER BY CASE WHEN title = 'FIDA AI' THEN -1 ELSE order_index END ASC

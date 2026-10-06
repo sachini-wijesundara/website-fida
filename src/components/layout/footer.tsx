@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Mail, Share2, Phone, MapPin, ArrowUpRight } from "lucide-react";
+import { Mail, Share2, Phone, MapPin, ArrowUpRight, FileText } from "lucide-react";
 
 function FacebookIcon({ className }: { className?: string }) {
   return (
@@ -36,6 +36,7 @@ const companyLinks: { name: string; href: string; isExternal?: boolean; download
   { name: "Careers", href: "/careers" },
   { name: "Blog", href: "/blog" },
   { name: "Contact", href: "/contact" },
+  { name: "Terms & Conditions", href: "/terms" },
 ];
 
 export default function Footer() {
@@ -71,7 +72,7 @@ export default function Footer() {
   return (
     <footer className="relative bg-[#f4f9fd] text-[#052c65] site-footer mt-16 lg:mt-24">
       {/* ── CTA banner halfly overlapped over the footer part ── */}
-      <div className="container mx-auto px-6 max-w-4xl relative z-20 -translate-y-12 lg:-translate-y-1/2 mb-[-48px] lg:mb-[-120px]">
+      <div className="container mx-auto px-3 sm:px-6 max-w-4xl relative z-20 -translate-y-7 lg:-translate-y-1/2 mb-[-28px] lg:mb-[-120px]">
         <motion.div
           className="contact-cta mx-auto"
           initial={{ opacity: 0, y: 30 }}
@@ -109,7 +110,6 @@ export default function Footer() {
               <>
                 <input
                   type="email"
-
                   placeholder="your@email.com"
                   value={subscribeEmail}
                   onChange={(e) => setSubscribeEmail(e.target.value)}
@@ -121,6 +121,12 @@ export default function Footer() {
               </>
             )}
           </form>
+          <p className="text-[11px] text-slate-500 mt-2.5 text-center leading-relaxed">
+            By subscribing, you agree to our{" "}
+            <Link href="/privacy" className="text-[#0047e1] font-semibold underline hover:text-[#0037b0] transition-colors">
+              Privacy Policy
+            </Link>.
+          </p>
         </motion.div>
       </div>
 
@@ -255,13 +261,22 @@ export default function Footer() {
               </div>
             </div>
 
-            <div className="pt-5 lg:pt-3">
+            <div className="pt-5 lg:pt-3 flex flex-wrap items-center justify-center lg:justify-start gap-3">
               <Link
                 href="/contact"
                 className="inline-flex items-center justify-center px-8 py-3.5 lg:px-7 lg:py-3 bg-[#004dfc] hover:bg-[#003bd9] text-white text-[13px] lg:text-[11px] font-bold tracking-[0.08em] uppercase rounded-full transition-all shadow-[0_8px_20px_rgba(0,77,252,0.24)] hover:shadow-[0_12px_24px_rgba(0,77,252,0.32)] hover:-translate-y-[1px] w-fit"
               >
                 Book a Consultation
               </Link>
+              <a
+                href="/FIDA%20Global%20Company%20Profile.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 lg:px-6 lg:py-3 bg-white border border-slate-200 hover:border-blue-600 text-[#052c65] hover:text-blue-600 text-[13px] lg:text-[11px] font-bold tracking-[0.08em] uppercase rounded-full transition-all shadow-sm hover:-translate-y-[1px] w-fit"
+              >
+                <FileText className="w-4 h-4 text-[#004dfc]" />
+                <span>Company Profile</span>
+              </a>
             </div>
           </div>
 
@@ -285,7 +300,7 @@ export default function Footer() {
             >
               Cookie Settings
             </button>
-            <Link href="/terms" className="hover:text-blue-600 transition-colors">Terms of Service</Link>
+            <Link href="/terms" className="hover:text-blue-600 transition-colors">Terms & Conditions</Link>
           </p>
         </div>
       </div>

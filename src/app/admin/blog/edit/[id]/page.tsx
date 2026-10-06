@@ -21,44 +21,44 @@ export default function EditBlogPost() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState("");
-  const [categories, setCategories] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     title: "",
-    categoryId: "",
+    categoryId: "1",
     excerpt: "",
     content: "",
     imageUrl: "",
     status: "Draft",
+    orderIndex: "1",
   });
 
   useEffect(() => {
     async function init() {
       try {
-        const [catsRes, blogRes] = await Promise.all([
-          fetch("/api/categories"),
-          fetch(`/api/blogs/${id}`)
-        ]);
-        
-        const catsData = await catsRes.json();
+        const blogRes = await fetch(`/api/blogs/${id}`);
+        if (!blogRes.ok) {
+          throw new Error("Could not load blog post for editing.");
+        }
         const blogData = await blogRes.json();
         
-        setCategories(catsData);
         setFormData({
           title: blogData.title || "",
-          categoryId: blogData.category_id?.toString() || (catsData[0]?.id?.toString() || ""),
+          categoryId: blogData.category_id?.toString() || "1",
           excerpt: blogData.excerpt || "",
           content: blogData.content || "",
-          imageUrl: blogData.imageUrl || "",
+          imageUrl: blogData.imageUrl || blogData.image_url || "",
           status: blogData.status || "Draft",
+          orderIndex: (blogData.order_index ?? blogData.orderIndex ?? "1").toString(),
         });
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to load blog data:", err);
-        setError("Could not load blog post for editing.");
+        setError(err.message || "Could not load blog post for editing.");
       } finally {
         setFetching(false);
       }
     }
-    init();
+    if (id) {
+      init();
+    }
   }, [id]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,7 +83,8 @@ export default function EditBlogPost() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          categoryId: parseInt(formData.categoryId),
+          categoryId: parseInt(formData.categoryId) || 1,
+          orderIndex: parseInt(formData.orderIndex) || 1,
         }),
       });
 
@@ -105,6 +106,21 @@ export default function EditBlogPost() {
       <div className="h-96 flex flex-col items-center justify-center gap-4 text-[var(--text-muted)]">
         <Loader2 className="animate-spin" size={40} />
         <p className="text-sm font-medium">Loading post data...</p>
+      </div>
+    );
+  }
+
+  if (error && !formData.title) {
+    return (
+      <div className="h-96 flex flex-col items-center justify-center gap-4 text-[var(--text-muted)]">
+        <AlertCircle size={40} className="text-red-400" />
+        <p className="text-sm font-medium text-red-400">{error}</p>
+        <Link 
+          href="/admin/blog"
+          className="mt-2 px-6 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--grey-dark)] text-sm font-bold text-white hover:bg-[var(--bg-elevated)] transition-colors"
+        >
+          Return to Manage Blogs
+        </Link>
       </div>
     );
   }
@@ -214,15 +230,23 @@ export default function EditBlogPost() {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">Category</label>
-              <select 
-                className="w-full bg-[var(--bg-elevated)] border border-[var(--grey-dark)] rounded-xl py-3 px-4 focus:outline-none focus:border-[var(--green)] transition-smooth text-sm appearance-none cursor-pointer"
-                value={formData.categoryId}
-                onChange={(e) => setFormData({...formData, categoryId: e.target.value})}
-              >
-                {categories.map(c => <option key={c.id} value={c.id} className="bg-[var(--bg-elevated)]">{c.name}</option>)}
-              </select>
+            <div className="space-y-3 pt-3 border-t border-[var(--grey-dark)]">
+              <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center justify-between">
+                <span>Display Order</span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${formData.orderIndex === "1" ? "bg-amber-400/10 text-amber-300 border border-amber-400/20" : "text-[var(--text-muted)]"}`}>
+                  {formData.orderIndex === "1" ? "★ Featured Hero Card" : `Position #${formData.orderIndex}`}
+                </span>
+              </label>
+              <input
+                type="number"
+                min="1"
+                className="w-full bg-[var(--bg-elevated)]/50 border border-[var(--grey-dark)] rounded-2xl py-3 px-4 focus:outline-none focus:border-[var(--green)] transition-smooth text-sm font-bold"
+                value={formData.orderIndex}
+                onChange={(e) => setFormData({ ...formData, orderIndex: e.target.value })}
+              />
+              <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
+                Order 1 is automatically featured in the large hero card on the blog page.
+              </p>
             </div>
           </div>
 
