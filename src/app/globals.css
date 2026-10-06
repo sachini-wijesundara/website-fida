@@ -599,10 +599,7 @@ a, button, [data-cursor] { cursor: pointer; }
   position: relative;
   width: 100%;
   margin-top: -115svh;
-  border-radius: clamp(2.5rem, 5vw, 5rem) clamp(2.5rem, 5vw, 5rem) 0 0;
-  overflow: hidden;
-  box-shadow: 0 -22px 60px rgba(5,44,101,.08);
-  background: #ffffff;
+  background: transparent;
   transform: translateZ(0);
   will-change: transform;
 }
@@ -989,12 +986,12 @@ a, button, [data-cursor] { cursor: pointer; }
 .home-overview {
   position: relative;
   z-index: 10;
-  padding: clamp(5.5rem, 9vw, 7.5rem) 0 0;
+  padding: clamp(3.5rem, 6vw, 5.5rem) 0 0;
   overflow: hidden;
   color: var(--home-navy);
   transform-origin: center top;
   will-change: transform, opacity;
-  background: #ffffff;
+  background: transparent;
 }
 
 .home-bento {
