@@ -258,6 +258,8 @@ export default function CareersClient() {
             <img
               src="/api/images/careers_banner.png?v=2"
               alt="FIDA Team Collaboration"
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover"
               style={{ objectPosition: 'center 36%' }}
               onError={(e) => {

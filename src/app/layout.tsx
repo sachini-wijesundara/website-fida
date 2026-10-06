@@ -37,8 +37,15 @@ export const metadata: Metadata = {
     images: ["https://www.fidaglobal.com/twitter-image.png"], // Ensure this exists or suggest creating it
   },
   icons: {
-    icon: "/logo.png",
-    apple: "/apple-touch-icon.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "192x192" },
+      { url: "/logo.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
 };
 

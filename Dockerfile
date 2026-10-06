@@ -31,13 +31,15 @@ ENV HOSTNAME="0.0.0.0"
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Set up prerender cache directory permissions
-RUN mkdir .next && chown nextjs:nodejs .next
+# Set up prerender and image cache directory permissions
+RUN mkdir -p .next .cache/fida-images && chown -R nextjs:nodejs .next .cache
 
 # Leverage Next.js standalone output tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/sharp ./node_modules/sharp
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/@img ./node_modules/@img
 
 USER nextjs
 

@@ -16,3 +16,8 @@ services:
         required: false
       - path: .env.local
         required: false
+    volumes:
+      - fida-image-cache:/app/.cache/fida-images
+
+volumes:
+  fida-image-cache:
