@@ -372,15 +372,17 @@ export default function ContactClient() {
                   </div>
                   <div className="text-[9px] sm:text-[13px] leading-relaxed text-[#64748B] mb-2 sm:mb-4 flex-1">
                     <p className="font-semibold text-[#0F172A] mb-1">FIDA Global Office</p>
-                    Raththanapitiya,
-                    <br />
-                    215 C Colombo - Horana Road,
+  
+                    215 C,
                     <br />
                     Boralesgamuwa,
                     <br/>
-                    Sri Lanka.
+                    Raththanapitiya,
+                    <br/>
+                    10290,
                     <br />
-                    10290
+                    Sri Lanka.
+                    
                   </div>
                   <a href="tel:+94117108020" className="text-[10px] sm:text-[13px] font-bold text-[#2563eb] hover:text-[#1d4ed8] transition-colors mt-auto block whitespace-nowrap">
                     +94 11 710 80 20
