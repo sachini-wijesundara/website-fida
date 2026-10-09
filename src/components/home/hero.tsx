@@ -65,9 +65,8 @@ function InstancedDots() {
 
   return (
     <group ref={groupRef} rotation={[0, -Math.PI / 2, 0]}>
-      {/* 7,160 perfectly uniform, perfectly colored tiny 3D spheres */}
       <instancedMesh ref={meshRef} args={[undefined, undefined, globeData.length]} material={customMaterial}>
-        <sphereGeometry args={[0.008, 6, 6]} /> {/* Reduced from 0.015 to 0.008 */}
+        <circleGeometry args={[0.009, 5]} />
       </instancedMesh>
     </group>
   );
@@ -78,9 +77,16 @@ function DottedGlobe() {
     <div className="hero-globe">
       <Canvas 
         camera={{ position: [0, 0, 5], fov: 45 }} 
-        style={{ background: 'transparent' }}
-        dpr={[1, 1.5]}
-        gl={{ powerPreference: "high-performance", antialias: false, alpha: true }}
+        style={{ background: 'transparent', pointerEvents: 'none' }}
+        dpr={[1, 1.25]}
+        gl={{ 
+          powerPreference: "high-performance", 
+          antialias: false, 
+          alpha: true,
+          depth: false,
+          stencil: false,
+          precision: "mediump"
+        }}
         performance={{ min: 0.5 }}
       >
         <InstancedDots />
@@ -98,15 +104,14 @@ export default function Hero() {
     offset: ["start start", "end end"],
   });
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 85,
-    damping: 26,
-    mass: 0.22,
-    restDelta: 0.001,
+    stiffness: 200,
+    damping: 30,
+    mass: 0.05,
+    restDelta: 0.0001,
   });
   const copyY = useTransform(smoothProgress, [0, 0.42], [0, -190]);
   const copyOpacity = useTransform(smoothProgress, [0, 0.32], [1, 0]);
-  const sceneScale = useTransform(smoothProgress, [0, 0.58], [1, 1.07]);
-  const sceneY = useTransform(smoothProgress, [0.06, 0.58], [0, -640]);
+  const sceneY = useTransform(smoothProgress, [0.03, 0.58], [0, -640]);
   const cueOpacity = useTransform(smoothProgress, [0, 0.18], [1, 0]);
   const colorOpacity = useTransform(smoothProgress, [0.08, 0.62], [0, 1]);
 
@@ -120,7 +125,7 @@ export default function Hero() {
         />
         <motion.div
           className="home-hero__scene"
-          style={reduceMotion ? undefined : { scale: sceneScale, y: sceneY }}
+          style={reduceMotion ? undefined : { y: sceneY }}
         >
           <div className="home-hero__wash home-hero__wash--left" />
           <div className="home-hero__wash home-hero__wash--right" />

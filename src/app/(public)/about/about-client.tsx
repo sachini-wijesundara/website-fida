@@ -14,26 +14,18 @@ const values = [
   { icon: Handshake, title: "Right-Sized & Cost-Efficient", desc: "We scale up or scale down with your business — delivering exactly what you need, never paying for more than you use." },
 ];
 
-// Default fallback team
-const defaultTeam = [
-  // Row 1
-  { name: "Upendra Wickramatunga", role: "MANAGING DIRECTOR", image: "/api/images/ourteam/upendra.png", linkedin: "#", twitter: "#" },
-  { name: "Toshani Munasinghe", role: "DIRECTOR HCM", image: "/api/images/ourteam/toshani.png", linkedin: "#", twitter: "#" },
-  { name: "Charmi Dilini", role: "MANAGER PROJECTS AND SERVICE DELIVERY", image: "/api/images/ourteam/charmi.png", linkedin: "#", twitter: "#" },
-  { name: "Rukshan Peiris", role: "SENIOR SOFTWARE ENGINEER", image: "/api/images/ourteam/rukshan.png", linkedin: "#", twitter: "#" },
-  // Row 2
-  { name: "Yuwanthi Nimnathara", role: "SENIOR SOFTWARE ENGINEER", image: "/api/images/ourteam/yuwanthi.png", linkedin: "#", twitter: "#" },
-  { name: "Gihan Nayanajith", role: "SOFTWARE ENGINEER", image: "/api/images/ourteam/gihan.png", linkedin: "#", twitter: "#" },
-  { name: "Isuru Munasinghe", role: "MANAGER AUTOMATION AND DIGITAL TRANSFORMATION", image: "/api/images/ourteam/isuru.png", linkedin: "#", twitter: "#" },
-];
-
 const SMOOTH: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 import { useState, useEffect } from "react";
 
-export default function AboutClient() {
-  const [awardImageUrl, setAwardImageUrl] = useState("/AWARD.JPG");
-  const [teamMembers, setTeamMembers] = useState<any[]>(defaultTeam);
+interface AboutClientProps {
+  initialTeam?: any[];
+  initialAwardImage?: string;
+}
+
+export default function AboutClient({ initialTeam = [], initialAwardImage = "/AWARD.JPG" }: AboutClientProps) {
+  const [awardImageUrl, setAwardImageUrl] = useState(initialAwardImage);
+  const [teamMembers, setTeamMembers] = useState<any[]>(initialTeam);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -45,7 +37,7 @@ export default function AboutClient() {
       })
       .catch(console.error);
 
-    fetch("/api/teams")
+    fetch(`/api/teams?t=${Date.now()}`, { cache: "no-store" })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {

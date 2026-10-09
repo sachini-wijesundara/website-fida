@@ -114,10 +114,10 @@ export default function HomeOverview() {
         <div className="home-bento__col home-bento__col--3">
           <div className="home-bento__stat home-bento__stat--outline">
             <strong><Counter value={50} suffix="K+" /></strong>
-            <span>Uptime Cloud<br/>Payroll Employees</span>
+            <span>Uptime Cloud<br/>Payroll Users</span>
           </div>
           <div className="home-bento__stat home-bento__stat--yellow" style={{ position: 'relative', overflow: 'hidden', background: '#ffff66' }}>
-            <img src="/api/images/homepageimages/products.png" alt="10+ Products" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-contain z-0 p-1" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain', zIndex: 0 }} />
+            <img src="/products.png" alt="10+ Products" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-contain z-0 p-1" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain', zIndex: 0 }} />
           </div>
         </div>
 
@@ -176,7 +176,7 @@ export default function HomeOverview() {
               transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
             >
               <img
-                src="/api/images/homepageimages/frame04.png"
+                src="/api/images/homepageimages/dashabords.png"
                 alt="FIDA Global platform dashboards and employee portal"
                 loading="lazy"
                 decoding="async"
