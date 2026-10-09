@@ -113,7 +113,7 @@ export default function HomeOverview() {
 
         <div className="home-bento__col home-bento__col--3">
           <div className="home-bento__stat home-bento__stat--outline">
-            <strong><Counter value={50} suffix="K+" /></strong>
+            <strong><Counter value={30} suffix="K+" /></strong>
             <span>Uptime Cloud<br/>Payroll Users</span>
           </div>
           <div className="home-bento__stat home-bento__stat--yellow" style={{ position: 'relative', overflow: 'hidden', background: '#ffff66' }}>

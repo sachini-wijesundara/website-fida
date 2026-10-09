@@ -68,11 +68,22 @@ export default async function SolutionPage({ params }: { params: { id: string } 
 
           if (td.hero?.image && (td.hero.image.startsWith("data:") || td.hero.image.length > 500)) {
             td.hero.image = `/api/solutions/${identifier}/images/hero`;
+          } else if (!td.hero?.image || td.hero.image.includes("/images/hero")) {
+            td.hero = td.hero || {};
+            td.hero.image = `/api/solutions/${identifier}/images/hero`;
           }
           if (td.features_section?.cards && Array.isArray(td.features_section.cards)) {
             td.features_section.cards.forEach((card: any, idx: number) => {
               if (card.image && (card.image.startsWith("data:") || card.image.length > 500)) {
                 card.image = `/api/solutions/${identifier}/images/card${idx}`;
+              } else if (card.image && card.image.includes(`/images/card${idx}`)) {
+                const hasUnderlyingImage = 
+                  (idx === 0 && !!solution.detail_image_1) ||
+                  (idx === 1 && !!solution.detail_image_2) ||
+                  (solution.slug === "smart-hris");
+                if (!hasUnderlyingImage) {
+                  card.image = "";
+                }
               }
             });
           }

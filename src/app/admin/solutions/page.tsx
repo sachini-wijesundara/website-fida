@@ -41,6 +41,15 @@ export default function SolutionsManagement() {
     }
   };
 
+  const uploadImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    if (!res.ok) throw new Error("Upload failed");
+    const data = await res.json();
+    return data.url;
+  };
+
   const moveSolution = async (index: number, direction: number) => {
     const targetIndex = index + direction;
     if (targetIndex < 0 || targetIndex >= solutions.length) return;
@@ -234,7 +243,7 @@ export default function SolutionsManagement() {
                   </td>
                   <td className="px-6 py-5 text-right">
                     <div className="flex items-center justify-end gap-2 text-[var(--text-muted)]">
-                      <Link href={`/admin/solutions/${(t.order_index || 0).toString().padStart(2, '0')}`} className="p-2 hover:bg-white/5 rounded-lg hover:text-green-400 transition-colors" title="Edit Template">
+                      <Link href={`/admin/solutions/${t.id}`} className="p-2 hover:bg-white/5 rounded-lg hover:text-green-400 transition-colors" title="Edit Template">
                         <LayoutTemplate size={16} />
                       </Link>
                       <button onClick={() => { setEditingItem(t); setIsModalOpen(true); }} className="p-2 hover:bg-white/5 rounded-lg hover:text-blue-400 transition-colors" title="Edit Basic Info">
@@ -320,11 +329,9 @@ export default function SolutionsManagement() {
                           onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) {
-                               const reader = new FileReader();
-                               reader.onloadend = () => {
-                                  setImagePreview(reader.result as string);
-                               };
-                               reader.readAsDataURL(file);
+                               uploadImage(file).then(url => {
+                                  setImagePreview(url);
+                               }).catch(err => alert('Failed to upload image: ' + err.message));
                             }
                           }}
                           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20"
@@ -341,8 +348,16 @@ export default function SolutionsManagement() {
                         />
                      </div>
                      {imagePreview && (
-                       <div className="w-full aspect-video rounded-xl overflow-hidden border border-white/10 relative">
+                       <div className="w-full aspect-video rounded-xl overflow-hidden border border-white/10 relative group">
                           <img src={imagePreview} className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setImagePreview("")}
+                            className="absolute top-2 right-2 bg-red-600/80 hover:bg-red-600 text-white px-2 py-1 rounded-md text-xs font-semibold shadow flex items-center gap-1 cursor-pointer"
+                            title="Remove image"
+                          >
+                            <Trash2 size={12} /> Remove
+                          </button>
                        </div>
                      )}
                   </div>

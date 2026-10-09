@@ -55,6 +55,7 @@ export async function POST(request: Request) {
 
     invalidateRequestCache("team-members");
     invalidateRequestCache("team-summaries");
+    invalidateRequestCache("about-team-members");
 
     return NextResponse.json({ message: "Team member saved successfully" });
   } catch (error: any) {
@@ -78,6 +79,7 @@ export async function DELETE(request: Request) {
 
     invalidateRequestCache("team-members");
     invalidateRequestCache("team-summaries");
+    invalidateRequestCache("about-team-members");
 
     return NextResponse.json({ message: "Team member deleted successfully" });
   } catch (error: any) {

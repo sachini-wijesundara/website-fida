@@ -28,20 +28,11 @@ export async function GET(
     const isNumeric = !isNaN(Number(id));
     const req = pool.request();
 
-    let selectCols = "template_data, detail_image_1, thumbnail_image";
-    if (type === "thumb") {
-      selectCols = "thumbnail_image";
-    } else if (type === "detail1") {
-      selectCols = "detail_image_1";
-    } else if (type === "detail2") {
-      selectCols = "detail_image_2";
-    } else if (type.startsWith("card")) {
-      selectCols = "template_data";
-    }
+    let selectCols = "template_data, detail_image_1, detail_image_2, thumbnail_image";
 
     let query = `SELECT id, slug, ${selectCols} FROM Solutions WHERE `;
     if (isNumeric) {
-      query += "(order_index = @NumId OR id = @NumId)";
+      query += "(id = @NumId OR order_index = @NumId) ORDER BY CASE WHEN id = @NumId THEN 0 ELSE 1 END";
       req.input("NumId", parseInt(id));
     } else {
       query += "slug = @Slug";
@@ -66,10 +57,22 @@ export async function GET(
       try {
         const td = JSON.parse(row.template_data);
         if (type === "hero") {
-          rawImage = td.hero?.image || row.detail_image_1 || row.thumbnail_image;
+          rawImage = td.hero?.image;
+          if (!rawImage || rawImage.includes(`/images/hero`)) {
+            rawImage = row.thumbnail_image || row.detail_image_1;
+          }
         } else if (type.startsWith("card")) {
           const cardIdx = parseInt(type.replace("card", "")) || 0;
           rawImage = td.features_section?.cards?.[cardIdx]?.image;
+          if (!rawImage || rawImage.includes(`/images/${type}`) || rawImage.includes(`/images/card${cardIdx}`)) {
+            if (cardIdx === 0 && row.detail_image_1) {
+              rawImage = row.detail_image_1;
+            } else if (cardIdx === 1 && row.detail_image_2) {
+              rawImage = row.detail_image_2;
+            } else {
+              rawImage = null;
+            }
+          }
         }
       } catch (e) {
         console.error("Error parsing template_data for image extraction:", e);
@@ -79,7 +82,13 @@ export async function GET(
     // Fallbacks if image is missing or self-referential
     const isSmartHris = row.slug === "smart-hris" || id === "smart-hris" || id === "14";
     if (!rawImage || rawImage.includes(`/images/${type}`) || rawImage === request.url) {
-      if (isSmartHris) {
+      if (type === "hero") {
+        rawImage = row.thumbnail_image || row.detail_image_1;
+      } else if (type === "card0" && row.detail_image_1) {
+        rawImage = row.detail_image_1;
+      } else if (type === "card1" && row.detail_image_2) {
+        rawImage = row.detail_image_2;
+      } else if (isSmartHris) {
         if (type === "card0") rawImage = "/api/images/solutions_images/smarthrispic1.png";
         else if (type === "card1") rawImage = "/api/images/solutions_images/smarthrispic2.png";
       }
@@ -93,15 +102,29 @@ export async function GET(
       const targetUrl = new URL(rawImage, request.url);
       if (targetUrl.pathname === new URL(request.url).pathname) {
         // Prevent infinite redirect loops
-        if (isSmartHris && type === "card0") {
+        if (type === "hero") {
+          rawImage = row.thumbnail_image || row.detail_image_1;
+        } else if (type === "card0" && row.detail_image_1) {
+          rawImage = row.detail_image_1;
+        } else if (type === "card1" && row.detail_image_2) {
+          rawImage = row.detail_image_2;
+        } else if (isSmartHris && type === "card0") {
           return NextResponse.redirect(new URL("/api/images/solutions_images/smarthrispic1.png", request.url));
-        }
-        if (isSmartHris && type === "card1") {
+        } else if (isSmartHris && type === "card1") {
           return NextResponse.redirect(new URL("/api/images/solutions_images/smarthrispic2.png", request.url));
+        } else {
+          return new NextResponse(null, { status: 404 });
         }
-        return new NextResponse(null, { status: 404 });
+
+        if (!rawImage || rawImage.includes(`/images/${type}`)) {
+          return new NextResponse(null, { status: 404 });
+        }
+        if (!rawImage.startsWith("data:")) {
+          return NextResponse.redirect(new URL(rawImage, request.url));
+        }
+      } else {
+        return NextResponse.redirect(targetUrl);
       }
-      return NextResponse.redirect(targetUrl);
     }
 
     const parsed = parseDataUri(rawImage);

@@ -203,11 +203,19 @@ export default function EditTemplatePage() {
             }}
             className="w-full bg-white border border-slate-200 shadow-sm text-slate-800 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" 
           />
-          {(template.hero?.image || solutionInfo?.thumbnail_image || solutionInfo?.detail_image_1) && (
+          {template.hero?.image && (
             <div className="w-full md:w-1/2 aspect-[4/3] rounded-xl overflow-hidden border border-white/10 relative">
-               <img src={template.hero?.image || solutionInfo?.detail_image_1 || solutionInfo?.thumbnail_image} alt="Hero Preview" className="w-full h-full object-cover" />
-               <div className="absolute inset-0 bg-white/80 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                  <span className="text-slate-800 text-xs font-bold">Current Image</span>
+               <img src={template.hero.image} alt="Hero Preview" className="w-full h-full object-cover" />
+               <button 
+                 type="button"
+                 onClick={() => setTemplate({...template, hero: {...template.hero, image: ""}})}
+                 className="absolute top-2 right-2 p-2 bg-red-600/80 hover:bg-red-600 text-white rounded-lg transition-colors z-10 shadow"
+                 title="Remove Hero Image"
+               >
+                 <Trash2 size={14} />
+               </button>
+               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                  <span className="text-white text-xs font-bold">Hero Image</span>
                </div>
             </div>
           )}
@@ -265,20 +273,30 @@ export default function EditTemplatePage() {
                       onChange={e => {
                         const file = e.target.files?.[0];
                         if (file) {
-                           const reader = new FileReader();
-                           reader.onloadend = () => {
+                           uploadImage(file).then(url => {
                               const newCards = [...template.features_section.cards];
-                              newCards[idx].image = reader.result as string;
+                              newCards[idx].image = url;
                               setTemplate({...template, features_section: {...template.features_section, cards: newCards}});
-                           };
-                           reader.readAsDataURL(file);
+                           }).catch(err => alert("Failed to upload card image: " + err.message));
                         }
                       }}
                       className="w-full bg-white border border-slate-200 shadow-sm text-slate-800 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" 
                     />
                     {card.image && (
-                      <div className="w-full h-32 rounded-xl overflow-hidden border border-white/10 relative">
+                      <div className="w-full h-32 rounded-xl overflow-hidden border border-white/10 relative group">
                          <img src={card.image} alt="Card Image Preview" className="w-full h-full object-contain bg-white/5" />
+                         <button
+                           type="button"
+                           onClick={() => {
+                             const newCards = [...template.features_section.cards];
+                             newCards[idx].image = "";
+                             setTemplate({...template, features_section: {...template.features_section, cards: newCards}});
+                           }}
+                           className="absolute top-2 right-2 bg-red-600/80 hover:bg-red-600 text-white px-2 py-1 rounded-md text-xs font-semibold shadow"
+                           title="Remove image"
+                         >
+                           Remove
+                         </button>
                       </div>
                     )}
                   </div>

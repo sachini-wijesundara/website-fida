@@ -212,6 +212,12 @@ export default function SolutionDetailClient({ id, initialData }: SolutionDetail
                   src={data.hero?.image || data.detail_image_1 || data.thumbnail_image || "/placeholder.jpg"}
                   alt="Preview"
                   className="relative w-full rounded-2xl shadow-2xl border border-white/50 object-cover aspect-square" loading="eager" fetchPriority="high"
+                  onError={(e) => {
+                    const fallback = data.thumbnail_image || data.detail_image_1;
+                    if (fallback && e.currentTarget.src !== fallback) {
+                      e.currentTarget.src = fallback;
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -281,7 +287,19 @@ export default function SolutionDetailClient({ id, initialData }: SolutionDetail
             {/* Image column */}
             <div className="w-1/2 relative shrink-0">
               <div className="absolute inset-0 bg-gradient-to-r from-[#e0f2fe] to-[#dcfce3] rounded-[3rem] -rotate-3 scale-105 opacity-60 blur-xl" />
-              <img src={data.hero?.image || data.detail_image_1 || data.thumbnail_image || "/placeholder.jpg"} alt="Preview" className="relative w-full rounded-[2.5rem] shadow-2xl border border-white/50 object-cover aspect-[4/3]" loading="eager" fetchPriority="high" />
+              <img 
+                src={data.hero?.image || data.detail_image_1 || data.thumbnail_image || "/placeholder.jpg"} 
+                alt="Preview" 
+                className="relative w-full rounded-[2.5rem] shadow-2xl border border-white/50 object-cover aspect-[4/3]" 
+                loading="eager" 
+                fetchPriority="high" 
+                onError={(e) => {
+                  const fallback = data.thumbnail_image || data.detail_image_1;
+                  if (fallback && e.currentTarget.src !== fallback) {
+                    e.currentTarget.src = fallback;
+                  }
+                }}
+              />
             </div>
           </div>
 
@@ -299,35 +317,51 @@ export default function SolutionDetailClient({ id, initialData }: SolutionDetail
                 const hasImage = card.image && card.image.trim() !== "";
                 if (hasImage) {
                   return (
-                    <div key={index} className="col-span-2 flex flex-row gap-4 md:gap-12 items-center">
+                    <div key={index} className="col-span-2 grid grid-cols-2 gap-3 md:gap-6 lg:gap-12 items-stretch">
                       {index % 2 === 0 ? (
                         <>
-                          <div className="w-1/2 bg-white rounded-2xl md:rounded-3xl p-4 md:p-10 shadow-[10px_10px_30px_-10px_rgba(2,132,199,0.15)] md:shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.2)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all justify-center min-h-[160px] md:h-full">
-                            <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl flex items-center justify-center font-bold shadow-md mb-3 md:mb-8 shrink-0" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
+                          <div className="bg-white rounded-2xl md:rounded-3xl p-5 sm:p-7 md:p-10 shadow-[10px_10px_30px_-10px_rgba(2,132,199,0.15)] md:shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.2)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all justify-center h-[260px] sm:h-[300px] md:h-[350px] lg:h-[380px]">
+                            <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl flex items-center justify-center font-bold shadow-md mb-3 md:mb-6 shrink-0" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
                               <span className="scale-90 md:scale-100 flex items-center justify-center">
                                 {getCardIcon(card.title, index)}
                               </span>
                             </div>
-                            <h3 className="text-sm md:text-2xl font-bold text-[#0f172a] mb-1.5 md:mb-4 leading-tight">{card.title}</h3>
-                            <p className="text-[#64748b] text-[11px] md:text-sm leading-relaxed whitespace-pre-line">{card.description}</p>
+                            <h3 className="text-sm md:text-2xl font-bold text-[#0f172a] mb-1.5 md:mb-3 leading-tight">{card.title}</h3>
+                            <p className="text-[#64748b] text-[11px] md:text-sm leading-relaxed whitespace-pre-line line-clamp-4 md:line-clamp-none">{card.description}</p>
                           </div>
-                          <div className="w-1/2 flex justify-center">
-                            <img src={card.image} alt={card.title} className="w-full h-auto object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 max-h-[200px] md:max-h-none" loading="lazy" />
+                          <div className="h-[260px] sm:h-[300px] md:h-[350px] lg:h-[380px] flex items-center justify-center p-2 sm:p-4 overflow-hidden">
+                            <img 
+                              src={card.image} 
+                              alt={card.title} 
+                              className="w-full h-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500" 
+                              loading="lazy" 
+                              onError={(e) => {
+                                (e.currentTarget.parentElement as HTMLElement)?.style?.setProperty("display", "none");
+                              }}
+                            />
                           </div>
                         </>
                       ) : (
                         <>
-                          <div className="w-1/2 flex justify-center">
-                            <img src={card.image} alt={card.title} className="w-full h-auto object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 max-h-[200px] md:max-h-none" loading="lazy" />
+                          <div className="h-[260px] sm:h-[300px] md:h-[350px] lg:h-[380px] flex items-center justify-center p-2 sm:p-4 overflow-hidden">
+                            <img 
+                              src={card.image} 
+                              alt={card.title} 
+                              className="w-full h-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500" 
+                              loading="lazy" 
+                              onError={(e) => {
+                                (e.currentTarget.parentElement as HTMLElement)?.style?.setProperty("display", "none");
+                              }}
+                            />
                           </div>
-                          <div className="w-1/2 bg-white rounded-2xl md:rounded-3xl p-4 md:p-10 shadow-[10px_10px_30px_-10px_rgba(2,132,199,0.15)] md:shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.2)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all justify-center min-h-[160px] md:h-full">
-                            <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl flex items-center justify-center font-bold shadow-md mb-3 md:mb-8 shrink-0" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
+                          <div className="bg-white rounded-2xl md:rounded-3xl p-5 sm:p-7 md:p-10 shadow-[10px_10px_30px_-10px_rgba(2,132,199,0.15)] md:shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.2)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all justify-center h-[260px] sm:h-[300px] md:h-[350px] lg:h-[380px]">
+                            <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl flex items-center justify-center font-bold shadow-md mb-3 md:mb-6 shrink-0" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
                               <span className="scale-90 md:scale-100 flex items-center justify-center">
                                 {getCardIcon(card.title, index)}
                               </span>
                             </div>
-                            <h3 className="text-sm md:text-2xl font-bold text-[#0f172a] mb-1.5 md:mb-4 leading-tight">{card.title}</h3>
-                            <p className="text-[#64748b] text-[11px] md:text-sm leading-relaxed whitespace-pre-line">{card.description}</p>
+                            <h3 className="text-sm md:text-2xl font-bold text-[#0f172a] mb-1.5 md:mb-3 leading-tight">{card.title}</h3>
+                            <p className="text-[#64748b] text-[11px] md:text-sm leading-relaxed whitespace-pre-line line-clamp-4 md:line-clamp-none">{card.description}</p>
                           </div>
                         </>
                       )}
@@ -335,13 +369,13 @@ export default function SolutionDetailClient({ id, initialData }: SolutionDetail
                   );
                 } else {
                   return (
-                    <div key={index} className="col-span-1 bg-white rounded-2xl md:rounded-3xl p-4 md:p-10 shadow-[10px_10px_30px_-10px_rgba(2,132,199,0.15)] md:shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.2)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all h-full justify-center">
-                      <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl flex items-center justify-center font-bold shadow-md mb-3 md:mb-8 shrink-0" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
+                    <div key={index} className="col-span-1 bg-white rounded-2xl md:rounded-3xl p-5 sm:p-7 md:p-10 shadow-[10px_10px_30px_-10px_rgba(2,132,199,0.15)] md:shadow-[20px_20px_40px_-10px_rgba(2,132,199,0.2)] border border-[#052c65]/5 flex flex-col group hover:-translate-y-1 transition-all h-[200px] sm:h-[230px] md:h-[260px] justify-center">
+                      <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl flex items-center justify-center font-bold shadow-md mb-3 md:mb-6 shrink-0" style={{ backgroundColor: card.iconBg || '#3b82f6', color: card.iconText || 'white' }}>
                         <span className="scale-90 md:scale-100 flex items-center justify-center">
                           {getCardIcon(card.title, index)}
                         </span>
                       </div>
-                      <h3 className="text-[12px] md:text-xl font-bold text-[#0f172a] mb-1.5 md:mb-4 leading-tight">{card.title}</h3>
+                      <h3 className="text-[12px] md:text-xl font-bold text-[#0f172a] mb-1.5 md:mb-3 leading-tight">{card.title}</h3>
                       <p className="text-[#64748b] text-[10px] md:text-sm leading-relaxed whitespace-pre-line">{card.description}</p>
                     </div>
                   );

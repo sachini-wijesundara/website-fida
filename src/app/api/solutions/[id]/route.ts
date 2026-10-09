@@ -28,8 +28,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
       FROM Solutions WHERE `;
     
     if (isNumeric) {
-       // Support fetching by order_index (e.g., "01", "02") or by exact ID
-       query += '(order_index = @NumId OR id = @NumId)';
+       // Support exact ID first, fallback to order_index only if exact ID not found
+       query += '(id = @NumId OR order_index = @NumId) ORDER BY CASE WHEN id = @NumId THEN 0 ELSE 1 END';
        dbRequest.input('NumId', parseInt(params.id));
     } else {
        query += 'slug = @Slug'; 
@@ -81,6 +81,20 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
+import { invalidateRequestCache } from "@/lib/request-cache";
+import { revalidatePath } from "next/cache";
+
+async function persistBase64Image(pool: any, rawData: string, prefix: string): Promise<string> {
+  if (!rawData || !rawData.startsWith("data:")) return rawData;
+  const filename = `${Date.now()}-${prefix}.png`;
+  const relativePath = `uploads/${filename}`;
+  await pool.request()
+    .input("Title", relativePath)
+    .input("Data", rawData)
+    .query(`INSERT INTO dbo.Images (title, image_data, created_at) VALUES (@Title, @Data, GETDATE())`);
+  return `/api/images/${relativePath}`;
+}
+
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
     const data = await request.json();
@@ -92,58 +106,149 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
     const pool = await getDbConnection();
     const isNumeric = !isNaN(Number(params.id));
+    let existingSlug = "";
+    let existingId: number | null = null;
 
     // Preserve existing image data if incoming payload contains proxy image URLs
+    let existingDetail1: string | null = null;
+    let existingDetail2: string | null = null;
+    let existingThumbnail: string | null = null;
+
+    
     try {
       const checkReq = pool.request();
-      let queryExisting = `SELECT id, slug, template_data FROM Solutions WHERE `;
+      let queryExisting = `SELECT id, slug, template_data, detail_image_1, detail_image_2, thumbnail_image FROM Solutions WHERE `;
       if (isNumeric) {
-        queryExisting += "(order_index = @NumId OR id = @NumId)";
+        queryExisting += "(id = @NumId OR order_index = @NumId) ORDER BY CASE WHEN id = @NumId THEN 0 ELSE 1 END";
         checkReq.input("NumId", parseInt(params.id));
       } else {
         queryExisting += "slug = @Slug";
         checkReq.input("Slug", params.id);
       }
       const existingRes = await checkReq.query(queryExisting);
-      if (existingRes.recordset.length > 0 && existingRes.recordset[0].template_data) {
-        const oldTd = typeof existingRes.recordset[0].template_data === "string"
-          ? JSON.parse(existingRes.recordset[0].template_data)
-          : existingRes.recordset[0].template_data;
+      if (existingRes.recordset.length > 0) {
+        const row = existingRes.recordset[0];
+        existingSlug = row.slug || "";
+        existingId = row.id || null;
+        existingDetail1 = row.detail_image_1 || null;
+        existingDetail2 = row.detail_image_2 || null;
+        existingThumbnail = row.thumbnail_image || null;
 
-        if (template_data.hero?.image && template_data.hero.image.includes("/images/hero")) {
-          template_data.hero.image = oldTd.hero?.image || template_data.hero.image;
-        }
+        if (row.template_data) {
+          const oldTd = typeof row.template_data === "string"
+            ? JSON.parse(row.template_data)
+            : row.template_data;
 
-        if (template_data.features_section?.cards && Array.isArray(template_data.features_section.cards)) {
-          template_data.features_section.cards.forEach((card: any, idx: number) => {
-            if (card.image && card.image.includes(`/images/card${idx}`)) {
-              card.image = oldTd.features_section?.cards?.[idx]?.image || card.image;
-            }
-          });
+          if (template_data.hero?.image && template_data.hero.image.includes("/images/hero")) {
+            template_data.hero.image = oldTd.hero?.image || existingThumbnail || template_data.hero.image;
+          }
+
+          if (template_data.features_section?.cards && Array.isArray(template_data.features_section.cards)) {
+            template_data.features_section.cards.forEach((card: any, idx: number) => {
+              if (card.image && card.image.includes(`/images/card${idx}`)) {
+                card.image = oldTd.features_section?.cards?.[idx]?.image 
+                  || (idx === 0 ? existingDetail1 : idx === 1 ? existingDetail2 : null)
+                  || card.image;
+              }
+            });
+          }
         }
       }
     } catch (preserveErr) {
       console.warn("Could not preserve existing template_data images:", preserveErr);
     }
 
+    // Auto-persist any base64 images directly into dbo.Images so they are in the DB
+    if (template_data.hero?.image && template_data.hero.image.startsWith("data:")) {
+      template_data.hero.image = await persistBase64Image(pool, template_data.hero.image, "hero");
+    }
+    if (template_data.hero?.logo_image && template_data.hero.logo_image.startsWith("data:")) {
+      template_data.hero.logo_image = await persistBase64Image(pool, template_data.hero.logo_image, "logo");
+    }
+    if (template_data.features_section?.cards && Array.isArray(template_data.features_section.cards)) {
+      for (let idx = 0; idx < template_data.features_section.cards.length; idx++) {
+        const card = template_data.features_section.cards[idx];
+        if (card.image && card.image.startsWith("data:")) {
+          card.image = await persistBase64Image(pool, card.image, `card${idx}`);
+        }
+      }
+    }
+
+    const card0 = template_data.features_section?.cards?.[0]?.image;
+    const card1 = template_data.features_section?.cards?.[1]?.image;
+
+    // Determine values for detail_image_1 and detail_image_2 in dbo.Solutions
+    let finalDetail1: string | null = null;
+    let updateD1 = 1;
+    if (card0) {
+      if (card0.includes('/images/card0') || card0.includes('/images/detail1')) {
+        updateD1 = 0; // retain existing
+      } else {
+        finalDetail1 = card0;
+      }
+    } else {
+      finalDetail1 = null; // explicitly cleared
+    }
+
+    let finalDetail2: string | null = null;
+    let updateD2 = 1;
+    if (card1) {
+      if (card1.includes('/images/card1') || card1.includes('/images/detail2')) {
+        updateD2 = 0; // retain existing
+      } else {
+        finalDetail2 = card1;
+      }
+    } else {
+      finalDetail2 = null; // explicitly cleared
+    }
+
+    const heroImg = template_data.hero?.image;
+    let finalThumb: string | null = null;
+    let updateThumb = 0;
+    if (heroImg && !heroImg.includes('/images/hero') && !heroImg.includes('/images/thumb')) {
+      finalThumb = heroImg;
+      updateThumb = 1;
+    }
+
     const requestPool = pool.request();
     requestPool.input('TemplateData', JSON.stringify(template_data));
+    requestPool.input('Detail1', finalDetail1);
+    requestPool.input('UpdateD1', updateD1);
+    requestPool.input('Detail2', finalDetail2);
+    requestPool.input('UpdateD2', updateD2);
+    requestPool.input('Thumb', finalThumb);
+    requestPool.input('UpdateThumb', updateThumb);
+
+    const updateQuery = `
+      UPDATE Solutions 
+      SET template_data = @TemplateData,
+          detail_image_1 = CASE WHEN @UpdateD1 = 1 THEN @Detail1 ELSE detail_image_1 END,
+          detail_image_2 = CASE WHEN @UpdateD2 = 1 THEN @Detail2 ELSE detail_image_2 END,
+          thumbnail_image = CASE WHEN @UpdateThumb = 1 AND (thumbnail_image IS NULL OR LEN(thumbnail_image) = 0) THEN @Thumb ELSE thumbnail_image END,
+          updated_at = GETDATE()
+      WHERE `;
 
     if (isNumeric) {
-      requestPool.input('NumId', parseInt(params.id));
-      await requestPool.query(`
-        UPDATE Solutions 
-        SET template_data = @TemplateData, updated_at = GETDATE()
-        WHERE id = @NumId OR order_index = @NumId
-      `);
+      const targetId = existingId || parseInt(params.id);
+      requestPool.input('TargetId', targetId);
+      await requestPool.query(`${updateQuery} id = @TargetId`);
     } else {
       requestPool.input('Slug', params.id);
-      await requestPool.query(`
-        UPDATE Solutions 
-        SET template_data = @TemplateData, updated_at = GETDATE()
-        WHERE slug = @Slug
-      `);
+      await requestPool.query(`${updateQuery} slug = @Slug`);
     }
+
+    // Invalidate request cache and Next.js paths
+    invalidateRequestCache("solutions-page-list");
+    invalidateRequestCache(`solution-detail-${params.id}`);
+    if (existingSlug) invalidateRequestCache(`solution-detail-${existingSlug}`);
+    if (existingId) invalidateRequestCache(`solution-detail-${existingId}`);
+
+    try {
+      revalidatePath('/solutions');
+      revalidatePath(`/solutions/${params.id}`);
+      if (existingSlug) revalidatePath(`/solutions/${existingSlug}`);
+      revalidatePath('/');
+    } catch {}
       
     return NextResponse.json({ message: "Solution template updated successfully" });
   } catch (error: any) {

@@ -80,7 +80,7 @@ export default function AboutClient({ initialTeam = [], initialAwardImage = "/AW
           </motion.h1>
           
           <motion.p
-            className="text-base md:text-lg text-slate-500 font-semibold max-w-3xl mx-auto leading-relaxed"
+            className="text-base md:text-lg text-slate-500 font-normal max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: SMOOTH, delay: 0.1 }}
