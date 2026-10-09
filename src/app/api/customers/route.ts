@@ -19,7 +19,28 @@ export async function GET() {
 
     const pool = await getDbConnection();
     const result = await pool.request().execute('sp_GetAllCustomers');
-    cachedCustomers = result.recordset;
+    
+    // Auto-trim transparent borders so every logo can render at full optical size
+    const sharp = (await import('sharp')).default;
+    const processedCustomers = await Promise.all(
+      result.recordset.map(async (c: any) => {
+        if (!c.logo_url) return c;
+        const matches = c.logo_url.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (!matches) return c;
+        try {
+          const buf = Buffer.from(matches[2], 'base64');
+          const trimmed = await sharp(buf).trim().png().toBuffer();
+          return {
+            ...c,
+            logo_url: `data:image/png;base64,${trimmed.toString('base64')}`,
+          };
+        } catch {
+          return c;
+        }
+      })
+    );
+
+    cachedCustomers = processedCustomers;
     lastCacheTime = now;
 
     return NextResponse.json(cachedCustomers, {

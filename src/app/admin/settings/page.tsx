@@ -151,7 +151,7 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-white mb-1">Payroll Employees</label>
+              <label className="block text-sm font-medium text-white mb-1">Payroll Users</label>
               <input 
                 type="text" 
                 value={settings.payroll_employees || ""} 

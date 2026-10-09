@@ -92,6 +92,40 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
     const pool = await getDbConnection();
     const isNumeric = !isNaN(Number(params.id));
+
+    // Preserve existing image data if incoming payload contains proxy image URLs
+    try {
+      const checkReq = pool.request();
+      let queryExisting = `SELECT id, slug, template_data FROM Solutions WHERE `;
+      if (isNumeric) {
+        queryExisting += "(order_index = @NumId OR id = @NumId)";
+        checkReq.input("NumId", parseInt(params.id));
+      } else {
+        queryExisting += "slug = @Slug";
+        checkReq.input("Slug", params.id);
+      }
+      const existingRes = await checkReq.query(queryExisting);
+      if (existingRes.recordset.length > 0 && existingRes.recordset[0].template_data) {
+        const oldTd = typeof existingRes.recordset[0].template_data === "string"
+          ? JSON.parse(existingRes.recordset[0].template_data)
+          : existingRes.recordset[0].template_data;
+
+        if (template_data.hero?.image && template_data.hero.image.includes("/images/hero")) {
+          template_data.hero.image = oldTd.hero?.image || template_data.hero.image;
+        }
+
+        if (template_data.features_section?.cards && Array.isArray(template_data.features_section.cards)) {
+          template_data.features_section.cards.forEach((card: any, idx: number) => {
+            if (card.image && card.image.includes(`/images/card${idx}`)) {
+              card.image = oldTd.features_section?.cards?.[idx]?.image || card.image;
+            }
+          });
+        }
+      }
+    } catch (preserveErr) {
+      console.warn("Could not preserve existing template_data images:", preserveErr);
+    }
+
     const requestPool = pool.request();
     requestPool.input('TemplateData', JSON.stringify(template_data));
 

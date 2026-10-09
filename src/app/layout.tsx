@@ -38,13 +38,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon.png", type: "image/png", sizes: "192x192" },
-      { url: "/logo.png", type: "image/png" },
+      { url: "/fida-emblem.png?v=3", type: "image/png", sizes: "512x512" },
+      { url: "/icon.png?v=3", type: "image/png", sizes: "192x192" },
+      { url: "/favicon.ico?v=3", sizes: "any" },
     ],
-    shortcut: "/favicon.ico",
+    shortcut: "/fida-emblem.png?v=3",
     apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/apple-touch-icon.png?v=3", sizes: "180x180", type: "image/png" },
     ],
   },
 };
@@ -58,6 +58,10 @@ export default function RootLayout({
     <html lang="en" className={`${ptSans.variable} h-full antialiased`} suppressHydrationWarning>
       {/* Resource hints for faster loading */}
       <head>
+        <link rel="icon" type="image/png" sizes="32x32" href="/icon.png?v=3" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/fida-emblem.png?v=3" />
+        <link rel="shortcut icon" href="/favicon.ico?v=3" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=3" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="//www.fidaglobal.com" />

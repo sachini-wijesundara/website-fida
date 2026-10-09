@@ -68,6 +68,7 @@ export default function HomeOverview() {
     <motion.section
       id="home-content"
       className="home-overview"
+      style={{ scrollMarginTop: '6rem' }}
       initial={reduceMotion ? false : { opacity: 0.82, y: 110, scale: 0.988 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, amount: 0.06 }}
@@ -96,14 +97,14 @@ export default function HomeOverview() {
             />
             
           </div>
-          <div className="home-bento__stat home-bento__stat--green" style={{ position: 'relative', overflow: 'hidden' }}>
-            <img src="/api/images/homepageimages/clients.png" alt="370+ Clients" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover z-0" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
+          <div className="home-bento__stat home-bento__stat--green" style={{ position: 'relative', overflow: 'hidden', background: '#71bf44' }}>
+            <img src="/api/images/homepageimages/clients.png" alt="370+ Clients" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-contain z-0 p-1" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain', zIndex: 0 }} />
           </div>
         </div>
 
         <div className="home-bento__col home-bento__col--2">
-          <div className="home-bento__stat home-bento__stat--blue" style={{ position: 'relative', overflow: 'hidden' }}>
-            <img src="/api/images/homepageimages/coutries.png" alt="4+ Countries" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover z-0" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
+          <div className="home-bento__stat home-bento__stat--blue" style={{ position: 'relative', overflow: 'hidden', background: '#75c6e8' }}>
+            <img src="/api/images/homepageimages/coutries.png" alt="4+ Countries" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-contain z-0 p-1" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain', zIndex: 0 }} />
           </div>
           <div className="home-bento__media home-bento__photo--product">
             <img src="/api/images/homepageimages/image2.png" alt="FIDA Global product experience" loading="lazy" decoding="async" />
@@ -115,8 +116,8 @@ export default function HomeOverview() {
             <strong><Counter value={50} suffix="K+" /></strong>
             <span>Uptime Cloud<br/>Payroll Employees</span>
           </div>
-          <div className="home-bento__stat home-bento__stat--yellow" style={{ position: 'relative', overflow: 'hidden' }}>
-            <img src="/api/images/homepageimages/products.png" alt="10+ Products" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover z-0" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
+          <div className="home-bento__stat home-bento__stat--yellow" style={{ position: 'relative', overflow: 'hidden', background: '#ffff66' }}>
+            <img src="/api/images/homepageimages/products.png" alt="10+ Products" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-contain z-0 p-1" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain', zIndex: 0 }} />
           </div>
         </div>
 
@@ -135,8 +136,8 @@ export default function HomeOverview() {
               }}
             />
           </div>
-          <div className="home-bento__stat home-bento__stat--red" style={{ position: 'relative', overflow: 'hidden' }}>
-            <img src="/api/images/homepageimages/years.png" alt="15+ Years Experience" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover z-0" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
+          <div className="home-bento__stat home-bento__stat--red" style={{ position: 'relative', overflow: 'hidden', background: '#e74d64' }}>
+            <img src="/api/images/homepageimages/years.png" alt="15+ Years Experience" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-contain z-0 p-1" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain', zIndex: 0 }} />
           </div>
           <div className="home-bento__media home-bento__photo--office">
             <img
@@ -248,6 +249,7 @@ export default function HomeOverview() {
                       key={`${customer.id}-${i}`}
                       className="home-logo-card"
                       data-customer-name={customer.name}
+                      data-customer-slug={customer.name ? customer.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-") : ""}
                       initial={reduceMotion ? false : { opacity: 0, scale: 0.8 }}
                       whileInView={{ opacity: 1, scale: 1 }}
                       viewport={{ once: true }}
@@ -257,7 +259,6 @@ export default function HomeOverview() {
                         top: pos.top,
                         width: pos.width,
                         aspectRatio: pos.aspect,
-                        padding: 'clamp(4px, 1.1vw, 13px)',
                         zIndex: 10 + i
                       }}
                     >

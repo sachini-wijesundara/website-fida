@@ -76,12 +76,32 @@ export async function GET(
       }
     }
 
+    // Fallbacks if image is missing or self-referential
+    const isSmartHris = row.slug === "smart-hris" || id === "smart-hris" || id === "14";
+    if (!rawImage || rawImage.includes(`/images/${type}`) || rawImage === request.url) {
+      if (isSmartHris) {
+        if (type === "card0") rawImage = "/api/images/solutions_images/smarthrispic1.png";
+        else if (type === "card1") rawImage = "/api/images/solutions_images/smarthrispic2.png";
+      }
+    }
+
     if (!rawImage) {
       return new NextResponse(null, { status: 404 });
     }
 
     if (!rawImage.startsWith("data:")) {
-      return NextResponse.redirect(new URL(rawImage, request.url));
+      const targetUrl = new URL(rawImage, request.url);
+      if (targetUrl.pathname === new URL(request.url).pathname) {
+        // Prevent infinite redirect loops
+        if (isSmartHris && type === "card0") {
+          return NextResponse.redirect(new URL("/api/images/solutions_images/smarthrispic1.png", request.url));
+        }
+        if (isSmartHris && type === "card1") {
+          return NextResponse.redirect(new URL("/api/images/solutions_images/smarthrispic2.png", request.url));
+        }
+        return new NextResponse(null, { status: 404 });
+      }
+      return NextResponse.redirect(targetUrl);
     }
 
     const parsed = parseDataUri(rawImage);
