@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, Plus, Edit2, Trash2, Loader2, X, Image as ImageIcon, LayoutTemplate, CheckCircle2 } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, Loader2, X, Image as ImageIcon, LayoutTemplate, CheckCircle2, ChevronUp, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
@@ -9,6 +9,7 @@ export default function SolutionsManagement() {
   const [solutions, setSolutions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [reordering, setReordering] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,6 +38,31 @@ export default function SolutionsManagement() {
       setSolutions([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const moveSolution = async (index: number, direction: number) => {
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= solutions.length) return;
+
+    const newSolutions = [...solutions];
+    const [moved] = newSolutions.splice(index, 1);
+    newSolutions.splice(targetIndex, 0, moved);
+
+    // Optimistically update UI
+    setSolutions(newSolutions);
+    setReordering(true);
+
+    try {
+      await fetch("/api/solutions", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderedIds: newSolutions.map((s) => s.id) }),
+      });
+    } catch (err) {
+      console.error("Failed to save reordered solutions:", err);
+    } finally {
+      setReordering(false);
     }
   };
 
@@ -109,6 +135,8 @@ export default function SolutionsManagement() {
     );
   }
 
+  const isSearching = searchTerm.trim().length > 0;
+
   return (
     <div className="space-y-8">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -144,15 +172,52 @@ export default function SolutionsManagement() {
           <table className="w-full text-left border-collapse">
             <thead className="bg-[var(--bg-elevated)]/50 border-b border-[var(--grey-dark)]">
               <tr>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Order</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Thumbnail</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Solution</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Order</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--grey-dark)]">
-              {filtered.map((t) => (
+              {filtered.map((t, idx) => (
                 <tr key={t.id} className="group hover:bg-[var(--bg-elevated)]/30 transition-smooth">
+                  <td className="px-6 py-5">
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-black px-2.5 py-1 rounded-xl border ${
+                        idx === 0 
+                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-sm shadow-emerald-500/10" 
+                          : "bg-white/5 text-[var(--text-secondary)] border-white/10"
+                      }`}>
+                        #{idx + 1}
+                        {idx === 0 && (
+                          <span className="text-[10px] font-bold text-amber-300 bg-amber-400/10 border border-amber-400/20 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+                            ★ Featured
+                          </span>
+                        )}
+                      </span>
+                      
+                      <div className="flex items-center gap-0.5">
+                        <button
+                          type="button"
+                          onClick={() => moveSolution(idx, -1)}
+                          disabled={idx === 0 || reordering || isSearching}
+                          title="Move Up (Higher Priority / Featured)"
+                          className="p-1 rounded-md border border-white/10 bg-white/5 hover:bg-white/15 text-[var(--text-muted)] hover:text-white transition-colors disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          <ChevronUp size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveSolution(idx, 1)}
+                          disabled={idx === solutions.length - 1 || reordering || isSearching}
+                          title="Move Down"
+                          className="p-1 rounded-md border border-white/10 bg-white/5 hover:bg-white/15 text-[var(--text-muted)] hover:text-white transition-colors disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          <ChevronDown size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </td>
                   <td className="px-6 py-5 w-24">
                     <div className="w-16 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0 overflow-hidden">
                       {t.thumbnail_image ? <img src={t.thumbnail_image} className="w-full h-full object-cover" /> : <ImageIcon size={20} />}
@@ -166,9 +231,6 @@ export default function SolutionsManagement() {
                       </div>
                       <p className="text-xs text-[var(--text-secondary)] line-clamp-1 max-w-md mt-1">{t.description}</p>
                     </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <span className="text-sm font-semibold">{t.order_index}</span>
                   </td>
                   <td className="px-6 py-5 text-right">
                     <div className="flex items-center justify-end gap-2 text-[var(--text-muted)]">

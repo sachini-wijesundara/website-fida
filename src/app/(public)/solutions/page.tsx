@@ -24,7 +24,7 @@ export default async function SolutionsPage() {
           END as thumbnail_image
         FROM Solutions 
         WHERE status = 'Active' OR status IS NULL
-        ORDER BY CASE WHEN title = 'FIDA AI' THEN -1 ELSE order_index END ASC
+        ORDER BY ISNULL(order_index, 9999) ASC, id ASC
       `);
     }, 60_000);
     initialSolutions = JSON.parse(JSON.stringify(result.recordset || []));

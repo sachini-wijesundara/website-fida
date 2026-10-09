@@ -17,6 +17,7 @@ export async function GET(request: Request) {
             p.category_id,
             c.name AS category_name,
             p.status,
+            p.order_index,
             p.created_at,
             p.updated_at,
             CASE
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
           FROM projects p
           LEFT JOIN categories c ON c.id = p.category_id
           WHERE p.status <> 'Deleted' OR p.status IS NULL
-          ORDER BY p.created_at DESC
+          ORDER BY ISNULL(p.order_index, 9999) ASC, p.created_at DESC
         `);
         return result.recordset;
       });
@@ -115,5 +116,28 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ message: "Project deleted successfully" });
   } catch (error: any) {
     return NextResponse.json({ message: "Failed to delete project", error: error.message }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const { orderedIds } = await request.json();
+    if (Array.isArray(orderedIds)) {
+      const pool = await getDbConnection();
+      for (let i = 0; i < orderedIds.length; i++) {
+        await pool.request()
+          .input('Id', parseInt(orderedIds[i]))
+          .input('OrderIndex', i + 1)
+          .query('UPDATE projects SET order_index = @OrderIndex WHERE id = @Id');
+      }
+      invalidateRequestCache("all-projects");
+      invalidateRequestCache("project-summaries");
+      invalidateRequestCache("public-projects-list");
+      return NextResponse.json({ message: "Project order updated successfully" });
+    }
+    return NextResponse.json({ message: "Invalid payload" }, { status: 400 });
+  } catch (error: any) {
+    console.error("Reorder Projects Error:", error);
+    return NextResponse.json({ message: "Failed to reorder projects", error: error.message }, { status: 500 });
   }
 }

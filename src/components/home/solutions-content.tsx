@@ -216,12 +216,16 @@ export default function SolutionsContent() {
               role="button"
               tabIndex={0}
               aria-expanded={expanded}
-              layout
-              whileHover={{ y: -2 }}
             >
               <div className="sol-list-item__body">
                 <h3 className="sol-list-item__title">{sol.title}</h3>
-                <motion.p layout="position" className="sol-list-item__desc">
+                <motion.p
+                  key={expanded ? "details" : "desc"}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.28, ease: "easeOut" }}
+                  className="sol-list-item__desc"
+                >
                   {expanded ? sol.details : sol.desc}
                 </motion.p>
               </div>
@@ -232,10 +236,10 @@ export default function SolutionsContent() {
                 {expanded && (
                   <motion.div
                     className="sol-list-item__thumb"
-                    initial={{ opacity: 0, height: 0, overflow: "hidden" }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    initial={{ opacity: 0, scale: 0.96, y: 12 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.96, y: 8 }}
+                    transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <img src={detailImage} alt={`${sol.title} solution preview`} loading="lazy" />
                   </motion.div>

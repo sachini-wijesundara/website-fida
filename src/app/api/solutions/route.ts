@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDbConnection, sql } from "@/lib/db";
+import { invalidateRequestCache } from "@/lib/request-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,7 @@ export async function GET() {
         END as detail_image_1,
         JSON_VALUE(template_data, '$.hero.image') as hero_image
       FROM Solutions 
-      ORDER BY CASE WHEN title = 'FIDA AI' THEN -1 ELSE order_index END ASC
+      ORDER BY ISNULL(order_index, 9999) ASC, id ASC
     `);
     return NextResponse.json(result.recordset);
   } catch (error: any) {
@@ -49,6 +50,7 @@ export async function POST(request: Request) {
               status = @Status, updated_at = GETDATE()
           WHERE id = @Id
         `);
+      invalidateRequestCache("solutions-page-list");
       return NextResponse.json({ message: "Solution updated", solutionId: id });
     } else {
       const defaultTemplateData = JSON.stringify({
@@ -91,6 +93,7 @@ export async function POST(request: Request) {
           OUTPUT INSERTED.id AS SolutionId
           VALUES (@Title, @Slug, @Badge, @Description, @ThumbnailImage, @OrderIndex, @Status, @TemplateData)
         `);
+      invalidateRequestCache("solutions-page-list");
       return NextResponse.json({ message: "Solution created", solutionId: result.recordset[0].SolutionId });
     }
   } catch (error: any) {
@@ -112,8 +115,30 @@ export async function DELETE(request: Request) {
       .input('Id', id)
       .query('DELETE FROM Solutions WHERE id = @Id');
 
+    invalidateRequestCache("solutions-page-list");
     return NextResponse.json({ message: "Solution deleted successfully" });
   } catch (error: any) {
     return NextResponse.json({ message: "Failed to delete solution", error: error.message }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const { orderedIds } = await request.json();
+    if (Array.isArray(orderedIds)) {
+      const pool = await getDbConnection();
+      for (let i = 0; i < orderedIds.length; i++) {
+        await pool.request()
+          .input('Id', parseInt(orderedIds[i]))
+          .input('OrderIndex', i + 1)
+          .query('UPDATE Solutions SET order_index = @OrderIndex, updated_at = GETDATE() WHERE id = @Id');
+      }
+      invalidateRequestCache("solutions-page-list");
+      return NextResponse.json({ message: "Solutions order updated successfully" });
+    }
+    return NextResponse.json({ message: "Invalid payload" }, { status: 400 });
+  } catch (error: any) {
+    console.error("Reorder Solutions Error:", error);
+    return NextResponse.json({ message: "Failed to reorder solutions", error: error.message }, { status: 500 });
   }
 }

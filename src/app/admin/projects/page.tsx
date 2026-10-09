@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Plus, Edit2, Trash2, ExternalLink, Filter, Loader2, Briefcase } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, ExternalLink, Filter, Loader2, Briefcase, ChevronUp, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ProjectManagement() {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [reordering, setReordering] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -25,6 +26,31 @@ export default function ProjectManagement() {
     }
     fetchProjects();
   }, []);
+
+  const moveProject = async (index: number, direction: number) => {
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= projects.length) return;
+
+    const newProjects = [...projects];
+    const [moved] = newProjects.splice(index, 1);
+    newProjects.splice(targetIndex, 0, moved);
+
+    // Optimistically update UI
+    setProjects(newProjects);
+    setReordering(true);
+
+    try {
+      await fetch("/api/projects", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderedIds: newProjects.map((p) => p.id) }),
+      });
+    } catch (err) {
+      console.error("Failed to save reordered projects:", err);
+    } finally {
+      setReordering(false);
+    }
+  };
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this project?")) return;
@@ -47,6 +73,8 @@ export default function ProjectManagement() {
     (p?.title?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
     (p?.category_name && p.category_name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const isSearching = searchTerm.trim().length > 0;
 
   if (loading) {
     return (
@@ -95,6 +123,7 @@ export default function ProjectManagement() {
           <table className="w-full text-left border-collapse">
             <thead className="bg-[var(--bg-elevated)]/50 border-b border-[var(--grey-dark)]">
               <tr>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Order</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Project</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Category</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Status</th>
@@ -103,7 +132,7 @@ export default function ProjectManagement() {
             </thead>
             <tbody className="divide-y divide-[var(--grey-dark)]">
               <AnimatePresence mode="popLayout">
-                {filteredProjects.map((p) => (
+                {filteredProjects.map((p, idx) => (
                   <motion.tr
                     key={p.id}
                     layout
@@ -112,6 +141,43 @@ export default function ProjectManagement() {
                     exit={{ opacity: 0, x: -20 }}
                     className="group hover:bg-[var(--bg-elevated)]/30 transition-smooth"
                   >
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex items-center gap-1.5 text-xs font-black px-2.5 py-1 rounded-xl border ${
+                          idx === 0 
+                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-sm shadow-emerald-500/10" 
+                            : "bg-white/5 text-[var(--text-secondary)] border-white/10"
+                        }`}>
+                          #{idx + 1}
+                          {idx === 0 && (
+                            <span className="text-[10px] font-bold text-amber-300 bg-amber-400/10 border border-amber-400/20 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+                              ★ Featured
+                            </span>
+                          )}
+                        </span>
+                        
+                        <div className="flex items-center gap-0.5">
+                          <button
+                            type="button"
+                            onClick={() => moveProject(idx, -1)}
+                            disabled={idx === 0 || reordering || isSearching}
+                            title="Move Up (Higher Priority / Featured)"
+                            className="p-1 rounded-md border border-white/10 bg-white/5 hover:bg-white/15 text-[var(--text-muted)] hover:text-white transition-colors disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
+                          >
+                            <ChevronUp size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveProject(idx, 1)}
+                            disabled={idx === projects.length - 1 || reordering || isSearching}
+                            title="Move Down"
+                            className="p-1 rounded-md border border-white/10 bg-white/5 hover:bg-white/15 text-[var(--text-muted)] hover:text-white transition-colors disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
+                          >
+                            <ChevronDown size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    </td>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-xl bg-[var(--bg-elevated)] overflow-hidden border border-[var(--grey-dark)] shrink-0">

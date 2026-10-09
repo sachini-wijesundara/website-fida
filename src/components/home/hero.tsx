@@ -39,7 +39,7 @@ function InstancedDots() {
   const customMaterial = useMemo(() => {
     return new THREE.ShaderMaterial({
       uniforms: {
-        uColor: { value: new THREE.Color("#E5E5E5") }, // Much lighter ash
+        uColor: { value: new THREE.Color("#CBD5E1") }, // Light silver-slate
       },
       vertexShader: `
         varying float vZ;
@@ -53,20 +53,21 @@ function InstancedDots() {
         uniform vec3 uColor;
         varying float vZ;
         void main() {
-          if (vZ < 0.0) discard;
-          // Smoothly fade the dots as they approach the edge (z = 0)
-          float alpha = smoothstep(0.0, 1.5, vZ) * 0.9;
+          if (vZ < -0.15) discard;
+          // Smoothly fade the dots as they approach the curvature horizon
+          float alpha = smoothstep(-0.15, 1.4, vZ) * 0.35;
           gl_FragColor = vec4(uColor, alpha);
         }
       `,
       transparent: true,
+      side: THREE.DoubleSide,
     });
   }, []);
 
   return (
     <group ref={groupRef} rotation={[0, -Math.PI / 2, 0]}>
       <instancedMesh ref={meshRef} args={[undefined, undefined, globeData.length]} material={customMaterial}>
-        <circleGeometry args={[0.009, 5]} />
+        <sphereGeometry args={[0.007, 6, 6]} />
       </instancedMesh>
     </group>
   );
@@ -78,14 +79,12 @@ function DottedGlobe() {
       <Canvas 
         camera={{ position: [0, 0, 5], fov: 45 }} 
         style={{ background: 'transparent', pointerEvents: 'none' }}
-        dpr={[1, 1.25]}
+        dpr={[1, 1.5]}
         gl={{ 
           powerPreference: "high-performance", 
           antialias: false, 
           alpha: true,
-          depth: false,
-          stencil: false,
-          precision: "mediump"
+          depth: true,
         }}
         performance={{ min: 0.5 }}
       >

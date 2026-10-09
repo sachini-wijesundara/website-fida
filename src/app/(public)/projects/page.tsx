@@ -33,7 +33,7 @@ export default async function ProjectsPage() {
         FROM projects p
         LEFT JOIN categories c ON c.id = p.category_id
         WHERE p.status = 'Published'
-        ORDER BY p.created_at DESC
+        ORDER BY ISNULL(p.order_index, 9999) ASC, p.created_at DESC
       `);
     });
 
