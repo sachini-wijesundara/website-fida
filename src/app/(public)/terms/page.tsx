@@ -1,13 +1,9 @@
 import React from "react";
 import Link from "next/link";
 import { getDbConnection, sql } from "@/lib/db";
+import { fetchTermsHeaderFromDb } from "@/lib/terms-header";
 
 export const dynamic = "force-dynamic";
-
-export const metadata = {
-  title: "Terms & Conditions | FIDA Global",
-  description: "Read FIDA Global's Terms & Conditions governing the use of our website, IT consultancy services, and enterprise software solutions.",
-};
 
 const fallbackSections = [
   {
@@ -67,6 +63,7 @@ async function getPublishedTerms() {
   }
   return fallbackSections;
 }
+const getTermsHeader = fetchTermsHeaderFromDb;
 
 function formatLastUpdated(sections: any[]) {
   let latestDate: Date | null = null;
@@ -93,33 +90,88 @@ function formatLastUpdated(sections: any[]) {
   return `${months[latestDate.getUTCMonth()]} ${latestDate.getUTCDate()}, ${latestDate.getUTCFullYear()}`;
 }
 
+export async function generateMetadata() {
+  const header = await getTermsHeader();
+  return {
+    title: header.title || "FIDA Global Website Terms & Conditions",
+    description: header.intro_text || "Read FIDA Global's Terms & Conditions governing the use of our website, IT consultancy services, and enterprise software solutions.",
+  };
+}
+
 export default async function TermsOfServicePage() {
-  const sections = await getPublishedTerms();
+  const [sections, headerData] = await Promise.all([
+    getPublishedTerms(),
+    getTermsHeader(),
+  ]);
   const lastUpdated = formatLastUpdated(sections);
 
   return (
     <main className="public-pastel-page min-h-screen pt-36 pb-28">
       <div className="container mx-auto px-6 max-w-4xl">
-        {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#052c65] tracking-tight leading-tight mb-4">
-            Terms & Conditions
-          </h1>
-          <p className="text-sm sm:text-base text-slate-500">
-            Last updated: {lastUpdated}
-          </p>
-        </div>
-
         {/* Content Box */}
-        <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#052c65]/10 shadow-[0_20px_50px_rgba(5,44,101,0.06)] p-5 sm:p-12 space-y-8 sm:space-y-10 text-slate-600 text-sm sm:text-base leading-relaxed">
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#052c65]/10 shadow-[0_20px_50px_rgba(5,44,101,0.06)] p-6 sm:p-12 space-y-8 sm:space-y-10 text-slate-600 text-sm sm:text-base leading-relaxed">
+          {/* Document Header & Overview */}
+          <div className="space-y-6 pb-8 border-b border-slate-200">
+            <div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#052c65] tracking-tight leading-snug">
+                {headerData.title || "FIDA Global Website Terms and Conditions"}
+              </h1>
+              {headerData.subtitle && (
+                <p className="text-base sm:text-lg italic font-medium text-slate-700 mt-2">
+                  {headerData.subtitle}
+                </p>
+              )}
+              {headerData.company_version && (
+                <p className="text-xs sm:text-sm text-slate-500 mt-1.5 font-medium">
+                  {headerData.company_version}
+                </p>
+              )}
+            </div>
+
+            {(headerData.website_url || headerData.effective_date) && (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 px-4 bg-slate-50/70 rounded-xl border border-slate-200/70 text-xs sm:text-sm">
+                {headerData.website_url && (
+                  <div className="flex items-center gap-2 text-slate-600">
+                    <span className="font-semibold text-[#052c65]">Website:</span>
+                    <a
+                      href={headerData.website_url.replace(/\.$/, "")}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[#0047e1] hover:underline font-mono break-all"
+                    >
+                      {headerData.website_url}
+                    </a>
+                  </div>
+                )}
+                {headerData.effective_date && (
+                  <div className="flex items-center gap-2 text-slate-600 sm:justify-end">
+                    <span className="font-semibold text-[#052c65]">Effective date:</span>
+                    <span className="font-semibold text-slate-800 bg-amber-50 text-amber-900 px-2 py-0.5 rounded border border-amber-200/60">
+                      {headerData.effective_date}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {headerData.intro_text && (
+              <div className="bg-slate-50/70 border-l-4 border-[#0047e1] p-4 sm:p-5 rounded-r-xl">
+                <p className="text-slate-700 leading-relaxed text-sm sm:text-base font-normal">
+                  {headerData.intro_text}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Clauses List */}
           {sections.map((section: any, idx: number) => (
             <section
               key={section.id || idx}
               className={`space-y-3 ${idx > 0 ? "pt-6 border-t border-slate-100" : ""}`}
             >
-              <h2 className="text-xl sm:text-2xl font-bold text-[#052c65]">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#052c65]">
                 {section.title}
-              </h2>
+              </h3>
               <div
                 className="terms-rich-content text-slate-600 space-y-3"
                 dangerouslySetInnerHTML={{ __html: section.content }}

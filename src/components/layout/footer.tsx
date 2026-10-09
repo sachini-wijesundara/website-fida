@@ -295,8 +295,6 @@ export default function Footer() {
               </Link>
               <a
                 href="/FIDA%20Global%20Company%20Profile.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3.5 lg:px-6 lg:py-3 bg-white border border-slate-200 hover:border-blue-600 text-[#052c65] hover:text-blue-600 text-[13px] lg:text-[11px] font-bold tracking-[0.08em] uppercase rounded-full transition-all shadow-sm hover:-translate-y-[1px] w-fit"
               >
                 <FileText className="w-4 h-4 text-[#004dfc]" />

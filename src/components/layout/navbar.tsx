@@ -9,7 +9,6 @@ import { X, Menu, ArrowRight, Mail, Phone, FileText } from "lucide-react";
 const links: { name: string; href: string; isExternal?: boolean; download?: boolean }[] = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
-  { name: "Company Profile", href: "/FIDA%20Global%20Company%20Profile.pdf", isExternal: true },
   { name: "Solutions", href: "/solutions" },
   { name: "Projects", href: "/projects" },
   { name: "Careers", href: "/careers" },
@@ -178,8 +177,6 @@ export default function Navbar() {
 
                     <a
                       href="/FIDA%20Global%20Company%20Profile.pdf"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       onClick={() => setMenuOpen(false)}
                       className="w-full bg-white text-[#052c65] border border-slate-200 hover:border-[#0047e1] hover:text-[#0047e1] py-3 rounded-full text-xs font-black uppercase tracking-widest text-center transition-all duration-300 hover:scale-[1.02] shadow-sm flex items-center justify-center gap-2"
                     >

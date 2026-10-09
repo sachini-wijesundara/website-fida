@@ -116,7 +116,7 @@ export default function ProjectsClient({
         </div>
         <div className="bg-[#f1f5f9] rounded-3xl sm:rounded-[2rem] p-4 sm:p-8 text-center flex flex-col justify-center items-center h-36 sm:h-48">
           <div className="text-3xl sm:text-5xl font-black text-[#052c65] mb-1 sm:mb-2">{payrollDisplay}</div>
-          <div className="text-[9px] sm:text-[10px] font-bold text-[#052c65]/70 uppercase tracking-widest">PAYROLL EMPLOYEES</div>
+          <div className="text-[9px] sm:text-[10px] font-bold text-[#052c65]/70 uppercase tracking-widest">PAYROLL USERS</div>
         </div>
       </div>
     </section>
