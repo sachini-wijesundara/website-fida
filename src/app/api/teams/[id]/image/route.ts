@@ -65,7 +65,9 @@ export async function GET(
       headers: {
         "Content-Type": outputMime,
         "Content-Length": outputBuffer.length.toString(),
-        "Cache-Control": "public, max-age=604800, stale-while-revalidate=86400",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
       },
     });
   } catch (error) {

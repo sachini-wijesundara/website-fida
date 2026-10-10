@@ -115,25 +115,27 @@ function persistConsent(consent: CookieConsent) {
 export default function CookieBanner() {
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Categories state
-  const [preferences, setPreferences] = useState(false);
-  const [statistics, setStatistics] = useState(false);
+  // Categories state (all enabled by default)
+  const [preferences, setPreferences] = useState(true);
+  const [statistics, setStatistics] = useState(true);
 
   useEffect(() => {
     setMounted(true);
     const stored = getStoredConsent();
     if (!stored) {
-      // First visit: show banner after brief delay
+      // First visit: show banner with all toggles enabled and details open
+      setPreferences(true);
+      setStatistics(true);
+      setShowDetails(true);
       const timer = setTimeout(() => setIsVisible(true), 600);
       return () => clearTimeout(timer);
     } else {
+      // Re-hydrate state from user's saved preferences
       setPreferences(Boolean(stored.preferences));
       setStatistics(Boolean(stored.statistics));
-
-      // Re-hydrate global consent object
       if (typeof window !== "undefined") {
         (window as any).fidaConsent = stored;
         (window as any).hasConsent = (category: "preferences" | "statistics") =>
@@ -145,12 +147,14 @@ export default function CookieBanner() {
     const handleReopen = () => {
       const current = getStoredConsent();
       if (current) {
+        // Accurately reflect user's current consent (disabled if previously denied)
         setPreferences(Boolean(current.preferences));
         setStatistics(Boolean(current.statistics));
       } else {
-        setPreferences(false);
-        setStatistics(false);
+        setPreferences(true);
+        setStatistics(true);
       }
+      setShowDetails(true);
       setIsVisible(true);
     };
 
@@ -292,17 +296,17 @@ export default function CookieBanner() {
                 <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0 w-full lg:w-auto">
                   <button
                     type="button"
-                    onClick={handleAllowAll}
+                    onClick={handleAllowSelection}
                     className="flex-1 sm:flex-initial px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-[#0047e1] to-[#167fa8] text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-500/20 hover:brightness-110 active:scale-[0.98] transition-all text-center whitespace-nowrap cursor-pointer"
                   >
-                    Allow all
+                    Allow selection
                   </button>
                   <button
                     type="button"
-                    onClick={handleAllowSelection}
+                    onClick={handleAllowAll}
                     className="flex-1 sm:flex-initial px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl border border-[#052c65]/15 bg-white text-[#052c65] text-xs sm:text-sm font-bold hover:bg-[#052c65]/5 active:scale-[0.98] transition-all text-center whitespace-nowrap cursor-pointer"
                   >
-                    Allow selection
+                    Allow all
                   </button>
                   <button
                     type="button"
@@ -348,7 +352,9 @@ export default function CookieBanner() {
                       }`}
                       aria-label="Toggle Preferences cookies"
                     >
-                      <div className="w-4 h-4 rounded-full bg-white shadow-sm transition-transform" />
+                      <div className="w-4 h-4 rounded-full bg-white shadow-sm flex items-center justify-center transition-transform">
+                        {preferences && <Check size={10} className="text-[#167fa8] stroke-[3]" />}
+                      </div>
                     </button>
                     <span className="group-hover:text-[#052c65] transition-colors">Preferences</span>
                   </div>
@@ -371,7 +377,9 @@ export default function CookieBanner() {
                       }`}
                       aria-label="Toggle Statistics cookies"
                     >
-                      <div className="w-4 h-4 rounded-full bg-white shadow-sm transition-transform" />
+                      <div className="w-4 h-4 rounded-full bg-white shadow-sm flex items-center justify-center transition-transform">
+                        {statistics && <Check size={10} className="text-[#167fa8] stroke-[3]" />}
+                      </div>
                     </button>
                     <span className="group-hover:text-[#052c65] transition-colors">Statistics</span>
                   </div>
@@ -399,30 +407,90 @@ export default function CookieBanner() {
                     className="overflow-hidden"
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-4 mt-4 border-t border-slate-100 text-xs text-slate-600">
-                      <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100">
-                        <div className="font-bold text-[#052c65] mb-1 flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-[#167fa8]" />
-                          Necessary Cookies (Always Active)
+                      {/* Necessary Cookies */}
+                      <div className="p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80 select-none">
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <div className="font-bold text-[#052c65] flex items-center gap-1.5 text-xs">
+                            <span className="w-2 h-2 rounded-full bg-[#167fa8]" />
+                            Necessary Cookies
+                          </div>
+                          <span className="text-[10px] font-bold text-[#167fa8] bg-blue-100/60 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                            Active
+                          </span>
                         </div>
                         <p className="text-[11px] leading-relaxed text-slate-500">
                           Essential technical cookies required for secure navigation, session authenticity, and storing your consent preferences.
                         </p>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100">
-                        <div className="font-bold text-[#052c65] mb-1 flex items-center gap-1.5">
-                          <span className={`w-2 h-2 rounded-full ${preferences ? "bg-[#167fa8]" : "bg-slate-300"}`} />
-                          Preferences Cookies
+                      {/* Preferences Cookies */}
+                      <div
+                        onClick={() => setPreferences((v) => !v)}
+                        className={`p-3.5 rounded-xl border transition-all cursor-pointer select-none ${
+                          preferences
+                            ? "bg-blue-50/50 border-[#167fa8]/30 shadow-xs"
+                            : "bg-slate-50/80 border-slate-200/60 opacity-75 hover:opacity-100"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <div className="font-bold text-[#052c65] flex items-center gap-1.5 text-xs">
+                            <span className={`w-2 h-2 rounded-full ${preferences ? "bg-[#167fa8]" : "bg-slate-300"}`} />
+                            Preferences Cookies
+                          </div>
+                          <button
+                            type="button"
+                            role="switch"
+                            aria-checked={preferences}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPreferences((v) => !v);
+                            }}
+                            className={`w-8 h-4.5 rounded-full p-0.5 flex items-center transition-colors shadow-inner cursor-pointer shrink-0 ${
+                              preferences ? "bg-[#167fa8] justify-end" : "bg-slate-300 justify-start"
+                            }`}
+                            aria-label="Toggle Preferences cookies"
+                          >
+                            <div className="w-3.5 h-3.5 rounded-full bg-white shadow-xs flex items-center justify-center transition-transform">
+                              {preferences && <Check size={8} className="text-[#167fa8] stroke-[3]" />}
+                            </div>
+                          </button>
                         </div>
                         <p className="text-[11px] leading-relaxed text-slate-500">
                           Enable the website to remember user preferences such as your chosen language, display density, and customized interface parameters.
                         </p>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100">
-                        <div className="font-bold text-[#052c65] mb-1 flex items-center gap-1.5">
-                          <span className={`w-2 h-2 rounded-full ${statistics ? "bg-[#167fa8]" : "bg-slate-300"}`} />
-                          Statistics / Analytics Cookies
+                      {/* Statistics / Analytics Cookies */}
+                      <div
+                        onClick={() => setStatistics((v) => !v)}
+                        className={`p-3.5 rounded-xl border transition-all cursor-pointer select-none ${
+                          statistics
+                            ? "bg-blue-50/50 border-[#167fa8]/30 shadow-xs"
+                            : "bg-slate-50/80 border-slate-200/60 opacity-75 hover:opacity-100"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <div className="font-bold text-[#052c65] flex items-center gap-1.5 text-xs">
+                            <span className={`w-2 h-2 rounded-full ${statistics ? "bg-[#167fa8]" : "bg-slate-300"}`} />
+                            Statistics Cookies
+                          </div>
+                          <button
+                            type="button"
+                            role="switch"
+                            aria-checked={statistics}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setStatistics((v) => !v);
+                            }}
+                            className={`w-8 h-4.5 rounded-full p-0.5 flex items-center transition-colors shadow-inner cursor-pointer shrink-0 ${
+                              statistics ? "bg-[#167fa8] justify-end" : "bg-slate-300 justify-start"
+                            }`}
+                            aria-label="Toggle Statistics cookies"
+                          >
+                            <div className="w-3.5 h-3.5 rounded-full bg-white shadow-xs flex items-center justify-center transition-transform">
+                              {statistics && <Check size={8} className="text-[#167fa8] stroke-[3]" />}
+                            </div>
+                          </button>
                         </div>
                         <p className="text-[11px] leading-relaxed text-slate-500">
                           Help us collect aggregated, anonymous usage metrics to evaluate page performance, visitor flow, and improve platform ergonomics.

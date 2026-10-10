@@ -137,7 +137,9 @@ export async function GET(
       headers: {
         "Content-Type": parsed.mimeType,
         "Content-Length": parsed.buffer.length.toString(),
-        "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
       },
     });
   } catch (error: any) {

@@ -30,7 +30,7 @@ export default function SolutionsManagement() {
 
   const fetchSolutions = async () => {
     try {
-      const res = await fetch("/api/solutions");
+      const res = await fetch(`/api/solutions?t=${Date.now()}`);
       const data = await res.json();
       setSolutions(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -229,7 +229,15 @@ export default function SolutionsManagement() {
                   </td>
                   <td className="px-6 py-5 w-24">
                     <div className="w-16 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0 overflow-hidden">
-                      {t.thumbnail_image ? <img src={t.thumbnail_image} className="w-full h-full object-cover" /> : <ImageIcon size={20} />}
+                      {t.thumbnail_image ? (
+                        <img 
+                          src={t.thumbnail_image.startsWith("data:") ? t.thumbnail_image : `${t.thumbnail_image}${t.thumbnail_image.includes("?") ? "&" : "?"}t=${Date.now()}`} 
+                          className="w-full h-full object-cover" 
+                          alt={t.title} 
+                        />
+                      ) : (
+                        <ImageIcon size={20} />
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-5">

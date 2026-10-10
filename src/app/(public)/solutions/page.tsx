@@ -19,8 +19,8 @@ export default async function SolutionsPage() {
         SELECT 
           id, title, badge, description, slug, status, order_index,
           CASE 
-            WHEN thumbnail_image IS NOT NULL AND LEN(thumbnail_image) > 0 THEN CONCAT('/api/solutions/', id, '/images/thumb')
-            ELSE ''
+            WHEN thumbnail_image IS NOT NULL AND LEN(thumbnail_image) > 500 THEN CONCAT('/api/solutions/', id, '/images/thumb')
+            ELSE thumbnail_image
           END as thumbnail_image
         FROM Solutions 
         WHERE status = 'Active' OR status IS NULL

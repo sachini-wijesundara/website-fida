@@ -98,7 +98,7 @@ async function persistBase64Image(pool: any, rawData: string, prefix: string): P
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
     const data = await request.json();
-    const { template_data } = data;
+    const { template_data, thumbnail_image } = data;
     
     if (!template_data) {
       return NextResponse.json({ message: "template_data is required" }, { status: 400 });
@@ -205,7 +205,20 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const heroImg = template_data.hero?.image;
     let finalThumb: string | null = null;
     let updateThumb = 0;
-    if (heroImg && !heroImg.includes('/images/hero') && !heroImg.includes('/images/thumb')) {
+
+    if (thumbnail_image !== undefined && thumbnail_image !== null) {
+      finalThumb = thumbnail_image;
+      if (typeof finalThumb === "string" && finalThumb.startsWith("data:")) {
+        finalThumb = await persistBase64Image(pool, finalThumb, "thumb");
+      }
+      updateThumb = 1;
+    } else if (template_data.thumbnail_image !== undefined && template_data.thumbnail_image !== null) {
+      finalThumb = template_data.thumbnail_image;
+      if (typeof finalThumb === "string" && finalThumb.startsWith("data:")) {
+        finalThumb = await persistBase64Image(pool, finalThumb, "thumb");
+      }
+      updateThumb = 1;
+    } else if (heroImg && !heroImg.includes('/images/hero') && !heroImg.includes('/images/thumb')) {
       finalThumb = heroImg;
       updateThumb = 1;
     }
@@ -224,7 +237,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       SET template_data = @TemplateData,
           detail_image_1 = CASE WHEN @UpdateD1 = 1 THEN @Detail1 ELSE detail_image_1 END,
           detail_image_2 = CASE WHEN @UpdateD2 = 1 THEN @Detail2 ELSE detail_image_2 END,
-          thumbnail_image = CASE WHEN @UpdateThumb = 1 AND (thumbnail_image IS NULL OR LEN(thumbnail_image) = 0) THEN @Thumb ELSE thumbnail_image END,
+          thumbnail_image = CASE WHEN @UpdateThumb = 1 THEN @Thumb ELSE thumbnail_image END,
           updated_at = GETDATE()
       WHERE `;
 

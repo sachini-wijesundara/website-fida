@@ -11,6 +11,7 @@ export default function EditTemplatePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [solutionInfo, setSolutionInfo] = useState<any>(null);
+  const [thumbnailImage, setThumbnailImage] = useState<string>("");
   const [template, setTemplate] = useState<any>(null);
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function EditTemplatePage() {
       if (res.ok) {
         const data = await res.json();
         setSolutionInfo(data);
+        setThumbnailImage(data.thumbnail_image || "");
         setTemplate(data.template_data || {
            hero: { title: "", subtitle: "", description: "", features: [""], image: "", logo_image: null },
            features_section: { title: "", cards: [] },
@@ -53,7 +55,10 @@ export default function EditTemplatePage() {
       const res = await fetch(`/api/solutions/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ template_data: template })
+        body: JSON.stringify({ 
+          template_data: template,
+          thumbnail_image: thumbnailImage
+        })
       });
       if (res.ok) {
         alert("Template saved successfully!");
@@ -102,9 +107,13 @@ export default function EditTemplatePage() {
 
       {/* Hero Section */}
       <section className="glass rounded-3xl p-8 border border-[var(--grey-dark)]">
-        <h3 className="text-xl font-bold mb-6 border-b border-slate-200 pb-4">Hero Section</h3>
+        <h3 className="text-xl font-bold mb-6 border-b border-slate-200 pb-4">Hero & Branding Section</h3>
+        
+        {/* Hero Logo Upload */}
         <div className="space-y-4 mb-6">
-          <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Hero Logo Upload (Optional)</label>
+          <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">
+            Hero Logo Upload (Displayed on Solution Detail Page)
+          </label>
           <input 
             type="file" 
             accept="image/*"
@@ -113,6 +122,7 @@ export default function EditTemplatePage() {
               if (file) {
                  uploadImage(file).then(url => {
                     setTemplate({...template, hero: {...template.hero, logo_image: url}});
+                    if (!thumbnailImage) setThumbnailImage(url);
                  }).catch(e => alert("Failed to upload logo: " + e.message));
               }
             }}
@@ -127,6 +137,7 @@ export default function EditTemplatePage() {
 
              {template.hero?.logo_image && (
                <button 
+                 type="button"
                  onClick={() => setTemplate({...template, hero: {...template.hero, logo_image: null}})}
                  className="absolute top-2 right-2 p-2 bg-red-500/80 hover:bg-red-500 text-white rounded-lg transition-colors"
                  title="Remove Custom Logo"
@@ -135,6 +146,53 @@ export default function EditTemplatePage() {
                </button>
              )}
           </div>
+        </div>
+
+        {/* Catalog Card Thumbnail */}
+        <div className="space-y-4 mb-6 pt-4 border-t border-slate-200">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">
+              Catalog Thumbnail Image (Displayed in Solutions Card & Admin Table)
+            </label>
+            {template.hero?.logo_image && (
+              <button
+                type="button"
+                onClick={() => setThumbnailImage(template.hero?.logo_image)}
+                className="text-xs font-bold text-blue-600 hover:underline cursor-pointer"
+              >
+                Use Hero Logo as Thumbnail
+              </button>
+            )}
+          </div>
+          <input 
+            type="file" 
+            accept="image/*"
+            onChange={e => {
+              const file = e.target.files?.[0];
+              if (file) {
+                 uploadImage(file).then(url => {
+                    setThumbnailImage(url);
+                 }).catch(e => alert("Failed to upload thumbnail: " + e.message));
+              }
+            }}
+            className="w-full bg-white border border-slate-200 shadow-sm text-slate-800 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" 
+          />
+          {thumbnailImage && (
+            <div className="w-full md:w-1/3 aspect-[2/1] rounded-xl overflow-hidden border border-white/10 relative bg-slate-50 p-4 flex items-center justify-center">
+               <img src={thumbnailImage} alt="Thumbnail Preview" className="w-full h-full object-contain" />
+               <div className="absolute top-2 left-2 px-2 py-1 bg-black/50 backdrop-blur-md rounded-md text-[10px] font-bold uppercase tracking-widest text-white">
+                 Active Thumbnail
+               </div>
+               <button 
+                 type="button"
+                 onClick={() => setThumbnailImage("")}
+                 className="absolute top-2 right-2 p-2 bg-red-500/80 hover:bg-red-500 text-white rounded-lg transition-colors"
+                 title="Remove Thumbnail"
+               >
+                 <Trash2 size={14} />
+               </button>
+            </div>
+          )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="space-y-2">
