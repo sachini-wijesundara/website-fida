@@ -124,7 +124,7 @@ export default function Navbar() {
                         href={link.href}
                         target={link.isExternal ? "_blank" : undefined}
                         rel={link.isExternal ? "noopener noreferrer" : undefined}
-                        download={link.download ? "FIDA Global Company Profile.pdf" : undefined}
+                        download={link.download ? "Company Profile 2026.pdf" : undefined}
                         onClick={() => setMenuOpen(false)}
                         className={`group flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0 transition-all duration-200 rounded-xl px-3 -mx-3 ${
                           isActive
@@ -176,7 +176,9 @@ export default function Navbar() {
                     </Link>
 
                     <a
-                      href="/FIDA%20Global%20Company%20Profile.pdf"
+                      href="/Company%20Profile%202026.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       onClick={() => setMenuOpen(false)}
                       className="w-full bg-white text-[#052c65] border border-slate-200 hover:border-[#0047e1] hover:text-[#0047e1] py-3 rounded-full text-xs font-black uppercase tracking-widest text-center transition-all duration-300 hover:scale-[1.02] shadow-sm flex items-center justify-center gap-2"
                     >
