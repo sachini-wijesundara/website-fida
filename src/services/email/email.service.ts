@@ -13,7 +13,7 @@ export async function sendMail(payload: EmailPayload): Promise<boolean> {
   while (retries > 0) {
     try {
       await transporter.sendMail({
-        from: `"FIDA Global Site" <${process.env.EMAIL_USER}>`,
+        from: `"FIDA Global" <${process.env.EMAIL_USER}>`,
         to: payload.to,
         subject: payload.subject,
         html: payload.html,

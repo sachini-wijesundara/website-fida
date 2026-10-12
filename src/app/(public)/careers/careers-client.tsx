@@ -49,17 +49,6 @@ const perks = [
   },
 ];
 
-const fallbackJobs = [
-  {
-    id: 1,
-    title: "Senior Security Operations Engineer",
-    dept: "Engineering",
-    type: "Full-time",
-    location: "Remote / Colombo",
-    is_active: true,
-  },
-];
-
 export default function CareersClient() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,14 +91,14 @@ export default function CareersClient() {
     try {
       const res = await fetch("/api/careers");
       const data = await res.json();
-      if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+      if (data.success && Array.isArray(data.data)) {
         setJobs(data.data.filter((j: any) => j.is_active));
       } else {
-        setJobs(fallbackJobs);
+        setJobs([]);
       }
     } catch (err) {
-      console.error(err);
-      setJobs(fallbackJobs);
+      console.error("Failed to fetch careers:", err);
+      setJobs([]);
     } finally {
       setLoading(false);
     }
@@ -314,42 +303,44 @@ export default function CareersClient() {
                 {filteredJobs.length} {filteredJobs.length === 1 ? "Role" : "Roles"} Currently Open
               </h2>
 
-              {/* Filters capsules row */}
-              <div className="flex flex-wrap items-center gap-3">
-                {/* Department filter */}
-                <div className="inline-flex items-center bg-[#e8f1fc] p-1 rounded-full border border-blue-100/60">
-                  {["All Depts", "Engineering", "Sales"].map((dept) => (
-                    <button
-                      key={dept}
-                      onClick={() => setSelectedDept(dept)}
-                      className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
-                        selectedDept === dept
-                          ? "bg-[#0047e1] text-white shadow-sm"
-                          : "text-slate-600 hover:text-[#0047e1]"
-                      }`}
-                    >
-                      {dept}
-                    </button>
-                  ))}
-                </div>
+              {/* Filters capsules row (only when active positions exist) */}
+              {jobs.length > 0 && (
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* Department filter */}
+                  <div className="inline-flex items-center bg-[#e8f1fc] p-1 rounded-full border border-blue-100/60">
+                    {["All Depts", ...Array.from(new Set(jobs.map((j) => j.dept).filter(Boolean)))].map((dept) => (
+                      <button
+                        key={dept}
+                        onClick={() => setSelectedDept(dept)}
+                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
+                          selectedDept === dept
+                            ? "bg-[#0047e1] text-white shadow-sm"
+                            : "text-slate-600 hover:text-[#0047e1]"
+                        }`}
+                      >
+                        {dept}
+                      </button>
+                    ))}
+                  </div>
 
-                {/* Location filter */}
-                <div className="inline-flex items-center bg-[#e8f1fc] p-1 rounded-full border border-blue-100/60">
-                  {["All Locations", "Remote"].map((loc) => (
-                    <button
-                      key={loc}
-                      onClick={() => setSelectedLocation(loc)}
-                      className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
-                        selectedLocation === loc
-                          ? "bg-[#0047e1] text-white shadow-sm"
-                          : "text-slate-600 hover:text-[#0047e1]"
-                      }`}
-                    >
-                      {loc}
-                    </button>
-                  ))}
+                  {/* Location filter */}
+                  <div className="inline-flex items-center bg-[#e8f1fc] p-1 rounded-full border border-blue-100/60">
+                    {["All Locations", "Remote"].map((loc) => (
+                      <button
+                        key={loc}
+                        onClick={() => setSelectedLocation(loc)}
+                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
+                          selectedLocation === loc
+                            ? "bg-[#0047e1] text-white shadow-sm"
+                            : "text-slate-600 hover:text-[#0047e1]"
+                        }`}
+                      >
+                        {loc}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </motion.div>
 
@@ -365,9 +356,13 @@ export default function CareersClient() {
             ) : filteredJobs.length === 0 ? (
               <div className="bg-white rounded-2xl p-10 text-center border border-dashed border-slate-200 shadow-sm space-y-2">
                 <Briefcase className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                <h3 className="text-lg font-bold text-[#0f172a]">No Open Roles in this Category</h3>
+                <h3 className="text-lg font-bold text-[#0f172a]">
+                  {jobs.length === 0 ? "No Open Positions at the Moment" : "No Open Roles in this Category"}
+                </h3>
                 <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
-                  Try adjusting your filters or send us an open application below.
+                  {jobs.length === 0
+                    ? "We don't currently have active vacancies posted, but we're always eager to meet talented professionals. Send us your resume below!"
+                    : "Try adjusting your filters or send us an open application below."}
                 </p>
               </div>
             ) : (

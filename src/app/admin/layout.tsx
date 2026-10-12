@@ -76,7 +76,7 @@ export default function AdminLayout({
           <SidebarLink href="/admin/services" icon={<Layout size={20} />} label="Manage Services" active={pathname.startsWith("/admin/services")} />
           <SidebarLink href="/admin/features" icon={<Lightbulb size={20} />} label="Manage Features" active={pathname.startsWith("/admin/features")} />
           <SidebarLink href="/admin/testimonials" icon={<MessageSquare size={20} />} label="Testimonials" active={pathname.startsWith("/admin/testimonials")} />
-          <SidebarLink href="/admin/inquiries" icon={<MessageSquare size={20} />} label="Customer Leads" active={pathname.startsWith("/admin/inquiries")} />
+          <SidebarLink href="/admin/customer-leads" icon={<MessageSquare size={20} />} label="Customer Leads" active={pathname.startsWith("/admin/customer-leads") || pathname.startsWith("/admin/inquiries")} />
           <SidebarLink href="/admin/newsletter" icon={<Mail size={20} />} label="Newsletter Subscribers" active={pathname.startsWith("/admin/newsletter")} />
           <SidebarLink href="/admin/teams" icon={<Users size={20} />} label="Team Showcase" active={pathname.startsWith("/admin/teams")} />
           <SidebarLink href="/admin/solutions" icon={<Briefcase size={20} />} label="System Solutions" active={pathname.startsWith("/admin/solutions")} />

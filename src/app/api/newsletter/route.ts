@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getDbConnection } from "@/lib/db";
 import { sendMail } from "@/services/email/email.service";
+import { getNewsletterWelcomeHtml } from "@/services/email/templates/newsletter-welcome";
 
 async function ensureTable() {
   const pool = await getDbConnection();
@@ -34,35 +35,57 @@ export async function POST(request: Request) {
       .input("email", email)
       .query(`SELECT id FROM newsletter_subscribers WHERE email = @email`);
 
-    if (existing.recordset.length > 0) {
-      return NextResponse.json({ message: "You're already subscribed!" }, { status: 200 });
+    const isAlreadySubscribed = existing.recordset.length > 0;
+
+    if (!isAlreadySubscribed) {
+      // Save to database
+      await pool
+        .request()
+        .input("email", email)
+        .query(`
+          INSERT INTO newsletter_subscribers (email, subscribed_at)
+          VALUES (@email, GETDATE())
+        `);
+
+      // Notify internal team of new subscriber
+      try {
+        await sendMail({
+          to: "info@fidaglobal.com",
+          subject: `New Newsletter Subscriber: ${email}`,
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+              <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">New Newsletter Subscriber</h2>
+              <p><strong>Email:</strong> ${email}</p>
+              <p style="font-size: 11px; color: #9ca3af; margin-top: 30px; text-align: center;">
+                Subscribed via the FIDA Global website footer.
+              </p>
+            </div>
+          `,
+        });
+      } catch (teamErr) {
+        console.error("Failed to notify team about new subscriber:", teamErr);
+      }
     }
 
-    // Save to database
-    await pool
-      .request()
-      .input("email", email)
-      .query(`
-        INSERT INTO newsletter_subscribers (email, subscribed_at)
-        VALUES (@email, GETDATE())
-      `);
+    // Always send the Thank You / Welcome email to the subscriber
+    try {
+      await sendMail({
+        to: email,
+        subject: "Thank You for Subscribing to FIDA Global!",
+        html: getNewsletterWelcomeHtml(email),
+      });
+    } catch (mailErr) {
+      console.error("Failed to send welcome email to subscriber:", mailErr);
+    }
 
-    // Notify team
-    await sendMail({
-      to: "info@fidaglobal.com",
-      subject: `New Newsletter Subscriber: ${email}`,
-      html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-          <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">New Newsletter Subscriber</h2>
-          <p><strong>Email:</strong> ${email}</p>
-          <p style="font-size: 11px; color: #9ca3af; margin-top: 30px; text-align: center;">
-            Subscribed via the FIDA Global website footer.
-          </p>
-        </div>
-      `,
-    });
-
-    return NextResponse.json({ message: "Subscribed! Thanks for joining." }, { status: 201 });
+    return NextResponse.json(
+      {
+        message: isAlreadySubscribed
+          ? "You're already subscribed! We've sent a welcome email to your inbox."
+          : "Subscribed! Thanks for joining.",
+      },
+      { status: 200 }
+    );
   } catch (error: any) {
     console.error("Newsletter subscribe error:", error);
     return NextResponse.json(

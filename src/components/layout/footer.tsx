@@ -126,7 +126,7 @@ export default function Footer() {
             }}
           >
             {subscribed ? (
-              <p className="contact-subscribe__done">Thanks — you&apos;re on the list!</p>
+              <p className="contact-subscribe__done">Thanks — you&apos;re on the list! Check your inbox for confirmation.</p>
             ) : (
               <>
                 <input
@@ -311,12 +311,18 @@ export default function Footer() {
       {/* Centered copyright bottom bar with pure white background */}
       <div className="bg-white py-5">
         <div className="container mx-auto px-6 text-center">
-          <p className="text-[12px] text-[#64748b] font-semibold flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+          <div className="text-[12px] text-[#64748b] font-semibold flex flex-wrap items-center justify-center gap-6 sm:gap-10">
             <span>© FIDA Global. All rights reserved.</span>
             <button
               type="button"
+              id="cookie-settings-button"
               onClick={() => {
                 if (typeof window !== "undefined") {
+                  if (typeof (window as any).openCookieBanner === "function") {
+                    (window as any).openCookieBanner();
+                  } else if (typeof (window as any).openCookieSettings === "function") {
+                    (window as any).openCookieSettings();
+                  }
                   window.dispatchEvent(new CustomEvent("open-cookie-banner"));
                 }
               }}
@@ -325,7 +331,7 @@ export default function Footer() {
               Cookie Settings
             </button>
             <Link href="/terms" className="hover:text-blue-600 transition-colors">Terms & Conditions</Link>
-          </p>
+          </div>
         </div>
       </div>
     </footer>

@@ -142,7 +142,9 @@ export default function CookieBanner() {
           Boolean(stored[category]);
       }
     }
+  }, []);
 
+  useEffect(() => {
     // Reopen cookie banner from footer or settings button
     const handleReopen = () => {
       const current = getStoredConsent();
@@ -159,7 +161,18 @@ export default function CookieBanner() {
     };
 
     window.addEventListener("open-cookie-banner", handleReopen);
-    return () => window.removeEventListener("open-cookie-banner", handleReopen);
+    if (typeof window !== "undefined") {
+      (window as any).openCookieBanner = handleReopen;
+      (window as any).openCookieSettings = handleReopen;
+    }
+
+    return () => {
+      window.removeEventListener("open-cookie-banner", handleReopen);
+      if (typeof window !== "undefined") {
+        delete (window as any).openCookieBanner;
+        delete (window as any).openCookieSettings;
+      }
+    };
   }, []);
 
   const triggerToast = useCallback((msg: string) => {
@@ -243,27 +256,37 @@ export default function CookieBanner() {
       {/* ── Main Cookie Banner Modal ── */}
       <AnimatePresence>
         {isVisible && (
-          <div className="fixed inset-x-0 bottom-0 z-[99999] p-3 sm:p-5 pointer-events-none flex justify-center">
+          <>
             <motion.div
-              initial={{ opacity: 0, y: 40, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 30, scale: 0.98 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-5xl pointer-events-auto bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-[#052c65]/10 shadow-[0_25px_65px_rgba(5,44,101,0.18)] p-5 sm:p-7 relative overflow-hidden"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Cookie consent banner"
-            >
-              {/* Top Close Button (acts as Deny) */}
-              <button
-                type="button"
-                onClick={handleDeny}
-                className="absolute top-4 right-4 sm:top-5 sm:right-5 p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                aria-label="Decline non-essential cookies and close"
-                title="Decline non-essential cookies"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsVisible(false)}
+              className="fixed inset-0 bg-[#052c65]/35 backdrop-blur-[2px] z-[99998] cursor-pointer"
+              aria-hidden="true"
+            />
+            <div className="fixed inset-x-0 bottom-0 z-[99999] p-3 sm:p-5 pointer-events-none flex justify-center">
+              <motion.div
+                initial={{ opacity: 0, y: 40, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 30, scale: 0.98 }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full max-w-5xl pointer-events-auto bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-[#052c65]/10 shadow-[0_25px_65px_rgba(5,44,101,0.18)] p-5 sm:p-7 relative overflow-hidden"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Cookie consent banner"
               >
-                <X size={18} />
-              </button>
+                {/* Top Close Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsVisible(false)}
+                  className="absolute top-4 right-4 sm:top-5 sm:right-5 p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                  aria-label="Close cookie settings"
+                  title="Close"
+                >
+                  <X size={18} />
+                </button>
 
               {/* Main Content Area */}
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -502,6 +525,7 @@ export default function CookieBanner() {
               </AnimatePresence>
             </motion.div>
           </div>
+          </>
         )}
       </AnimatePresence>
     </>

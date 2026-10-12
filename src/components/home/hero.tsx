@@ -13,14 +13,14 @@ import globeData from "./globe-dots.json";
 function InstancedDots() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const groupRef = useRef<THREE.Group>(null);
-  
+
   // Set up the instanced mesh once
   useEffect(() => {
     if (!meshRef.current) return;
-    
+
     const matrix = new THREE.Matrix4();
     const radius = 2.0;
-    
+
     globeData.forEach((d, i) => {
       // Apply radius to the normalized coordinates
       matrix.setPosition(d[0] * radius, d[1] * radius, d[2] * radius);
@@ -76,13 +76,13 @@ function InstancedDots() {
 function DottedGlobe() {
   return (
     <div className="hero-globe">
-      <Canvas 
-        camera={{ position: [0, 0, 5], fov: 45 }} 
+      <Canvas
+        camera={{ position: [0, 0, 5], fov: 45 }}
         style={{ background: 'transparent', pointerEvents: 'none' }}
         dpr={[1, 1.5]}
-        gl={{ 
-          powerPreference: "high-performance", 
-          antialias: false, 
+        gl={{
+          powerPreference: "high-performance",
+          antialias: false,
           alpha: true,
           depth: true,
         }}
@@ -136,34 +136,34 @@ export default function Hero() {
           className="home-hero__content"
           style={reduceMotion ? undefined : { y: copyY, opacity: copyOpacity }}
         >
-        <p className="home-hero__eyebrow">
-          <span />
-          Business partner for success and beyond
-        </p>
+          <p className="home-hero__eyebrow">
+            <span />
+            Business partner for success and beyond
+          </p>
 
-        <h1>
-          GLOBAL <span>Enterprise</span>
-          <br />
-          Optimum
-        </h1>
+          <h1>
+            GLOBAL <span>Enterprise</span>
+            <br />
+            Optimum
+          </h1>
 
-        <p className="home-hero__intro">
-          Empowering organizations with intelligent technology, global expertise,
-          and sustainable solutions built for optimum performance.
-        </p>
+          <p className="home-hero__intro">
+            Empowering organizations worldwide with intelligent HRIS technology from Sri Lanka, global expertise,
+            and sustainable solutions built for optimum performance.
+          </p>
 
-        <div className="home-hero__actions">
-          <Link href="/solutions" className="hero-button hero-button--primary">
-            Explore solutions
-            <ArrowUpRight size={17} />
-          </Link>
-          <Link
-            href="/contact"
-            className="hero-button hero-button--secondary"
-          >
-            Contact us
-          </Link>
-        </div>
+          <div className="home-hero__actions">
+            <Link href="/solutions" className="hero-button hero-button--primary">
+              Explore solutions
+              <ArrowUpRight size={17} />
+            </Link>
+            <Link
+              href="/contact"
+              className="hero-button hero-button--secondary"
+            >
+              Contact us
+            </Link>
+          </div>
         </motion.div>
 
         <motion.div

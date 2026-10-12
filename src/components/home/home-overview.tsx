@@ -165,7 +165,7 @@ export default function HomeOverview() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              The Digital Backbone for Borderless Workforce
+              The Cloud HRIS Backbone for a Borderless Workforce.
             </motion.h2>
 
             <motion.div
