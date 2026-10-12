@@ -74,12 +74,12 @@ export async function POST(request: Request) {
             .email-bg { background-color: #0b1528 !important; }
             .email-card { background-color: #162238 !important; border-color: #263859 !important; }
             .email-header-title { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
-            .email-header-motto { color: #38bdf8 !important; -webkit-text-fill-color: #38bdf8 !important; }
+            .email-header-motto { color: #0095da !important; -webkit-text-fill-color: #0095da !important; }
             .email-body { color: #f1f5f9 !important; background-color: #162238 !important; }
             .email-body p { color: #f1f5f9 !important; }
             .email-team-name { color: #ffffff !important; }
             .email-team-sub { color: #94a3b8 !important; }
-            .email-team-sub a, .email-team-sub span, .email-team-sub font { color: #38bdf8 !important; }
+            .email-team-sub a, .email-team-sub span, .email-team-sub font { color: #0095da !important; }
             .email-footer-bg { background-color: #0b1528 !important; border-top-color: #263859 !important; }
             .email-footer-text { color: #94a3b8 !important; }
           }
@@ -135,10 +135,13 @@ export async function POST(request: Request) {
                       <div class="email-team-name" style="font-size: 15px; font-weight: 800; color: #052c65;">
                         FIDA Global Team
                       </div>
-                      <div class="email-team-sub" style="font-size: 13px; color: #64748b; margin-top: 6px; line-height: 1.6;">
-                        Email: <a href="mailto:info@fidaglobal.com" style="color: #0047e1 !important; text-decoration: none !important; font-weight: 600;"><span style="color: #0047e1 !important;"><font color="#0047e1">info@fidaglobal.com</font></span></a>
-                        &nbsp;&bull;&nbsp;
-                        Tel: <a href="tel:+94117108020" style="color: #0047e1 !important; text-decoration: none !important; font-weight: 600;"><span style="color: #0047e1 !important;"><font color="#0047e1">+94 11 710 80 20</font></span></a>
+                      <div class="email-team-sub" style="font-size: 13px; color: #64748b; margin-top: 8px; line-height: 1.8;">
+                        <div style="margin-bottom: 4px;">
+                          <span style="color: #64748b;">Email:</span>&nbsp;<a href="mailto:info@fidaglobal.com" style="color: #0047e1 !important; text-decoration: none !important; font-weight: 600;"><span style="color: #0047e1 !important;"><font color="#0047e1">info@fidaglobal.com</font></span></a>
+                        </div>
+                        <div style="white-space: nowrap !important;">
+                          <span style="color: #64748b;">Tel:</span>&nbsp;<a href="tel:+94117108020" style="color: #0047e1 !important; text-decoration: none !important; font-weight: 600; white-space: nowrap !important;"><span style="color: #0047e1 !important; white-space: nowrap !important;"><font color="#0047e1" style="white-space: nowrap !important;">+94&nbsp;11&nbsp;710&nbsp;80&nbsp;20</font></span></a>
+                        </div>
                       </div>
                     </div>
 

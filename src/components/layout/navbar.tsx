@@ -176,11 +176,9 @@ export default function Navbar() {
                     </Link>
 
                     <a
-                      href="/Company%20Profile%202026.pdf"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href="/company-profile"
                       onClick={() => setMenuOpen(false)}
-                      className="w-full bg-white text-[#052c65] border border-slate-200 hover:border-[#0047e1] hover:text-[#0047e1] py-3 rounded-full text-xs font-black uppercase tracking-widest text-center transition-all duration-300 hover:scale-[1.02] shadow-sm flex items-center justify-center gap-2"
+                      className="w-full bg-white text-[#052c65] border border-slate-200 hover:border-[#0047e1] hover:text-[#0047e1] py-3 rounded-full text-xs font-black uppercase tracking-widest text-center transition-all duration-300 hover:scale-[1.02] shadow-sm flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <FileText className="w-4 h-4 text-[#0047e1]" />
                       <span>Company Profile</span>

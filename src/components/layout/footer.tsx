@@ -32,7 +32,7 @@ const solutionsLinks = [
 const companyLinks: { name: string; href: string; isExternal?: boolean; download?: boolean }[] = [
   { name: "About", href: "/about" },
   { name: "Solutions", href: "/solutions" },
-  { name: "Company Profile", href: "/Company%20Profile%202026.pdf", isExternal: true },
+  { name: "Company Profile", href: "/company-profile" },
   { name: "Careers", href: "/careers" },
   { name: "Blog", href: "/blog" },
   { name: "Contact", href: "/contact" },
@@ -239,8 +239,6 @@ export default function Footer() {
                   {link.download ? (
                     <a
                       href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       download="Company Profile 2026.pdf"
                       className="text-[15px] lg:text-sm text-[#475569] hover:text-blue-600 transition-colors font-semibold"
                     >
@@ -249,8 +247,6 @@ export default function Footer() {
                   ) : (
                     <Link
                       href={link.href}
-                      target={link.isExternal ? "_blank" : undefined}
-                      rel={link.isExternal ? "noopener noreferrer" : undefined}
                       className="text-[15px] lg:text-sm text-[#475569] hover:text-blue-600 transition-colors font-semibold"
                     >
                       {link.name}
@@ -294,10 +290,8 @@ export default function Footer() {
                 Book a Consultation
               </Link>
               <a
-                href="/Company%20Profile%202026.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 lg:px-6 lg:py-3 bg-white border border-slate-200 hover:border-blue-600 text-[#052c65] hover:text-blue-600 text-[13px] lg:text-[11px] font-bold tracking-[0.08em] uppercase rounded-full transition-all shadow-sm hover:-translate-y-[1px] w-fit"
+                href="/company-profile"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 lg:px-6 lg:py-3 bg-white border border-slate-200 hover:border-blue-600 text-[#052c65] hover:text-blue-600 text-[13px] lg:text-[11px] font-bold tracking-[0.08em] uppercase rounded-full transition-all shadow-sm hover:-translate-y-[1px] w-fit cursor-pointer"
               >
                 <FileText className="w-4 h-4 text-[#004dfc]" />
                 <span>Company Profile</span>

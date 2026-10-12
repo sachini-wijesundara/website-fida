@@ -84,6 +84,7 @@ export default function AdminLayout({
           <SidebarLink href="/admin/careers" icon={<Briefcase size={20} />} label="Manage Careers" active={pathname.startsWith("/admin/careers")} />
           <SidebarLink href="/admin/job-applications" icon={<Users size={20} />} label="Job Applications" active={pathname.startsWith("/admin/job-applications")} />
           <SidebarLink href="/admin/terms" icon={<Scale size={20} />} label="Terms & Conditions" active={pathname.startsWith("/admin/terms")} />
+          <SidebarLink href="/admin/company-profile" icon={<FileText size={20} />} label="Company Profile" active={pathname.startsWith("/admin/company-profile")} />
           
           <div className="mt-8 mb-2 px-4">
             <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-widest font-semibold">System</p>

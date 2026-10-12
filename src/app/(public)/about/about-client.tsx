@@ -237,7 +237,46 @@ export default function AboutClient({ initialTeam = [], initialAwardImage = "/AW
         <div className="grid grid-cols-3 gap-3 md:gap-6">
           {values.map((v, i) => {
             const Icon = v.icon;
-            const isGreen = i % 2 === 0;
+            // Official FIDA Logo Brand Colors:
+            // 'F' -> Crimson Red (#e44125)
+            // 'I' -> Azure Blue (#0095da)
+            // 'D' -> Golden Amber (#faa61a)
+            // 'A' -> Vibrant Green (#00a551)
+            // Emblem Blue (#0095da) & Emblem Orange (#f36f21)
+            const fidaThemes = [
+              {
+                border: "border-[1.5px] md:border-2 border-[#e44125]/35 hover:border-[#e44125]",
+                iconBox: "bg-red-50/90 border border-red-200 text-[#e44125]",
+                shadow: "shadow-md shadow-red-950/5 hover:shadow-xl hover:shadow-[#e44125]/15",
+              },
+              {
+                border: "border-[1.5px] md:border-2 border-[#0095da]/35 hover:border-[#0095da]",
+                iconBox: "bg-sky-50/90 border border-sky-200 text-[#0095da]",
+                shadow: "shadow-md shadow-sky-950/5 hover:shadow-xl hover:shadow-[#0095da]/15",
+              },
+              {
+                border: "border-[1.5px] md:border-2 border-[#faa61a]/45 hover:border-[#faa61a]",
+                iconBox: "bg-amber-50/90 border border-amber-200 text-[#faa61a]",
+                shadow: "shadow-md shadow-amber-950/5 hover:shadow-xl hover:shadow-[#faa61a]/15",
+              },
+              {
+                border: "border-[1.5px] md:border-2 border-[#00a551]/35 hover:border-[#00a551]",
+                iconBox: "bg-emerald-50/90 border border-emerald-200 text-[#00a551]",
+                shadow: "shadow-md shadow-emerald-950/5 hover:shadow-xl hover:shadow-[#00a551]/15",
+              },
+              {
+                border: "border-[1.5px] md:border-2 border-[#0095da]/35 hover:border-[#0095da]",
+                iconBox: "bg-sky-50/90 border border-sky-200 text-[#0095da]",
+                shadow: "shadow-md shadow-sky-950/5 hover:shadow-xl hover:shadow-[#0095da]/15",
+              },
+              {
+                border: "border-[1.5px] md:border-2 border-[#f36f21]/40 hover:border-[#f36f21]",
+                iconBox: "bg-orange-50/90 border border-orange-200 text-[#f36f21]",
+                shadow: "shadow-md shadow-orange-950/5 hover:shadow-xl hover:shadow-[#f36f21]/15",
+              },
+            ];
+            const theme = fidaThemes[i % fidaThemes.length];
+
             return (
               <motion.div
                 key={v.title}
@@ -245,14 +284,10 @@ export default function AboutClient({ initialTeam = [], initialAwardImage = "/AW
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08, duration: 0.6, ease: SMOOTH }}
-                className="bg-white rounded-[1rem] md:rounded-[1.5rem] border border-[#052c65]/8 p-3 md:p-8 text-left shadow-lg shadow-blue-50/50 flex flex-col gap-2 md:gap-4 hover:-translate-y-1.5 transition-all duration-300"
+                className={`bg-white rounded-[1rem] md:rounded-[1.5rem] ${theme.border} ${theme.shadow} p-3 md:p-8 text-left flex flex-col gap-2 md:gap-4 hover:-translate-y-1.5 transition-all duration-300`}
               >
                 <div
-                  className={`w-[95%] mx-auto h-8 md:h-12 rounded-[8px] md:rounded-[14px] flex items-center justify-center border ${
-                    isGreen
-                      ? "bg-[#eefcf4] border-emerald-100 text-emerald-500"
-                      : "bg-[#eef5fc] border-blue-100 text-blue-500"
-                  }`}
+                  className={`w-[95%] mx-auto h-8 md:h-12 rounded-[8px] md:rounded-[14px] flex items-center justify-center ${theme.iconBox} transition-colors`}
                 >
                   <Icon className="w-4 h-4 md:w-5 md:h-5" />
                 </div>
