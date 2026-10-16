@@ -22,7 +22,7 @@ import {
   Send,
   Loader2,
   Upload,
-  Paperclip,
+  ChevronDown,
   Link2,
 } from "lucide-react";
 
@@ -51,6 +51,7 @@ const perks = [
 
 export default function CareersClient() {
   const [jobs, setJobs] = useState<any[]>([]);
+  const [expandedJobs, setExpandedJobs] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
 
   // Filters
@@ -89,10 +90,10 @@ export default function CareersClient() {
 
   const fetchJobs = async () => {
     try {
-      const res = await fetch("/api/careers");
+      const res = await fetch("/api/careers", { cache: "no-store" });
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        setJobs(data.data.filter((j: any) => j.is_active));
+        setJobs(data.data.filter((j: any) => j.is_active !== false && j.is_active !== 0));
       } else {
         setJobs([]);
       }
@@ -109,6 +110,18 @@ export default function CareersClient() {
     setIsModalOpen(true);
     setSubmitSuccess(false);
     setCvFile(null);
+  };
+
+  const toggleJobDetails = (jobId: number) => {
+    setExpandedJobs((prev) => {
+      const next = new Set(prev);
+      if (next.has(jobId)) {
+        next.delete(jobId);
+      } else {
+        next.add(jobId);
+      }
+      return next;
+    });
   };
 
   const handleApply = async (e: React.FormEvent) => {
@@ -176,7 +189,18 @@ export default function CareersClient() {
     }
   };
 
-  // Filter logic
+  // Dynamic filter lists from database
+  const availableDepts = [
+    "All Depts",
+    ...Array.from(new Set(jobs.map((j) => j.dept).filter(Boolean))),
+  ];
+
+  const availableLocations = [
+    "All Locations",
+    ...Array.from(new Set(jobs.map((j) => j.location).filter(Boolean))),
+  ];
+
+  // Filter logic without hardcoded values
   const filteredJobs = jobs.filter((job) => {
     const jobDept = (job.dept || "").toLowerCase().trim();
     const jobLoc = (job.location || "").toLowerCase().trim();
@@ -188,8 +212,8 @@ export default function CareersClient() {
 
     const matchesLoc =
       selectedLocation === "All Locations" ||
-      (selectedLocation === "Remote" && jobLoc.includes("remote")) ||
-      jobLoc === selectedLocation.toLowerCase().trim();
+      jobLoc === selectedLocation.toLowerCase().trim() ||
+      jobLoc.includes(selectedLocation.toLowerCase().trim());
 
     return matchesDept && matchesLoc;
   });
@@ -307,38 +331,42 @@ export default function CareersClient() {
               {jobs.length > 0 && (
                 <div className="flex flex-wrap items-center gap-3">
                   {/* Department filter */}
-                  <div className="inline-flex items-center bg-[#e8f1fc] p-1 rounded-full border border-blue-100/60">
-                    {["All Depts", ...Array.from(new Set(jobs.map((j) => j.dept).filter(Boolean)))].map((dept) => (
-                      <button
-                        key={dept}
-                        onClick={() => setSelectedDept(dept)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
-                          selectedDept === dept
-                            ? "bg-[#0047e1] text-white shadow-sm"
-                            : "text-slate-600 hover:text-[#0047e1]"
-                        }`}
-                      >
-                        {dept}
-                      </button>
-                    ))}
-                  </div>
+                  {availableDepts.length > 1 && (
+                    <div className="inline-flex items-center bg-[#e8f1fc] p-1 rounded-full border border-blue-100/60 flex-wrap gap-1">
+                      {availableDepts.map((dept) => (
+                        <button
+                          key={dept}
+                          onClick={() => setSelectedDept(dept)}
+                          className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
+                            selectedDept === dept
+                              ? "bg-[#0047e1] text-white shadow-sm"
+                              : "text-slate-600 hover:text-[#0047e1]"
+                          }`}
+                        >
+                          {dept}
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Location filter */}
-                  <div className="inline-flex items-center bg-[#e8f1fc] p-1 rounded-full border border-blue-100/60">
-                    {["All Locations", "Remote"].map((loc) => (
-                      <button
-                        key={loc}
-                        onClick={() => setSelectedLocation(loc)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
-                          selectedLocation === loc
-                            ? "bg-[#0047e1] text-white shadow-sm"
-                            : "text-slate-600 hover:text-[#0047e1]"
-                        }`}
-                      >
-                        {loc}
-                      </button>
-                    ))}
-                  </div>
+                  {availableLocations.length > 1 && (
+                    <div className="inline-flex items-center bg-[#e8f1fc] p-1 rounded-full border border-blue-100/60 flex-wrap gap-1">
+                      {availableLocations.map((loc) => (
+                        <button
+                          key={loc}
+                          onClick={() => setSelectedLocation(loc)}
+                          className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
+                            selectedLocation === loc
+                              ? "bg-[#0047e1] text-white shadow-sm"
+                              : "text-slate-600 hover:text-[#0047e1]"
+                          }`}
+                        >
+                          {loc}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -366,49 +394,115 @@ export default function CareersClient() {
                 </p>
               </div>
             ) : (
-              filteredJobs.map((job) => (
-                <motion.div
-                  key={job.id}
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4 }}
-                >
-                  <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_10px_30px_rgba(5,44,101,0.04)] hover:shadow-[0_15px_40px_rgba(0,71,225,0.08)] transition-all duration-300 p-6 sm:p-7 relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-6 group">
-                    {/* Left cyan accent bar */}
-                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#38bdf8]" />
+              filteredJobs.map((job) => {
+                const accentColor =
+                  job.color && !job.color.startsWith("var(")
+                    ? job.color
+                    : job.color === "var(--green)"
+                    ? "#76c442"
+                    : job.color === "var(--blue)"
+                    ? "#0047e1"
+                    : job.color === "var(--grey-light)"
+                    ? "#94a3b8"
+                    : "#00a8e8";
 
-                    <div className="flex-1 space-y-2 pl-3">
-                      <h3 className="text-lg sm:text-xl font-bold text-[#0f172a] group-hover:text-[#0047e1] transition-colors">
-                        {job.title}
-                      </h3>
+                return (
+                  <motion.div
+                    key={job.id}
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_10px_30px_rgba(5,44,101,0.04)] hover:shadow-[0_15px_40px_rgba(0,71,225,0.08)] transition-all duration-300 p-6 sm:p-7 relative overflow-hidden flex flex-col justify-between gap-4 group">
+                      {/* Left accent bar dynamically matching theme color */}
+                      <div
+                        className="absolute left-0 top-0 bottom-0 w-1.5"
+                        style={{ backgroundColor: accentColor }}
+                      />
 
-                      <div className="flex items-center flex-wrap gap-5 text-xs text-slate-500 font-medium">
-                        <span className="flex items-center gap-1.5">
-                          <Briefcase className="w-3.5 h-3.5 text-[#0047e1]" />
-                          {job.dept || "Engineering"}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 text-slate-400" />
-                          {job.type || "Full-time"}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                          {job.location || "Remote / Colombo"}
-                        </span>
+                      {/* Header Row: Title, Badges & Apply Button */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pl-3">
+                        <div className="space-y-2">
+                          <h3 className="text-lg sm:text-xl font-bold text-[#0f172a] group-hover:text-[#0047e1] transition-colors">
+                            {job.title}
+                          </h3>
+
+                          <div className="flex items-center flex-wrap gap-5 text-xs text-slate-500 font-medium">
+                            {job.dept && (
+                              <span className="flex items-center gap-1.5">
+                                <Briefcase className="w-3.5 h-3.5 text-[#0047e1]" />
+                                {job.dept}
+                              </span>
+                            )}
+                            {job.type && (
+                              <span className="flex items-center gap-1.5">
+                                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                                {job.type}
+                              </span>
+                            )}
+                            {job.location && (
+                              <span className="flex items-center gap-1.5">
+                                <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                                {job.location}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => openApplyModal(job.title)}
+                          className="inline-flex items-center gap-2 text-sm font-bold text-white bg-[#0047e1] hover:bg-[#0037b0] px-5 py-2.5 rounded-full transition-all duration-200 self-start sm:self-center shadow-sm shadow-blue-500/20 group-hover:shadow-md shrink-0"
+                        >
+                          <span>Apply Now</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
                       </div>
-                    </div>
 
-                    <button
-                      onClick={() => openApplyModal(job.title)}
-                      className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0047e1] hover:text-[#0037b0] transition-colors self-start sm:self-center group-hover:translate-x-1 duration-200"
-                    >
-                      <span>Apply Now</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </motion.div>
-              ))
+                      {/* Job Description & Responsibilities – collapsible */}
+                      {job.details && job.details.trim() && (
+                        <div className="mt-2 pt-4 border-t border-slate-100 pl-3">
+                          <button
+                            type="button"
+                            onClick={() => toggleJobDetails(job.id)}
+                            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#0047e1] mb-0 w-full text-left"
+                          >
+                            <FileText className="w-3.5 h-3.5 text-[#0047e1] shrink-0" />
+                            <span className="flex-1">Job Description &amp; Responsibilities</span>
+                            <motion.span
+                              animate={{ rotate: expandedJobs.has(job.id) ? 180 : 0 }}
+                              transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                              className="shrink-0 inline-flex"
+                            >
+                              <ChevronDown className="w-4 h-4 text-[#0047e1]" />
+                            </motion.span>
+                          </button>
+
+                          <AnimatePresence initial={false}>
+                            {expandedJobs.has(job.id) && (
+                              <motion.div
+                                key={`details-${job.id}`}
+                                initial={{ opacity: 0, scaleY: 0.92, y: -6 }}
+                                animate={{ opacity: 1, scaleY: 1, y: 0 }}
+                                exit={{ opacity: 0, scaleY: 0.92, y: -6 }}
+                                transition={{
+                                  duration: 0.2,
+                                  ease: [0.4, 0, 0.2, 1],
+                                }}
+                                style={{ transformOrigin: "top", willChange: "transform, opacity" }}
+                              >
+                                <div className="mt-2.5 text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line font-normal bg-slate-50/70 rounded-xl p-4 border border-slate-100/80">
+                                  {job.details}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })
             )}
           </div>
 

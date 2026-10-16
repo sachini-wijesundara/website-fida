@@ -59,6 +59,7 @@ export interface Career {
   location: string;
   color: string;
   is_active: boolean;
+  details?: string | null;
   created_at: string;
 }
 

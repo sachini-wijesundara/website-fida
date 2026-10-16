@@ -22,7 +22,7 @@ export default function CareersSection() {
   useEffect(() => {
     async function fetchCareers() {
       try {
-        const res = await fetch("/api/careers");
+        const res = await fetch("/api/careers", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           if (data.success && Array.isArray(data.data)) {
@@ -89,7 +89,12 @@ export default function CareersSection() {
         ) : jobs.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {jobs.map((job, idx) => {
-              const accentColor = job.color && job.color.startsWith("var(") ? "#0047e1" : (job.color || "#0047e1");
+              const accentColor =
+                job.color && !job.color.startsWith("var(")
+                  ? job.color
+                  : job.color === "var(--green)"
+                  ? "#76c442"
+                  : "#0047e1";
               return (
                 <motion.div
                   key={job.id}
@@ -112,7 +117,7 @@ export default function CareersSection() {
                         <div className="flex items-center justify-between gap-2">
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-50 text-[#0047e1] border border-blue-100">
                             <Sparkles className="w-3 h-3 text-[#0047e1]" />
-                            {job.dept || "Engineering"}
+                            {job.dept}
                           </span>
                           <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
                             Immediate Opening
@@ -126,14 +131,18 @@ export default function CareersSection() {
 
                       <div className="flex items-center justify-between pt-4 border-t border-slate-100 text-xs text-[#536b8a] font-medium">
                         <div className="flex flex-wrap items-center gap-4">
-                          <span className="inline-flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5 text-[#0047e1]" />
-                            {job.type || "Full-time"}
-                          </span>
-                          <span className="inline-flex items-center gap-1.5">
-                            <MapPin className="w-3.5 h-3.5 text-[#76c442]" />
-                            {job.location || "Colombo / Remote"}
-                          </span>
+                          {job.type && (
+                            <span className="inline-flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5 text-[#0047e1]" />
+                              {job.type}
+                            </span>
+                          )}
+                          {job.location && (
+                            <span className="inline-flex items-center gap-1.5">
+                              <MapPin className="w-3.5 h-3.5 text-[#76c442]" />
+                              {job.location}
+                            </span>
+                          )}
                         </div>
 
                         <span className="inline-flex items-center gap-1 font-bold text-[#0047e1] group-hover:translate-x-1 transition-transform">

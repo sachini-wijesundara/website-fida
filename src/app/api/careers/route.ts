@@ -1,4 +1,6 @@
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { NextResponse } from "next/server";
 import { getDbConnection, sql } from "@/lib/db";
 import { validateCareerApplication } from "@/schemas/career.schema";
@@ -9,13 +11,34 @@ import { getApplicationConfirmationHtml } from "@/services/email/templates/appli
 export async function GET() {
   try {
     const pool = await getDbConnection();
-    const result = await pool.request().query(
-      "SELECT id, title, dept, type, location, color, is_active, created_at FROM careers WHERE is_active = 1 ORDER BY created_at DESC"
+    const result = await pool.request().query(`
+      SELECT id, title, dept, type, location, color, is_active, details, created_at 
+      FROM careers 
+      WHERE COALESCE(is_active, 1) = 1 
+      ORDER BY created_at DESC
+    `);
+
+    return NextResponse.json(
+      { success: true, data: result.recordset || [] },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0",
+        },
+      }
     );
-    return NextResponse.json({ success: true, data: result.recordset });
   } catch (error: any) {
     console.error("GET /api/careers error:", error);
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      {
+        status: 500,
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      }
+    );
   }
 }
 
@@ -42,14 +65,35 @@ export async function POST(request: Request) {
     const { fullName, email, phone, position, resumeUrl, message } = value;
     const pool = await getDbConnection();
 
-    const result = await pool.request()
-      .input("FullName", fullName)
-      .input("Email", email)
-      .input("Phone", phone || null)
-      .input("Position", position)
-      .input("ResumeUrl", resumeUrl || null)
-      .input("Message", message || null)
-      .execute("sp_CreateJobApplication");
+    let applicationId: any = null;
+
+    try {
+      const result = await pool.request()
+        .input("FullName", fullName)
+        .input("Email", email)
+        .input("Phone", phone || null)
+        .input("Position", position)
+        .input("ResumeUrl", resumeUrl || null)
+        .input("Message", message || null)
+        .execute("sp_CreateJobApplication");
+
+      applicationId = result.recordset?.[0]?.ApplicationId;
+    } catch (spErr) {
+      console.warn("sp_CreateJobApplication failed, trying fallback insert:", spErr);
+      const direct = await pool.request()
+        .input("FullName", fullName)
+        .input("Email", email)
+        .input("Phone", phone || null)
+        .input("Position", position)
+        .input("ResumeUrl", resumeUrl || null)
+        .input("Message", message || null)
+        .query(`
+          INSERT INTO JobApplications (FullName, Email, Phone, Position, ResumeUrl, Message, Status, CreatedAt)
+          OUTPUT INSERTED.ApplicationId
+          VALUES (@FullName, @Email, @Phone, @Position, @ResumeUrl, @Message, 'pending', GETDATE())
+        `);
+      applicationId = direct.recordset?.[0]?.ApplicationId;
+    }
 
     // Send confirmation email asynchronously
     try {
@@ -65,7 +109,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       message: "Application submitted successfully",
-      applicationId: result.recordset?.[0]?.ApplicationId,
+      applicationId: applicationId,
     });
   } catch (error: any) {
     console.error("POST /api/careers error:", error);
