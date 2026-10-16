@@ -118,17 +118,17 @@ export default function CookieBanner() {
   const [showDetails, setShowDetails] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Categories state (all enabled by default)
-  const [preferences, setPreferences] = useState(true);
-  const [statistics, setStatistics] = useState(true);
+  // Categories state: Only Necessary cookies enabled by default; Preferences and Statistics default to disabled
+  const [preferences, setPreferences] = useState(false);
+  const [statistics, setStatistics] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     const stored = getStoredConsent();
     if (!stored) {
-      // First visit: show banner with all toggles enabled and details open
-      setPreferences(true);
-      setStatistics(true);
+      // First visit: only necessary cookies enabled; optional ones disabled by default
+      setPreferences(false);
+      setStatistics(false);
       setShowDetails(true);
       const timer = setTimeout(() => setIsVisible(true), 600);
       return () => clearTimeout(timer);
@@ -149,12 +149,12 @@ export default function CookieBanner() {
     const handleReopen = () => {
       const current = getStoredConsent();
       if (current) {
-        // Accurately reflect user's current consent (disabled if previously denied)
+        // Accurately reflect user's current consent
         setPreferences(Boolean(current.preferences));
         setStatistics(Boolean(current.statistics));
       } else {
-        setPreferences(true);
-        setStatistics(true);
+        setPreferences(false);
+        setStatistics(false);
       }
       setShowDetails(true);
       setIsVisible(true);
@@ -349,8 +349,8 @@ export default function CookieBanner() {
                 <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs font-semibold text-slate-700">
                   {/* Necessary (Always active) */}
                   <div className="flex items-center gap-2 cursor-not-allowed select-none" title="Strictly necessary cookies cannot be disabled">
-                    <div className="w-9 h-5 rounded-full bg-[#167fa8] p-0.5 flex items-center justify-end shadow-inner cursor-not-allowed">
-                      <div className="w-4 h-4 rounded-full bg-white shadow-sm flex items-center justify-center">
+                    <div className="relative inline-flex w-9 h-5 rounded-full bg-[#167fa8] p-0.5 shadow-inner cursor-not-allowed">
+                      <div className="w-4 h-4 rounded-full bg-white shadow-sm flex items-center justify-center translate-x-4">
                         <Check size={10} className="text-[#167fa8] stroke-[3]" />
                       </div>
                     </div>
@@ -370,16 +370,22 @@ export default function CookieBanner() {
                         e.stopPropagation();
                         setPreferences((v) => !v);
                       }}
-                      className={`w-9 h-5 rounded-full p-0.5 flex items-center transition-colors shadow-inner cursor-pointer ${
-                        preferences ? "bg-[#167fa8] justify-end" : "bg-slate-300 justify-start"
+                      className={`relative inline-flex w-9 h-5 rounded-full p-0.5 transition-colors duration-200 shadow-inner cursor-pointer ${
+                        preferences ? "bg-[#167fa8]" : "bg-slate-300"
                       }`}
                       aria-label="Toggle Preferences cookies"
                     >
-                      <div className="w-4 h-4 rounded-full bg-white shadow-sm flex items-center justify-center transition-transform">
+                      <div
+                        className={`w-4 h-4 rounded-full bg-white shadow-sm flex items-center justify-center transition-transform duration-200 transform ${
+                          preferences ? "translate-x-4" : "translate-x-0"
+                        }`}
+                      >
                         {preferences && <Check size={10} className="text-[#167fa8] stroke-[3]" />}
                       </div>
                     </button>
-                    <span className="group-hover:text-[#052c65] transition-colors">Preferences</span>
+                    <span className={`transition-colors ${preferences ? "text-slate-800 font-bold" : "text-slate-600 group-hover:text-slate-900"}`}>
+                      Preferences
+                    </span>
                   </div>
 
                   {/* Statistics */}
@@ -395,16 +401,22 @@ export default function CookieBanner() {
                         e.stopPropagation();
                         setStatistics((v) => !v);
                       }}
-                      className={`w-9 h-5 rounded-full p-0.5 flex items-center transition-colors shadow-inner cursor-pointer ${
-                        statistics ? "bg-[#167fa8] justify-end" : "bg-slate-300 justify-start"
+                      className={`relative inline-flex w-9 h-5 rounded-full p-0.5 transition-colors duration-200 shadow-inner cursor-pointer ${
+                        statistics ? "bg-[#167fa8]" : "bg-slate-300"
                       }`}
                       aria-label="Toggle Statistics cookies"
                     >
-                      <div className="w-4 h-4 rounded-full bg-white shadow-sm flex items-center justify-center transition-transform">
+                      <div
+                        className={`w-4 h-4 rounded-full bg-white shadow-sm flex items-center justify-center transition-transform duration-200 transform ${
+                          statistics ? "translate-x-4" : "translate-x-0"
+                        }`}
+                      >
                         {statistics && <Check size={10} className="text-[#167fa8] stroke-[3]" />}
                       </div>
                     </button>
-                    <span className="group-hover:text-[#052c65] transition-colors">Statistics</span>
+                    <span className={`transition-colors ${statistics ? "text-slate-800 font-bold" : "text-slate-600 group-hover:text-slate-900"}`}>
+                      Statistics
+                    </span>
                   </div>
                 </div>
 
@@ -457,7 +469,7 @@ export default function CookieBanner() {
                       >
                         <div className="flex items-center justify-between gap-2 mb-1.5">
                           <div className="font-bold text-[#052c65] flex items-center gap-1.5 text-xs">
-                            <span className={`w-2 h-2 rounded-full ${preferences ? "bg-[#167fa8]" : "bg-slate-300"}`} />
+                            <span className={`w-2 h-2 rounded-full transition-colors ${preferences ? "bg-[#167fa8]" : "bg-slate-300"}`} />
                             Preferences Cookies
                           </div>
                           <button
@@ -468,12 +480,16 @@ export default function CookieBanner() {
                               e.stopPropagation();
                               setPreferences((v) => !v);
                             }}
-                            className={`w-8 h-4.5 rounded-full p-0.5 flex items-center transition-colors shadow-inner cursor-pointer shrink-0 ${
-                              preferences ? "bg-[#167fa8] justify-end" : "bg-slate-300 justify-start"
+                            className={`relative inline-flex w-8 h-4.5 rounded-full p-0.5 transition-colors duration-200 shadow-inner cursor-pointer shrink-0 ${
+                              preferences ? "bg-[#167fa8]" : "bg-slate-300"
                             }`}
                             aria-label="Toggle Preferences cookies"
                           >
-                            <div className="w-3.5 h-3.5 rounded-full bg-white shadow-xs flex items-center justify-center transition-transform">
+                            <div
+                              className={`w-3.5 h-3.5 rounded-full bg-white shadow-xs flex items-center justify-center transition-transform duration-200 transform ${
+                                preferences ? "translate-x-3.5" : "translate-x-0"
+                              }`}
+                            >
                               {preferences && <Check size={8} className="text-[#167fa8] stroke-[3]" />}
                             </div>
                           </button>
@@ -494,7 +510,7 @@ export default function CookieBanner() {
                       >
                         <div className="flex items-center justify-between gap-2 mb-1.5">
                           <div className="font-bold text-[#052c65] flex items-center gap-1.5 text-xs">
-                            <span className={`w-2 h-2 rounded-full ${statistics ? "bg-[#167fa8]" : "bg-slate-300"}`} />
+                            <span className={`w-2 h-2 rounded-full transition-colors ${statistics ? "bg-[#167fa8]" : "bg-slate-300"}`} />
                             Statistics Cookies
                           </div>
                           <button
@@ -505,12 +521,16 @@ export default function CookieBanner() {
                               e.stopPropagation();
                               setStatistics((v) => !v);
                             }}
-                            className={`w-8 h-4.5 rounded-full p-0.5 flex items-center transition-colors shadow-inner cursor-pointer shrink-0 ${
-                              statistics ? "bg-[#167fa8] justify-end" : "bg-slate-300 justify-start"
+                            className={`relative inline-flex w-8 h-4.5 rounded-full p-0.5 transition-colors duration-200 shadow-inner cursor-pointer shrink-0 ${
+                              statistics ? "bg-[#167fa8]" : "bg-slate-300"
                             }`}
                             aria-label="Toggle Statistics cookies"
                           >
-                            <div className="w-3.5 h-3.5 rounded-full bg-white shadow-xs flex items-center justify-center transition-transform">
+                            <div
+                              className={`w-3.5 h-3.5 rounded-full bg-white shadow-xs flex items-center justify-center transition-transform duration-200 transform ${
+                                statistics ? "translate-x-3.5" : "translate-x-0"
+                              }`}
+                            >
                               {statistics && <Check size={8} className="text-[#167fa8] stroke-[3]" />}
                             </div>
                           </button>

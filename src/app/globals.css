@@ -766,6 +766,7 @@ a, button, [data-cursor] { cursor: pointer; }
   will-change: transform;
   transform: translateZ(0);
   backface-visibility: hidden;
+  contain: layout style;
 }
 
 .home-hero::after {
@@ -786,7 +787,6 @@ a, button, [data-cursor] { cursor: pointer; }
   border-radius: 50%;
   pointer-events: none;
   transform: translateZ(0);
-  will-change: transform;
   backface-visibility: hidden;
 }
 
@@ -818,7 +818,6 @@ a, button, [data-cursor] { cursor: pointer; }
   border-radius: 50%;
   box-shadow: 0 16px 36px rgba(5,44,101,.06);
   pointer-events: none;
-  will-change: transform;
   backface-visibility: hidden;
 }
 
@@ -835,7 +834,6 @@ a, button, [data-cursor] { cursor: pointer; }
   background: radial-gradient(circle at 45% 37%, rgba(255,255,255,.8), rgba(255,255,255,.32) 58%, rgba(181,220,227,.2) 75%);
   contain: strict;
   pointer-events: none;
-  will-change: transform;
   backface-visibility: hidden;
 }
 

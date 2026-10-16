@@ -60,14 +60,14 @@ function InstancedDots() {
         }
       `,
       transparent: true,
-      side: THREE.DoubleSide,
+      depthWrite: false,
     });
   }, []);
 
   return (
     <group ref={groupRef} rotation={[0, -Math.PI / 2, 0]}>
       <instancedMesh ref={meshRef} args={[undefined, undefined, globeData.length]} material={customMaterial}>
-        <sphereGeometry args={[0.007, 6, 6]} />
+        <sphereGeometry args={[0.007, 4, 4]} />
       </instancedMesh>
     </group>
   );
@@ -79,12 +79,14 @@ function DottedGlobe() {
       <Canvas
         camera={{ position: [0, 0, 5], fov: 45 }}
         style={{ background: 'transparent', pointerEvents: 'none' }}
-        dpr={[1, 1.5]}
+        dpr={[1, 1.25]}
         gl={{
           powerPreference: "high-performance",
           antialias: false,
           alpha: true,
-          depth: true,
+          depth: false,
+          stencil: false,
+          precision: "mediump",
         }}
         performance={{ min: 0.5 }}
       >
@@ -103,14 +105,14 @@ export default function Hero() {
     offset: ["start start", "end end"],
   });
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 200,
-    damping: 30,
-    mass: 0.05,
-    restDelta: 0.0001,
+    stiffness: 140,
+    damping: 22,
+    mass: 0.2,
+    restDelta: 0.001,
   });
   const copyY = useTransform(smoothProgress, [0, 0.42], [0, -190]);
   const copyOpacity = useTransform(smoothProgress, [0, 0.32], [1, 0]);
-  const sceneY = useTransform(smoothProgress, [0.03, 0.58], [0, -640]);
+  const sceneY = useTransform(smoothProgress, [0, 0.55], [0, -640]);
   const cueOpacity = useTransform(smoothProgress, [0, 0.18], [1, 0]);
   const colorOpacity = useTransform(smoothProgress, [0.08, 0.62], [0, 1]);
 
