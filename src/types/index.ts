@@ -147,3 +147,40 @@ export interface PaginationProps {
   totalPages: number;
   onPageChange: (page: number) => void;
 }
+
+// ─── Visitor Tracking & Analytics Models ──────────────────────────────────────
+
+export interface VisitorSession {
+  session_id: string;
+  visitor_id: string;
+  ip_country?: string | null;
+  ip_city?: string | null;
+  device_type?: "desktop" | "mobile" | "tablet" | string | null;
+  browser?: string | null;
+  os?: string | null;
+  referrer?: string | null;
+  landing_page?: string | null;
+  started_at: string;
+  ended_at?: string | null;
+  total_duration: number;
+}
+
+export interface PageView {
+  view_id: string;
+  session_id: string;
+  page_path: string;
+  page_title?: string | null;
+  duration_seconds: number;
+  max_scroll_percent: number;
+  entered_at: string;
+  exited_at?: string | null;
+}
+
+export interface SectionView {
+  id?: number;
+  view_id: string;
+  section_id: string;
+  time_visible_seconds: number;
+  viewed_at: string;
+}
+

@@ -9,9 +9,13 @@ import {
   Mail,
   MapPin,
   Phone,
+  AlertCircle,
+  CheckCircle2,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
+import { validateEmail } from "@/schemas/contact.schema";
 
 const SMOOTH = [0.16, 1, 0.3, 1] as const;
 
@@ -88,10 +92,56 @@ export default function ContactClient() {
   const [subscribed, setSubscribed] = useState(false);
   const [mapFocused, setMapFocused] = useState(false);
 
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
+
+  const handleEmailChange = (val: string) => {
+    setForm((prev) => ({ ...prev, email: val }));
+    if (emailTouched) {
+      if (!val.trim()) {
+        setEmailError("Work email is required.");
+        setEmailSuggestion(null);
+      } else {
+        const check = validateEmail(val);
+        setEmailError(check.valid ? null : (check.error || "Invalid email format."));
+        setEmailSuggestion(check.suggestion || null);
+      }
+    }
+  };
+
+  const handleEmailBlur = () => {
+    setEmailTouched(true);
+    if (!form.email.trim()) {
+      setEmailError("Work email is required.");
+      setEmailSuggestion(null);
+    } else {
+      const check = validateEmail(form.email);
+      setEmailError(check.valid ? null : (check.error || "Invalid email format."));
+      setEmailSuggestion(check.suggestion || null);
+    }
+  };
+
+  const handleApplySuggestion = (suggested: string) => {
+    setForm((prev) => ({ ...prev, email: suggested }));
+    setEmailSuggestion(null);
+    setEmailError(null);
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+
+    // Validate email strictly before sending
+    setEmailTouched(true);
+    const emailCheck = validateEmail(form.email);
+    if (!emailCheck.valid) {
+      setEmailError(emailCheck.error || "Please enter a valid work email address.");
+      setError(emailCheck.error || "Please enter a valid work email address.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const res = await fetch("/api/contact", {
@@ -103,6 +153,9 @@ export default function ContactClient() {
       if (res.ok) {
         setSent(true);
         setForm(emptyForm);
+        setEmailTouched(false);
+        setEmailError(null);
+        setEmailSuggestion(null);
       } else {
         const data = await res.json();
         setError(data.message || "Something went wrong. Please try again.");
@@ -195,7 +248,12 @@ export default function ContactClient() {
                         type="email"
                         placeholder="john@company.com"
                         value={form.email}
-                        onChange={(v) => setForm({ ...form, email: v })}
+                        onChange={handleEmailChange}
+                        onBlur={handleEmailBlur}
+                        error={emailTouched ? emailError : null}
+                        success={emailTouched && !emailError && Boolean(form.email.trim())}
+                        suggestion={emailSuggestion}
+                        onApplySuggestion={handleApplySuggestion}
                         required
                       />
                     </div>
@@ -504,6 +562,11 @@ function Field({
   placeholder,
   value,
   onChange,
+  onBlur,
+  error,
+  success,
+  suggestion,
+  onApplySuggestion,
   required,
 }: {
   label: string;
@@ -512,22 +575,80 @@ function Field({
   placeholder: string;
   value: string;
   onChange: (v: string) => void;
+  onBlur?: () => void;
+  error?: string | null;
+  success?: boolean;
+  suggestion?: string | null;
+  onApplySuggestion?: (s: string) => void;
   required?: boolean;
 }) {
   return (
     <div>
-      <label htmlFor={id} className="contact-label">
-        {label}
-      </label>
-      <input
-        id={id}
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required={required}
-        className="contact-input"
-      />
+      <div className="flex items-center justify-between mb-1.5">
+        <label htmlFor={id} className="contact-label !mb-0">
+          {label}
+        </label>
+        {success && (
+          <span className="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
+            <CheckCircle2 size={12} className="text-emerald-500" />
+            Valid
+          </span>
+        )}
+      </div>
+
+      <div className="relative">
+        <input
+          id={id}
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
+          required={required}
+          className={`contact-input transition-all ${
+            error
+              ? "!border-rose-400 !bg-rose-50/20 focus:!border-rose-500 focus:!ring-2 focus:!ring-rose-500/15"
+              : success
+              ? "!border-emerald-400 !bg-emerald-50/15 focus:!border-emerald-500 focus:!ring-2 focus:!ring-emerald-500/15"
+              : ""
+          }`}
+        />
+        {success && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-emerald-500">
+            <CheckCircle2 size={16} />
+          </div>
+        )}
+        {error && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-rose-500">
+            <AlertCircle size={16} />
+          </div>
+        )}
+      </div>
+
+      {error && (
+        <div className="flex items-start gap-1.5 text-xs text-rose-600 font-medium mt-1.5">
+          <AlertCircle size={13} className="shrink-0 mt-0.5" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {suggestion && (
+        <div className="flex items-center justify-between p-2 rounded-lg bg-blue-50/90 border border-blue-200/80 text-xs text-blue-700 mt-2">
+          <div className="flex items-center gap-1.5 truncate">
+            <Sparkles size={13} className="text-blue-500 shrink-0" />
+            <span className="truncate">
+              Did you mean <strong className="font-semibold text-blue-900">{suggestion}</strong>?
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => onApplySuggestion && onApplySuggestion(suggestion)}
+            className="font-bold underline text-blue-700 hover:text-blue-900 shrink-0 ml-2 text-[11px]"
+          >
+            Fix typo
+          </button>
+        </div>
+      )}
     </div>
   );
 }

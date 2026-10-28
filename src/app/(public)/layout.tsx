@@ -1,8 +1,9 @@
-import React from "react";
+import React, { Suspense } from "react";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import PageTransition from "@/components/animations/page-transition";
 import CookieBanner from "@/components/common/cookie-banner";
+import VisitorTracker from "@/components/common/visitor-tracker";
 import dynamic from "next/dynamic";
 
 const ChatBot = dynamic(() => import("@/components/chatbot/chat-bot"), { ssr: false });
@@ -14,6 +15,11 @@ export default function PublicLayout({
 }) {
   return (
     <div className="public-theme min-h-screen">
+      {/* Telemetry & visitor analytics tracker */}
+      <Suspense fallback={null}>
+        <VisitorTracker />
+      </Suspense>
+
       {/* Persistent navigation */}
       <Navbar />
 
