@@ -69,53 +69,81 @@ const sessionBuffer = g.__fidaSessionBuffer;
 
 let isFlushing = false;
 
-async function flushSessionToDb(session: BufferedSession): Promise<void> {
+async function flushBatchToDb(sessions: BufferedSession[]): Promise<void> {
+  if (sessions.length === 0) return;
   const pool = await getDbConnection();
   const req = pool.request();
-  req.input("sessionId", session.sessionId);
-  req.input("visitorId", session.visitorId);
-  req.input("ipCountry", session.ipCountry);
-  req.input("ipCity", session.ipCity);
-  req.input("deviceType", session.deviceType);
-  req.input("browser", session.browser);
-  req.input("os", session.os);
-  req.input("referrer", session.referrer);
-  req.input("landingPage", session.landingPage);
-  req.input("lastPage", session.lastPage);
-  req.input("pageCount", session.pageCount);
-  req.input("totalDuration", session.totalDuration);
-  req.input("maxScroll", session.maxScroll);
-  req.input("pagesJson", JSON.stringify(session.pages));
+
+  const formatted = sessions.map((s) => ({
+    sessionId: s.sessionId,
+    visitorId: s.visitorId,
+    ipCountry: s.ipCountry,
+    ipCity: s.ipCity,
+    deviceType: s.deviceType,
+    browser: s.browser,
+    os: s.os,
+    referrer: s.referrer,
+    landingPage: s.landingPage,
+    lastPage: s.lastPage,
+    pageCount: s.pageCount,
+    totalDuration: s.totalDuration,
+    maxScroll: s.maxScroll,
+    pagesJson: JSON.stringify(s.pages),
+  }));
+
+  req.input("batchJson", JSON.stringify(formatted));
 
   await req.query(`
-    IF NOT EXISTS (SELECT 1 FROM visitor_sessions WHERE session_id = @sessionId)
-    BEGIN
-      INSERT INTO visitor_sessions (
+    MERGE INTO visitor_sessions AS target
+    USING (
+      SELECT
+        sessionId, visitorId, ipCountry, ipCity,
+        deviceType, browser, os, referrer, landingPage,
+        lastPage, pageCount, totalDuration, maxScroll, pagesJson
+      FROM OPENJSON(@batchJson)
+      WITH (
+        sessionId VARCHAR(64) '$.sessionId',
+        visitorId VARCHAR(64) '$.visitorId',
+        ipCountry NVARCHAR(100) '$.ipCountry',
+        ipCity NVARCHAR(100) '$.ipCity',
+        deviceType NVARCHAR(50) '$.deviceType',
+        browser NVARCHAR(100) '$.browser',
+        os NVARCHAR(100) '$.os',
+        referrer NVARCHAR(500) '$.referrer',
+        landingPage NVARCHAR(500) '$.landingPage',
+        lastPage NVARCHAR(500) '$.lastPage',
+        pageCount INT '$.pageCount',
+        totalDuration INT '$.totalDuration',
+        maxScroll INT '$.maxScroll',
+        pagesJson NVARCHAR(MAX) '$.pagesJson'
+      )
+    ) AS source
+    ON target.session_id = source.sessionId
+    WHEN MATCHED THEN
+      UPDATE SET
+        target.ended_at = SYSUTCDATETIME(),
+        target.last_page = source.lastPage,
+        target.page_count = source.pageCount,
+        target.total_duration = source.totalDuration,
+        target.max_scroll = source.maxScroll,
+        target.pages_json = source.pagesJson
+    WHEN NOT MATCHED THEN
+      INSERT (
         session_id, visitor_id, ip_country, ip_city,
         device_type, browser, os, referrer, landing_page,
         last_page, page_count, total_duration, max_scroll,
         started_at, ended_at, pages_json
       ) VALUES (
-        @sessionId, @visitorId, @ipCountry, @ipCity,
-        @deviceType, @browser, @os, @referrer, @landingPage,
-        @lastPage, @pageCount, @totalDuration, @maxScroll,
-        SYSUTCDATETIME(), SYSUTCDATETIME(), @pagesJson
+        source.sessionId, source.visitorId, source.ipCountry, source.ipCity,
+        source.deviceType, source.browser, source.os, source.referrer, source.landingPage,
+        source.lastPage, source.pageCount, source.totalDuration, source.maxScroll,
+        SYSUTCDATETIME(), SYSUTCDATETIME(), source.pagesJson
       );
-    END
-    ELSE
-    BEGIN
-      UPDATE visitor_sessions
-      SET ended_at = SYSUTCDATETIME(),
-          last_page = @lastPage,
-          page_count = @pageCount,
-          total_duration = @totalDuration,
-          max_scroll = @maxScroll,
-          pages_json = @pagesJson
-      WHERE session_id = @sessionId;
-    END
   `);
 
-  session.isDirty = false;
+  for (const s of sessions) {
+    s.isDirty = false;
+  }
 }
 
 export async function flushAllDirtySessions(): Promise<number> {
@@ -127,6 +155,7 @@ export async function flushAllDirtySessions(): Promise<number> {
     const dirtyList: BufferedSession[] = [];
     const now = Date.now();
     const staleThreshold = 30 * 60 * 1000; // 30 minutes inactivity
+    const MAX_BUFFERED_SESSIONS = 25000;
 
     for (const [id, session] of sessionBuffer.entries()) {
       if (session.isDirty) {
@@ -136,12 +165,25 @@ export async function flushAllDirtySessions(): Promise<number> {
       }
     }
 
-    for (const session of dirtyList) {
+    // High traffic memory guard: evict clean inactive sessions if buffer exceeds threshold
+    if (sessionBuffer.size > MAX_BUFFERED_SESSIONS) {
+      for (const [id, s] of sessionBuffer.entries()) {
+        if (!s.isDirty && now - s.lastActive > 5 * 60 * 1000) {
+          sessionBuffer.delete(id);
+          if (sessionBuffer.size <= MAX_BUFFERED_SESSIONS * 0.75) break;
+        }
+      }
+    }
+
+    // Flush dirty sessions in bulk batches of 50 (1 single MERGE query per batch)
+    const BATCH_SIZE = 50;
+    for (let i = 0; i < dirtyList.length; i += BATCH_SIZE) {
+      const chunk = dirtyList.slice(i, i + BATCH_SIZE);
       try {
-        await flushSessionToDb(session);
-        flushedCount++;
+        await flushBatchToDb(chunk);
+        flushedCount += chunk.length;
       } catch (err) {
-        console.error(`[Tracking Buffer] Error flushing session ${session.sessionId}:`, err);
+        console.error(`[Tracking Buffer] Error flushing batch of ${chunk.length} sessions:`, err);
       }
     }
   } finally {
@@ -151,13 +193,13 @@ export async function flushAllDirtySessions(): Promise<number> {
   return flushedCount;
 }
 
-// Background worker: Flush dirty sessions to DB every 10 seconds
+// Background worker: Flush dirty sessions to DB in batches every 15 seconds
 if (!g.__fidaFlushTimer) {
   g.__fidaFlushTimer = setInterval(() => {
     flushAllDirtySessions().catch((err) => {
       console.error("[Tracking Buffer] Scheduled flush failed:", err);
     });
-  }, 10000);
+  }, 15000);
 }
 
 export class TrackingService {
@@ -295,13 +337,9 @@ export class TrackingService {
       session.isDirty = true;
     }
 
-    // If user leaves the page or buffer gets large (>25 dirty items), flush immediately
-    if (payload.action === "page_leave" || sessionBuffer.size > 25) {
-      flushSessionToDb(session).catch((err) => {
-        console.error(`[Tracking] Immediate flush failed for session ${sessionId}:`, err);
-      });
-    }
-
+    // Ingested 100% into in-memory buffer.
+    // ZERO database queries are executed on incoming visitor traffic.
+    // Background worker flushes batched dirty sessions to DB every 15s.
     return true;
   }
 }
