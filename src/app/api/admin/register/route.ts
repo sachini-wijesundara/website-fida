@@ -1,14 +1,28 @@
 export const dynamic = "force-dynamic";
-import { NextResponse } from "next/server";
-import { getDbConnection, sql } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+import { getDbConnection } from "@/lib/db";
 import { hashPassword } from "@/auth/password";
+import { getSession } from "@/auth/session";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    // Only logged-in administrators can create new admin accounts
+    const session = getSession(request);
+    if (!session || !session.isAuthenticated) {
+      return NextResponse.json(
+        { message: "Unauthorized. Admin authentication required to register users." },
+        { status: 401 }
+      );
+    }
+
     const { username, password } = await request.json();
 
     if (!username || !password) {
       return NextResponse.json({ message: "Username and password are required" }, { status: 400 });
+    }
+
+    if (password.length < 8) {
+      return NextResponse.json({ message: "Password must be at least 8 characters long" }, { status: 400 });
     }
 
     const pool = await getDbConnection();
@@ -35,7 +49,6 @@ export async function POST(request: Request) {
 
   } catch (error: any) {
     console.error("Register API Error:", error);
-    // Handle RAISERROR from SQL Server
     const statusCode = error.message.includes('already taken') ? 409 : 500;
     return NextResponse.json({ message: error.message }, { status: statusCode });
   }

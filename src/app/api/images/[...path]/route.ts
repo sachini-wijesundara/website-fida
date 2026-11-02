@@ -90,12 +90,18 @@ export async function GET(
     let relativePath = params.path.join("/");
     relativePath = decodeURIComponent(relativePath);
 
+    // Directory traversal prevention
+    if (relativePath.includes("..") || relativePath.startsWith("/") || relativePath.includes("\\")) {
+      return new NextResponse(null, { status: 400 });
+    }
+
     const acceptHeader = request.headers.get("accept") || "";
     const wantsWebp = acceptHeader.includes("image/webp") || acceptHeader.includes("*/*");
 
     const CACHE_HEADERS: Record<string, string> = {
       "Cache-Control": "public, max-age=31536000, immutable",
       "Vary": "Accept",
+      "X-Content-Type-Options": "nosniff",
     };
 
     const etagVariant = wantsWebp ? "webp" : "orig";
@@ -152,6 +158,12 @@ export async function GET(
       setCached(relativePath, "orig", origBuffer, origMimeType, true);
     }
 
+    // SVG XSS Defense Header
+    const extraHeaders: Record<string, string> = {};
+    if (origMimeType.includes("svg")) {
+      extraHeaders["Content-Security-Policy"] = "default-src 'none'; style-src 'unsafe-inline'";
+    }
+
     // ── 3. Optimize to WebP if supported and image is compressable ────────
     if (wantsWebp && (origMimeType === "image/png" || origMimeType === "image/jpeg" || origMimeType === "image/jpg")) {
       try {
@@ -166,6 +178,7 @@ export async function GET(
           headers: {
             "Content-Type": "image/webp",
             ...CACHE_HEADERS,
+            ...extraHeaders,
             ETag: etag,
           },
         });
@@ -180,6 +193,7 @@ export async function GET(
       headers: {
         "Content-Type": origMimeType,
         ...CACHE_HEADERS,
+        ...extraHeaders,
         ETag: etag,
       },
     });

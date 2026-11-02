@@ -4,6 +4,35 @@ import { NextResponse } from "next/server";
 import { detectClientInfo } from "@/lib/tracking/detector";
 import { TrackingService, TrackPayload } from "@/services/tracking/tracking.service";
 
+// In-Memory Rate Limiter against spam/DDoS attacks on telemetry endpoint
+const ipRateMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(ip: string, maxRequests = 120, windowMs = 60000): boolean {
+  const now = Date.now();
+  const entry = ipRateMap.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    ipRateMap.set(ip, { count: 1, resetAt: now + windowMs });
+    return false;
+  }
+
+  entry.count++;
+  if (entry.count > maxRequests) {
+    return true; // Exceeded limit
+  }
+
+  // Periodic pruning of expired entries
+  if (ipRateMap.size > 5000) {
+    for (const [key, val] of ipRateMap.entries()) {
+      if (now > val.resetAt) {
+        ipRateMap.delete(key);
+      }
+    }
+  }
+
+  return false;
+}
+
 export async function POST(request: Request) {
   try {
     let body: any = null;
@@ -29,9 +58,14 @@ export async function POST(request: Request) {
     // Extract client metadata (IP, OS, browser, device, geo, bot status)
     const clientInfo = detectClientInfo(request, body.timezone);
 
-    // If bot, acknowledge with 200 without writing to DB
+    // 1. Bot & Scanner Protection
     if (clientInfo.isBot) {
       return NextResponse.json({ ok: true, ignored: "bot" }, { status: 200 });
+    }
+
+    // 2. DDoS & Telemetry Flooding Protection (max 120 requests/minute per IP)
+    if (checkRateLimit(clientInfo.ip)) {
+      return NextResponse.json({ ok: true, ignored: "rate_limit" }, { status: 200 });
     }
 
     const payload: TrackPayload = {
@@ -46,6 +80,9 @@ export async function POST(request: Request) {
       durationSeconds: body.durationSeconds ?? body.duration_seconds,
       incrementalSeconds: body.incrementalSeconds ?? body.incremental_seconds,
       maxScrollPercent: body.maxScrollPercent ?? body.max_scroll_percent,
+      scrollSpeed: body.scrollSpeed ?? body.scroll_speed,
+      scrollPace: body.scrollPace ?? body.scroll_pace,
+      totalScrolledPx: body.totalScrolledPx ?? body.total_scrolled_px,
       sections: body.sections,
     };
 
@@ -58,7 +95,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (error: any) {
     console.error("Telemetry ingestion error:", error);
-    // Don't crash client tracking calls
     return NextResponse.json({ ok: false, error: "Ingestion failed" }, { status: 200 });
   }
 }

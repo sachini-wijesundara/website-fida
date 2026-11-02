@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDbConnection } from "@/lib/db";
 import { sendMail } from "@/services/email/email.service";
 import { getNewsletterWelcomeHtml } from "@/services/email/templates/newsletter-welcome";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 async function ensureTable() {
   const pool = await getDbConnection();
@@ -19,6 +20,21 @@ async function ensureTable() {
 
 export async function POST(request: Request) {
   try {
+    const clientIp = getClientIp(request);
+
+    // Spam Protection: Max 5 subscribe attempts per 15 minutes per IP
+    const { allowed } = rateLimit(`newsletter:${clientIp}`, {
+      limit: 5,
+      windowMs: 15 * 60 * 1000,
+    });
+
+    if (!allowed) {
+      return NextResponse.json(
+        { message: "Too many subscription attempts. Please wait a few minutes before trying again." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const email = (body.email || "").trim().toLowerCase();
 

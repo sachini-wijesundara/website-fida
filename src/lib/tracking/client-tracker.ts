@@ -10,6 +10,9 @@ export interface TrackEventData {
   durationSeconds?: number;
   incrementalSeconds?: number;
   maxScrollPercent?: number;
+  scrollSpeed?: number;
+  scrollPace?: "reading" | "skimming" | "rapid" | "static";
+  totalScrolledPx?: number;
   sections?: Array<{
     sectionId: string;
     timeVisibleSeconds: number;

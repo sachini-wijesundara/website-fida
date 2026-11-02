@@ -34,10 +34,21 @@ const nextConfig = {
     contentDispositionType: 'attachment',
   },
 
-  // ── HTTP caching headers ─────────────────────────────
+  // ── HTTP caching & Security headers ───────────────────
   async headers() {
+    const securityHeaders = [
+      { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+    ];
+
     if (process.env.NODE_ENV === 'development') {
       return [
+        {
+          source: '/(.*)',
+          headers: securityHeaders,
+        },
         {
           source: '/_next/static/:path*',
           headers: [
@@ -46,7 +57,13 @@ const nextConfig = {
         },
       ];
     }
+
     return [
+      {
+        // Global security headers for all routes
+        source: '/(.*)',
+        headers: securityHeaders,
+      },
       {
         // Long-lived cache for Next.js static assets (hashed filenames)
         source: '/_next/static/:path*',

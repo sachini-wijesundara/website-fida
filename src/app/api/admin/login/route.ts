@@ -1,12 +1,28 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
-import { getDbConnection, sql } from "@/lib/db";
+import { getDbConnection } from "@/lib/db";
 import { verifyPassword } from "@/auth/password";
 import { setSessionCookie } from "@/auth/cookies";
 import { logAction } from "@/auth/audit";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
+    const clientIp = getClientIp(request);
+
+    // Rate Limiting: Max 5 failed attempts per 15 minutes per IP
+    const { allowed, remaining } = rateLimit(`login:${clientIp}`, {
+      limit: 5,
+      windowMs: 15 * 60 * 1000,
+    });
+
+    if (!allowed) {
+      return NextResponse.json(
+        { message: "Too many login attempts. Please try again after 15 minutes." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { username, password } = body;
 
@@ -37,7 +53,8 @@ export async function POST(request: Request) {
           user: { id: user.id, username: user.username },
         });
 
-        setSessionCookie(response.cookies);
+        // Set cryptographically signed session cookie
+        setSessionCookie(response.cookies, user.id);
         logAction(user.id, "login", { username: user.username });
 
         return response;

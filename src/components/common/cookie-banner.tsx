@@ -319,17 +319,17 @@ export default function CookieBanner() {
                 <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0 w-full lg:w-auto">
                   <button
                     type="button"
-                    onClick={handleAllowSelection}
+                    onClick={handleAllowAll}
                     className="flex-1 sm:flex-initial px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-[#0047e1] to-[#167fa8] text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-500/20 hover:brightness-110 active:scale-[0.98] transition-all text-center whitespace-nowrap cursor-pointer"
                   >
-                    Allow selection
+                    Allow all
                   </button>
                   <button
                     type="button"
-                    onClick={handleAllowAll}
+                    onClick={handleAllowSelection}
                     className="flex-1 sm:flex-initial px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl border border-[#052c65]/15 bg-white text-[#052c65] text-xs sm:text-sm font-bold hover:bg-[#052c65]/5 active:scale-[0.98] transition-all text-center whitespace-nowrap cursor-pointer"
                   >
-                    Allow all
+                    Allow selection
                   </button>
                   <button
                     type="button"

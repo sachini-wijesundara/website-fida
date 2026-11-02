@@ -22,6 +22,10 @@ interface PageViewState {
   dwellSeconds: number;
   lastPingSeconds: number;
   maxScrollPercent: number;
+  totalScrollDistance: number;
+  activeScrollTimeMs: number;
+  lastScrollTop: number;
+  lastScrollTimestamp: number;
   sectionTimes: Record<string, number>;
 }
 
@@ -50,7 +54,7 @@ export default function VisitorTracker() {
     };
   }, []);
 
-  // 2. Dispatch helper
+  // 2. Dispatch helper with Scroll Velocity & Pace
   const flushCurrentView = useCallback(
     (action: "ping" | "page_leave", useBeacon = false) => {
       const state = activeViewRef.current;
@@ -64,6 +68,23 @@ export default function VisitorTracker() {
         timeVisibleSeconds,
       }));
 
+      // Calculate scroll velocity (pixels per second) and reading engagement pace
+      const activeScrollSeconds = Math.max(0.3, state.activeScrollTimeMs / 1000);
+      const scrollSpeed = state.totalScrollDistance > 0
+        ? Math.round(state.totalScrollDistance / activeScrollSeconds)
+        : 0;
+
+      let scrollPace: "reading" | "skimming" | "rapid" | "static" = "static";
+      if (state.totalScrollDistance > 120) {
+        if (scrollSpeed < 380) {
+          scrollPace = "reading"; // Slow deliberate reading pace
+        } else if (scrollSpeed < 1200) {
+          scrollPace = "skimming"; // Moderate / scanning headings
+        } else {
+          scrollPace = "rapid"; // Quick flick / jumping to footer
+        }
+      }
+
       const payload: TrackEventData = {
         action,
         sessionId: state.sessionId,
@@ -76,6 +97,9 @@ export default function VisitorTracker() {
         durationSeconds: state.dwellSeconds,
         incrementalSeconds: incremental,
         maxScrollPercent: state.maxScrollPercent,
+        scrollSpeed,
+        scrollPace,
+        totalScrolledPx: Math.round(state.totalScrollDistance),
         sections: sections.length > 0 ? sections : undefined,
       };
 
@@ -83,8 +107,7 @@ export default function VisitorTracker() {
     },
     []
   );
-
-  // 3. Page View Initializer & Teardown
+// 3. Page View Initializer & Teardown
   useEffect(() => {
     // Exclude internal admin dashboard
     if (!pathname || pathname.startsWith("/admin") || !hasConsent) {
@@ -107,6 +130,10 @@ export default function VisitorTracker() {
       dwellSeconds: 0,
       lastPingSeconds: 0,
       maxScrollPercent: 0,
+      totalScrollDistance: 0,
+      activeScrollTimeMs: 0,
+      lastScrollTop: typeof window !== "undefined" ? window.scrollY || document.documentElement.scrollTop : 0,
+      lastScrollTimestamp: typeof performance !== "undefined" ? performance.now() : Date.now(),
       sectionTimes: {},
     };
 
@@ -126,12 +153,17 @@ export default function VisitorTracker() {
       durationSeconds: 0,
       incrementalSeconds: 0,
       maxScrollPercent: 0,
+      scrollSpeed: 0,
+      scrollPace: "static",
+      totalScrolledPx: 0,
     };
     sendTrackingEvent(enterPayload);
 
     // Initial Scroll calculation
     const calculateScroll = () => {
-      if (!activeViewRef.current) return;
+      const state = activeViewRef.current;
+      if (!state) return;
+
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const winHeight = window.innerHeight;
       const docHeight = Math.max(
@@ -142,10 +174,24 @@ export default function VisitorTracker() {
       );
       const scrollable = docHeight - winHeight;
       const percent = scrollable > 0 ? Math.round((scrollTop / scrollable) * 100) : 100;
-      activeViewRef.current.maxScrollPercent = Math.max(
-        activeViewRef.current.maxScrollPercent,
-        Math.min(100, Math.max(0, percent))
-      );
+      state.maxScrollPercent = Math.max(state.maxScrollPercent, Math.min(100, Math.max(0, percent)));
+
+      // Measure dynamic scroll velocity & distance
+      const now = performance.now();
+      const deltaY = Math.abs(scrollTop - state.lastScrollTop);
+      const deltaT = now - state.lastScrollTimestamp;
+
+      if (deltaY > 2) {
+        state.totalScrollDistance += deltaY;
+        if (deltaT > 0 && deltaT < 450) {
+          state.activeScrollTimeMs += deltaT;
+        } else {
+          state.activeScrollTimeMs += 60;
+        }
+      }
+
+      state.lastScrollTop = scrollTop;
+      state.lastScrollTimestamp = now;
     };
 
     calculateScroll();
@@ -223,7 +269,7 @@ export default function VisitorTracker() {
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("beforeunload", handleBeforeUnload);
 
-    // Teardown when route changes or component unmounts
+    // Teardown when route changes or component unmounts (ensures exact page-to-page tracking)
     return () => {
       clearInterval(interval);
       if (scrollRaf) cancelAnimationFrame(scrollRaf);

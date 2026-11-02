@@ -1,13 +1,20 @@
 export const dynamic = "force-dynamic";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getDbConnection, sql } from "@/lib/db";
-
 import { validateCareerApplication } from "@/schemas/career.schema";
 import { sendMail } from "@/services/email/email.service";
 import { getApplicationConfirmationHtml } from "@/services/email/templates/application-confirmation";
+import { getSession } from "@/auth/session";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Admin authentication required to view applicant data
+    const session = getSession(request);
+    if (!session || !session.isAuthenticated) {
+      return NextResponse.json({ message: "Unauthorized. Admin session required." }, { status: 401 });
+    }
+
     const pool = await getDbConnection();
     const result = await pool.request().execute('sp_GetAllJobApplications');
     return NextResponse.json(result.recordset);
@@ -16,8 +23,23 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const clientIp = getClientIp(request);
+
+    // Rate Limiting: Max 5 applications per 15 minutes per IP
+    const { allowed } = rateLimit(`career:${clientIp}`, {
+      limit: 5,
+      windowMs: 15 * 60 * 1000,
+    });
+
+    if (!allowed) {
+      return NextResponse.json(
+        { message: "Too many application attempts. Please wait a few minutes before submitting again." },
+        { status: 429 }
+      );
+    }
+
     const data = await request.json();
 
     // Server-side validation
@@ -53,8 +75,13 @@ export async function POST(request: Request) {
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
   try {
+    const session = getSession(request);
+    if (!session || !session.isAuthenticated) {
+      return NextResponse.json({ message: "Unauthorized. Admin session required." }, { status: 401 });
+    }
+
     const data = await request.json();
     const { id, status } = data;
     
@@ -81,8 +108,13 @@ export async function PUT(request: Request) {
   }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
   try {
+    const session = getSession(request);
+    if (!session || !session.isAuthenticated) {
+      return NextResponse.json({ message: "Unauthorized. Admin session required." }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     

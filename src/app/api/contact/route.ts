@@ -1,12 +1,37 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getDbConnection } from "@/lib/db";
-import * as sql from "mssql";
 import { validateContact } from "@/schemas/contact.schema";
 import { sendMail } from "@/services/email/email.service";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
+
+function escapeHtml(str: any): string {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 export async function POST(request: Request) {
   try {
+    const clientIp = getClientIp(request);
+
+    // Spam & Flooding Protection: Max 5 submissions per 10 minutes per IP
+    const { allowed } = rateLimit(`contact:${clientIp}`, {
+      limit: 5,
+      windowMs: 10 * 60 * 1000,
+    });
+
+    if (!allowed) {
+      return NextResponse.json(
+        { message: "Too many submissions from your connection. Please wait a few minutes before submitting again." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     
     // Server-side input validation
@@ -47,27 +72,33 @@ export async function POST(request: Request) {
         (@name, @email, @company, @service, @message, @employee_count, @division_status, @company_count)
       `);
 
-    // --- Send Email Notification using centralized service ---
+    // --- Send Email Notification using centralized service with HTML escaping to prevent XSS ---
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safeCompany = escapeHtml(company);
+    const safeCategory = escapeHtml(category);
+    const safeMessage = escapeHtml(message);
+
     const htmlContent = `
       <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
         <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">New Website Inquiry</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Company:</strong> ${company || 'N/A'}</p>
-        <p><strong>Interest:</strong> ${category}</p>
+        <p><strong>Name:</strong> ${safeName}</p>
+        <p><strong>Email:</strong> ${safeEmail}</p>
+        <p><strong>Company:</strong> ${safeCompany || 'N/A'}</p>
+        <p><strong>Interest:</strong> ${safeCategory}</p>
         
         ${category === 'Smart HRIS' ? `
           <div style="background: #f0f7ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
             <h4 style="margin-top: 0; color: #1e40af;">Product Specific Details:</h4>
-            <p><strong>Employees:</strong> ${employee_count}</p>
-            <p><strong>Multi-Company:</strong> ${company_count}</p>
-            <p><strong>Hierarchy/Designations:</strong> ${division_status}</p>
+            <p><strong>Employees:</strong> ${escapeHtml(employee_count)}</p>
+            <p><strong>Multi-Company:</strong> ${escapeHtml(company_count)}</p>
+            <p><strong>Hierarchy/Designations:</strong> ${escapeHtml(division_status)}</p>
           </div>
         ` : ''}
 
         <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
           <p><strong>Message:</strong></p>
-          <p style="white-space: pre-wrap; background: #f9fafb; padding: 15px; border-radius: 8px;">${message}</p>
+          <p style="white-space: pre-wrap; background: #f9fafb; padding: 15px; border-radius: 8px;">${safeMessage}</p>
         </div>
         
         <p style="font-size: 11px; color: #9ca3af; margin-top: 30px; text-align: center;">
@@ -78,7 +109,7 @@ export async function POST(request: Request) {
 
     await sendMail({
       to: "info@fidaglobal.com",
-      subject: `New Lead: ${category} from ${name}`,
+      subject: `New Lead: ${safeCategory} from ${safeName}`,
       replyTo: email,
       html: htmlContent
     });

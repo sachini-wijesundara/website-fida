@@ -47,6 +47,8 @@ interface TopPageItem {
   unique_sessions: number;
   avg_duration: number;
   avg_scroll: number;
+  avg_scroll_speed?: number;
+  avg_scrolled_px?: number;
 }
 
 interface ScrollFunnelData {
@@ -55,6 +57,7 @@ interface ScrollFunnelData {
   scroll_50: number | null;
   scroll_75: number | null;
   scroll_90: number | null;
+  avg_scroll_speed?: number;
 }
 
 interface LeadBreakdown {
@@ -105,6 +108,9 @@ interface RecentPageItem {
   page_title?: string;
   duration_seconds: number;
   max_scroll_percent: number;
+  scroll_speed_px?: number;
+  scroll_pace?: "reading" | "skimming" | "rapid" | "static";
+  total_scrolled_px?: number;
   entered_at: string;
 }
 
@@ -442,6 +448,11 @@ export default function AnalyticsDashboard() {
             </h3>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">How far visitors scroll on pages</p>
           </div>
+          {scrollFunnel.avg_scroll_speed && scrollFunnel.avg_scroll_speed > 0 ? (
+            <span className="text-[11px] font-mono text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-full border border-cyan-500/20 font-bold">
+              ⚡ ~{scrollFunnel.avg_scroll_speed} px/s avg velocity
+            </span>
+          ) : null}
 
           <div className="space-y-4 my-6">
             {[
@@ -651,6 +662,7 @@ export default function AnalyticsDashboard() {
                 <th className="pb-3 font-bold text-right">Unique Sessions</th>
                 <th className="pb-3 font-bold text-right">Avg Dwell Time</th>
                 <th className="pb-3 font-bold text-right">Avg Scroll</th>
+                <th className="pb-3 font-bold text-right">Scroll Velocity</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -668,10 +680,10 @@ export default function AnalyticsDashboard() {
                   <td className="py-3.5 px-4 text-right font-mono text-emerald-400 font-bold">
                     {formatDuration(page.avg_duration)}
                   </td>
-                  <td className="py-3.5 pl-4 text-right">
+                  <td className="py-3.5 px-4 text-right">
                     <div className="inline-flex items-center gap-2 font-mono text-white/80">
                       <span>{Math.round(page.avg_scroll)}%</span>
-                      <div className="w-16 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                      <div className="w-14 h-1.5 rounded-full bg-white/10 overflow-hidden">
                         <div
                           className="h-full rounded-full bg-[var(--green)]"
                           style={{ width: `${Math.min(100, Math.round(page.avg_scroll))}%` }}
@@ -679,11 +691,23 @@ export default function AnalyticsDashboard() {
                       </div>
                     </div>
                   </td>
+                  <td className="py-3.5 pl-4 text-right">
+                    {page.avg_scroll_speed && page.avg_scroll_speed > 0 ? (
+                      <div className="inline-flex items-center gap-1.5 font-mono text-white/80">
+                        <span className="font-bold text-white">{Math.round(page.avg_scroll_speed)} px/s</span>
+                        <span className="text-[10px] text-cyan-400 font-sans">
+                          {page.avg_scroll_speed < 380 ? "📖 Reading" : page.avg_scroll_speed < 1200 ? "⚡ Skimming" : "⏩ Rapid"}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="font-mono text-[11px] text-[var(--text-muted)]">—</span>
+                    )}
+                  </td>
                 </tr>
               ))}
               {topPages.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-[var(--text-muted)]">
+                  <td colSpan={6} className="py-8 text-center text-[var(--text-muted)]">
                     No page navigation data recorded yet for this time window.
                   </td>
                 </tr>
@@ -897,41 +921,80 @@ export default function AnalyticsDashboard() {
                         Chronological Page Journey ({pages.length} total pages):
                       </p>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {pages.map((p, pIdx) => (
-                          <div
-                            key={p.view_id || pIdx}
-                            className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5 space-y-2 text-xs"
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="px-2 py-0.5 rounded-md bg-emerald-400/10 text-emerald-400 font-bold text-[10px] font-mono">
-                                Step {pIdx + 1}
-                              </span>
-                              <span className="text-[10px] text-[var(--text-muted)] font-mono">
-                                {formatDuration(p.duration_seconds)} dwell
-                              </span>
-                            </div>
-                            <div>
-                              <p className="font-mono font-bold text-white text-sm truncate">{p.page_path}</p>
-                              {p.page_title && (
-                                <p className="text-[11px] text-[var(--text-muted)] mt-0.5 line-clamp-1 italic">
-                                  &ldquo;{p.page_title}&rdquo;
-                                </p>
-                              )}
-                            </div>
-                            <div className="space-y-1 pt-1">
-                              <div className="flex justify-between text-[10px] text-white/70">
-                                <span>Scroll Reach</span>
-                                <span className="font-bold text-emerald-400">{Math.round(p.max_scroll_percent)}%</span>
+                        {pages.map((p, pIdx) => {
+                          const speed = p.scroll_speed_px || 0;
+                          const pace = p.scroll_pace || (speed > 0 ? (speed < 380 ? "reading" : speed < 1200 ? "skimming" : "rapid") : "static");
+                          const scrolledPx = p.total_scrolled_px || 0;
+
+                          return (
+                            <div
+                              key={p.view_id || pIdx}
+                              className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5 space-y-2.5 text-xs"
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="px-2 py-0.5 rounded-md bg-emerald-400/10 text-emerald-400 font-bold text-[10px] font-mono">
+                                  Step {pIdx + 1}
+                                </span>
+                                <span className="text-[10px] text-[var(--text-muted)] font-mono">
+                                  {formatDuration(p.duration_seconds)} dwell
+                                </span>
                               </div>
-                              <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
-                                <div
-                                  className="h-full rounded-full bg-[var(--green)]"
-                                  style={{ width: `${Math.min(100, Math.round(p.max_scroll_percent))}%` }}
-                                />
+                              <div>
+                                <p className="font-mono font-bold text-white text-sm truncate">{p.page_path}</p>
+                                {p.page_title && (
+                                  <p className="text-[11px] text-[var(--text-muted)] mt-0.5 line-clamp-1 italic">
+                                    &ldquo;{p.page_title}&rdquo;
+                                  </p>
+                                )}
+                              </div>
+                              <div className="space-y-1 pt-1">
+                                <div className="flex justify-between text-[10px] text-white/70">
+                                  <span>Scroll Reach</span>
+                                  <span className="font-bold text-emerald-400">{Math.round(p.max_scroll_percent)}%</span>
+                                </div>
+                                <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full bg-[var(--green)]"
+                                    style={{ width: `${Math.min(100, Math.round(p.max_scroll_percent))}%` }}
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Detailed Scroll Velocity & Reading Pace */}
+                              <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px]">
+                                <div className="flex items-center gap-1">
+                                  {pace === "reading" ? (
+                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-semibold">
+                                      📖 Reading Pace
+                                    </span>
+                                  ) : pace === "skimming" ? (
+                                    <span className="px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 font-semibold">
+                                      ⚡ Skimming
+                                    </span>
+                                  ) : pace === "rapid" ? (
+                                    <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 font-semibold">
+                                      ⏩ Rapid Scan
+                                    </span>
+                                  ) : (
+                                    <span className="px-2 py-0.5 rounded-full bg-white/5 text-[var(--text-muted)]">
+                                      ⏹️ Static View
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-right font-mono text-[var(--text-muted)]">
+                                  {speed > 0 ? (
+                                    <span className="text-white/90 font-bold">{speed} px/s</span>
+                                  ) : (
+                                    <span>0 px/s</span>
+                                  )}
+                                  {scrolledPx > 0 && (
+                                    <span className="ml-1 text-[9px] opacity-70">({scrolledPx.toLocaleString()} px)</span>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </motion.div>
                   )}
