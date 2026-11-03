@@ -66,7 +66,7 @@ export async function POST(request: Request) {
       // Notify internal team of new subscriber
       try {
         await sendMail({
-          to: "info@fidaglobal.com",
+          to: process.env.CONTACT_RECEIVER_EMAIL || "info@fidaglobal.com",
           subject: `New Newsletter Subscriber: ${email}`,
           html: `
             <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">

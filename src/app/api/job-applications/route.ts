@@ -61,15 +61,20 @@ export async function POST(request: NextRequest) {
       .input('Message', message || null)
       .execute('sp_CreateJobApplication');
 
-    // Send confirmation email
-    const confirmationHtml = getApplicationConfirmationHtml(fullName, position);
-    await sendMail({
-      to: email,
-      subject: `Application Received: ${position} at FIDA Global`,
-      html: confirmationHtml
-    });
+    // Send confirmation email asynchronously
+    try {
+      const confirmationHtml = getApplicationConfirmationHtml(fullName, position);
+      await sendMail({
+        to: email,
+        subject: `Application Received: ${position} at FIDA Global`,
+        html: confirmationHtml
+      });
+    } catch (mailErr) {
+      console.warn("Mail send notice for job application:", mailErr);
+    }
 
-    return NextResponse.json({ message: "Application submitted successfully", applicationId: result.recordset[0].ApplicationId });
+    const appId = result.recordset?.[0]?.ApplicationId ?? null;
+    return NextResponse.json({ message: "Application submitted successfully", applicationId: appId });
   } catch (error: any) {
     return NextResponse.json({ message: "Failed to submit application", error: error.message }, { status: 500 });
   }
