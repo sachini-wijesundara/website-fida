@@ -4,10 +4,16 @@ import { NextResponse } from "next/server";
 import { detectClientInfo } from "@/lib/tracking/detector";
 import { TrackingService, TrackPayload } from "@/services/tracking/tracking.service";
 
+// 1x1 transparent GIF binary buffer for CDN tracking beacons (Method 2)
+const TRANSPARENT_GIF_BYTES = Buffer.from(
+  "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+  "base64"
+);
+
 // In-Memory Rate Limiter against spam/DDoS attacks on telemetry endpoint
 const ipRateMap = new Map<string, { count: number; resetAt: number }>();
 
-function checkRateLimit(ip: string, maxRequests = 120, windowMs = 60000): boolean {
+function checkRateLimit(ip: string, maxRequests = 180, windowMs = 60000): boolean {
   const now = Date.now();
   const entry = ipRateMap.get(ip);
 
@@ -33,6 +39,89 @@ function checkRateLimit(ip: string, maxRequests = 120, windowMs = 60000): boolea
   return false;
 }
 
+function parseRawItem(raw: any): TrackPayload | null {
+  if (!raw || typeof raw !== "object") return null;
+
+  const sessionId = raw.sessionId || raw.session_id;
+  const visitorId = raw.visitorId || raw.visitor_id;
+  if (!sessionId || !visitorId) return null;
+
+  return {
+    action: raw.action || "ping",
+    sessionId,
+    visitorId,
+    viewId: raw.viewId || raw.view_id,
+    pagePath: raw.pagePath || raw.page_path,
+    pageTitle: raw.pageTitle || raw.page_title,
+    referrer: raw.referrer,
+    landingPage: raw.landingPage || raw.landing_page,
+    durationSeconds: raw.durationSeconds ?? raw.duration_seconds,
+    incrementalSeconds: raw.incrementalSeconds ?? raw.incremental_seconds,
+    maxScrollPercent: raw.maxScrollPercent ?? raw.max_scroll_percent,
+    scrollSpeed: raw.scrollSpeed ?? raw.scroll_speed,
+    scrollPace: raw.scrollPace ?? raw.scroll_pace,
+    totalScrolledPx: raw.totalScrolledPx ?? raw.total_scrolled_px,
+    sections: raw.sections,
+  };
+}
+
+/**
+ * GET Handler - CDN 1x1 Transparent GIF Beacon (Method 2)
+ * Allows CDNs (Cloudflare, AWS CloudFront) to log hits or respond with 0 origin DB load.
+ */
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const sessionId = searchParams.get("sid");
+    const visitorId = searchParams.get("vid");
+
+    if (sessionId && visitorId) {
+      const clientInfo = detectClientInfo(request, searchParams.get("tz") || undefined);
+
+      if (!clientInfo.isBot && !checkRateLimit(clientInfo.ip)) {
+        const payload: TrackPayload = {
+          action: (searchParams.get("act") as any) || "ping",
+          sessionId,
+          visitorId,
+          viewId: searchParams.get("vi"),
+          pagePath: searchParams.get("p") || "/",
+          pageTitle: searchParams.get("t"),
+          referrer: searchParams.get("ref"),
+          landingPage: searchParams.get("lp") || undefined,
+          durationSeconds: Number(searchParams.get("dur") || 0),
+          incrementalSeconds: Number(searchParams.get("inc") || 0),
+          maxScrollPercent: Number(searchParams.get("sc") || 0),
+          scrollSpeed: Number(searchParams.get("spd") || 0),
+          scrollPace: (searchParams.get("pace") as any) || "static",
+          totalScrolledPx: Number(searchParams.get("px") || 0),
+        };
+
+        await TrackingService.processEvent(payload, clientInfo);
+      }
+    }
+
+    return new NextResponse(TRANSPARENT_GIF_BYTES, {
+      status: 200,
+      headers: {
+        "Content-Type": "image/gif",
+        "Content-Length": TRANSPARENT_GIF_BYTES.length.toString(),
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  } catch (err) {
+    return new NextResponse(TRANSPARENT_GIF_BYTES, {
+      status: 200,
+      headers: { "Content-Type": "image/gif" },
+    });
+  }
+}
+
+/**
+ * POST Handler - Telemetry Ingestion (supports single event or Edge CDN batch array)
+ */
 export async function POST(request: Request) {
   try {
     let body: any = null;
@@ -51,7 +140,7 @@ export async function POST(request: Request) {
       }
     }
 
-    if (!body || typeof body !== "object") {
+    if (!body) {
       return NextResponse.json({ ok: false, message: "Invalid payload" }, { status: 400 });
     }
 
@@ -63,36 +152,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, ignored: "bot" }, { status: 200 });
     }
 
-    // 2. DDoS & Telemetry Flooding Protection (max 120 requests/minute per IP)
+    // 2. DDoS & Telemetry Flooding Protection
     if (checkRateLimit(clientInfo.ip)) {
       return NextResponse.json({ ok: true, ignored: "rate_limit" }, { status: 200 });
     }
 
-    const payload: TrackPayload = {
-      action: body.action || "ping",
-      sessionId: body.sessionId || body.session_id,
-      visitorId: body.visitorId || body.visitor_id,
-      viewId: body.viewId || body.view_id,
-      pagePath: body.pagePath || body.page_path,
-      pageTitle: body.pageTitle || body.page_title,
-      referrer: body.referrer,
-      landingPage: body.landingPage || body.landing_page,
-      durationSeconds: body.durationSeconds ?? body.duration_seconds,
-      incrementalSeconds: body.incrementalSeconds ?? body.incremental_seconds,
-      maxScrollPercent: body.maxScrollPercent ?? body.max_scroll_percent,
-      scrollSpeed: body.scrollSpeed ?? body.scroll_speed,
-      scrollPace: body.scrollPace ?? body.scroll_pace,
-      totalScrolledPx: body.totalScrolledPx ?? body.total_scrolled_px,
-      sections: body.sections,
-    };
+    // 3. Process either an array of events (from Edge CDN worker) or single browser event
+    const rawItems: any[] = Array.isArray(body) ? body : [body];
+    let ingestedCount = 0;
 
-    if (!payload.sessionId || !payload.visitorId) {
+    for (const raw of rawItems) {
+      const payload = parseRawItem(raw);
+      if (payload) {
+        await TrackingService.processEvent(payload, clientInfo);
+        ingestedCount++;
+      }
+    }
+
+    if (ingestedCount === 0) {
       return NextResponse.json({ ok: false, message: "Missing sessionId or visitorId" }, { status: 400 });
     }
 
-    await TrackingService.processEvent(payload, clientInfo);
-
-    return NextResponse.json({ ok: true }, { status: 200 });
+    return NextResponse.json({ ok: true, count: ingestedCount }, { status: 200 });
   } catch (error: any) {
     console.error("Telemetry ingestion error:", error);
     return NextResponse.json({ ok: false, error: "Ingestion failed" }, { status: 200 });
@@ -104,7 +185,7 @@ export async function OPTIONS() {
     status: 204,
     headers: {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     },
   });

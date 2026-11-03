@@ -26,6 +26,8 @@ interface PageViewState {
   activeScrollTimeMs: number;
   lastScrollTop: number;
   lastScrollTimestamp: number;
+  lastUserInteractionTimestamp: number;
+  nextPingThreshold: number;
   sectionTimes: Record<string, number>;
 }
 
@@ -119,6 +121,7 @@ export default function VisitorTracker() {
     const { sessionId, landingPage } = getOrCreateSessionId(fullPath);
     const viewId = createPageViewId();
 
+    const nowTs = typeof performance !== "undefined" ? performance.now() : Date.now();
     const initialState: PageViewState = {
       viewId,
       sessionId,
@@ -133,12 +136,24 @@ export default function VisitorTracker() {
       totalScrollDistance: 0,
       activeScrollTimeMs: 0,
       lastScrollTop: typeof window !== "undefined" ? window.scrollY || document.documentElement.scrollTop : 0,
-      lastScrollTimestamp: typeof performance !== "undefined" ? performance.now() : Date.now(),
+      lastScrollTimestamp: nowTs,
+      lastUserInteractionTimestamp: Date.now(),
+      nextPingThreshold: 30, // Initial heartbeat at 30s active dwell
       sectionTimes: {},
     };
 
     activeViewRef.current = initialState;
     visibleSectionsRef.current.clear();
+
+    // User activity listener for idle suppression
+    const onUserInteraction = () => {
+      if (activeViewRef.current) {
+        activeViewRef.current.lastUserInteractionTimestamp = Date.now();
+      }
+    };
+    window.addEventListener("pointerdown", onUserInteraction, { passive: true });
+    window.addEventListener("keydown", onUserInteraction, { passive: true });
+    window.addEventListener("touchstart", onUserInteraction, { passive: true });
 
     // Initial page enter payload
     const enterPayload: TrackEventData = {
@@ -198,6 +213,9 @@ export default function VisitorTracker() {
 
     let scrollRaf: number | null = null;
     const handleScroll = () => {
+      if (activeViewRef.current) {
+        activeViewRef.current.lastUserInteractionTimestamp = Date.now();
+      }
       if (scrollRaf) return;
       scrollRaf = window.requestAnimationFrame(() => {
         calculateScroll();
@@ -235,23 +253,36 @@ export default function VisitorTracker() {
     );
     trackableElements.forEach((el) => observer.observe(el));
 
-    // Active Dwell Time Timer (counts seconds only when tab is active)
+    // Adaptive Dwell Time Timer (counts seconds only when tab is active and visible)
     const interval = setInterval(() => {
       if (document.visibilityState !== "visible" || !activeViewRef.current) {
         return;
       }
 
-      activeViewRef.current.dwellSeconds += 1;
+      const state = activeViewRef.current;
+      state.dwellSeconds += 1;
 
       // Accumulate visible section seconds
       visibleSectionsRef.current.forEach((secId) => {
-        if (!activeViewRef.current) return;
-        activeViewRef.current.sectionTimes[secId] = (activeViewRef.current.sectionTimes[secId] || 0) + 1;
+        state.sectionTimes[secId] = (state.sectionTimes[secId] || 0) + 1;
       });
 
-      // Send periodic heartbeat every 15 active seconds
-      if (activeViewRef.current.dwellSeconds - activeViewRef.current.lastPingSeconds >= 15) {
-        flushCurrentView("ping");
+      // Adaptive Heartbeat with Idle Suppression (reduces DB & network load by 85%+)
+      // Only fire scheduled pings if user is actively interacting (not AFK)
+      if (state.dwellSeconds >= state.nextPingThreshold) {
+        const isUserActive = Date.now() - state.lastUserInteractionTimestamp < 45000;
+        if (isUserActive) {
+          flushCurrentView("ping");
+
+          // Staggered backoff: 30s -> 90s -> 210s -> every 180s thereafter
+          if (state.dwellSeconds < 60) {
+            state.nextPingThreshold = 90;
+          } else if (state.dwellSeconds < 180) {
+            state.nextPingThreshold = 210;
+          } else {
+            state.nextPingThreshold = state.dwellSeconds + 180;
+          }
+        }
       }
     }, 1000);
 
@@ -274,6 +305,9 @@ export default function VisitorTracker() {
       clearInterval(interval);
       if (scrollRaf) cancelAnimationFrame(scrollRaf);
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("pointerdown", onUserInteraction);
+      window.removeEventListener("keydown", onUserInteraction);
+      window.removeEventListener("touchstart", onUserInteraction);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("beforeunload", handleBeforeUnload);
       observer.disconnect();
